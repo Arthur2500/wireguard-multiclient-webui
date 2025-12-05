@@ -1,0 +1,94 @@
+.user-list-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.users-table-container {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.users-table th {
+  background: #f9f9f9;
+  font-weight: 600;
+  color: #333;
+}
+
+.users-table tr.disabled {
+  opacity: 0.5;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.badge-admin {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-user {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.user-form {
+  padding: 20px;
+}
+
+.user-form .form-group {
+  margin-bottom: 20px;
+}
+
+.user-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.user-form input,
+.user-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.user-form input:focus,
+.user-form select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.user-form input:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.user-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}

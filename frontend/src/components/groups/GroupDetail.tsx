@@ -1,0 +1,247 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import groupService from '../../services/group.service';
+import clientService from '../../services/client.service';
+import { Group, Client } from '../../types';
+import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
+import './GroupDetail.css';
+
+const GroupDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [group, setGroup] = useState<Group | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showConfig, setShowConfig] = useState(false);
+  const [serverConfig, setServerConfig] = useState('');
+
+  const loadData = useCallback(async () => {
+    try {
+      const [groupData, clientsData] = await Promise.all([
+        groupService.getById(Number(id)),
+        clientService.getByGroup(Number(id)),
+      ]);
+      setGroup(groupData);
+      setClients(clientsData);
+    } catch (err) {
+      setError('Failed to load group data');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadData();
+    }
+  }, [id, loadData]);
+
+  const handleShowConfig = async () => {
+    try {
+      const config = await groupService.getConfig(Number(id));
+      setServerConfig(config.config);
+      setShowConfig(true);
+    } catch (err) {
+      setError('Failed to load server config');
+    }
+  };
+
+  const handleDownloadConfig = async () => {
+    try {
+      const config = await groupService.getConfig(Number(id));
+      downloadFile(config.config, config.filename);
+    } catch (err) {
+      setError('Failed to download config');
+    }
+  };
+
+  const handleDeleteClient = async (clientId: number) => {
+    if (!window.confirm('Are you sure you want to delete this client?')) return;
+    
+    try {
+      await clientService.delete(clientId);
+      setClients(clients.filter(c => c.id !== clientId));
+    } catch (err) {
+      setError('Failed to delete client');
+    }
+  };
+
+  const handleToggleClientActive = async (client: Client) => {
+    try {
+      const updated = await clientService.update(client.id, { is_active: !client.is_active });
+      setClients(clients.map(c => c.id === client.id ? updated : c));
+    } catch (err) {
+      setError('Failed to update client');
+    }
+  };
+
+  const handleDownloadClientConfig = async (clientId: number) => {
+    try {
+      const config = await clientService.getConfig(clientId);
+      downloadFile(config.config, config.filename);
+    } catch (err) {
+      setError('Failed to download client config');
+    }
+  };
+
+  if (loading) return <div className="loading">Loading...</div>;
+  if (!group) return <div className="error">Group not found</div>;
+
+  return (
+    <div className="group-detail">
+      <div className="page-header">
+        <div>
+          <Link to="/groups" className="back-link">← Back to Groups</Link>
+          <h1>{group.name}</h1>
+          {group.description && <p className="description">{group.description}</p>}
+        </div>
+        <div className="header-actions">
+          <button onClick={handleShowConfig} className="btn-secondary">View Config</button>
+          <button onClick={handleDownloadConfig} className="btn-secondary">Download Config</button>
+          <Link to={`/groups/${id}/edit`} className="btn-primary">Edit Group</Link>
+        </div>
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="group-info-cards">
+        <div className="info-card">
+          <h3>Network</h3>
+          <dl>
+            <dt>IP Range</dt>
+            <dd className="mono">{group.ip_range}</dd>
+            <dt>Server IP</dt>
+            <dd className="mono">{group.server_ip}</dd>
+            <dt>Port</dt>
+            <dd>{group.listen_port}</dd>
+          </dl>
+        </div>
+        
+        <div className="info-card">
+          <h3>Settings</h3>
+          <dl>
+            <dt>DNS</dt>
+            <dd>{group.dns}</dd>
+            <dt>Endpoint</dt>
+            <dd>{group.endpoint || 'Not set'}</dd>
+            <dt>MTU</dt>
+            <dd>{group.mtu}</dd>
+          </dl>
+        </div>
+        
+        <div className="info-card">
+          <h3>Options</h3>
+          <dl>
+            <dt>Keepalive</dt>
+            <dd>{group.persistent_keepalive}s</dd>
+            <dt>Client-to-Client</dt>
+            <dd>
+              <span className={`badge ${group.allow_client_to_client ? 'badge-success' : 'badge-warning'}`}>
+                {group.allow_client_to_client ? 'Enabled' : 'Disabled'}
+              </span>
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <div className="clients-section">
+        <div className="section-header">
+          <h2>Clients ({clients.length})</h2>
+          <Link to={`/groups/${id}/clients/new`} className="btn-primary">+ Add Client</Link>
+        </div>
+
+        {clients.length === 0 ? (
+          <div className="empty-state">
+            <p>No clients yet. Add your first WireGuard client!</p>
+          </div>
+        ) : (
+          <div className="clients-table-container">
+            <table className="clients-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>IP Address</th>
+                  <th>Status</th>
+                  <th>Peer Access</th>
+                  <th>Traffic</th>
+                  <th>Last Handshake</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {clients.map((client) => (
+                  <tr key={client.id} className={!client.is_active ? 'disabled' : ''}>
+                    <td>
+                      <span className="client-name">{client.name}</span>
+                      {client.description && (
+                        <span className="client-desc">{client.description}</span>
+                      )}
+                    </td>
+                    <td className="mono">{client.assigned_ip}</td>
+                    <td>
+                      <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
+                        {client.is_active ? 'Active' : 'Disabled'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${client.can_address_peers ? 'badge-success' : 'badge-warning'}`}>
+                        {client.can_address_peers ? 'Yes' : 'No'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="traffic">
+                        ↓ {formatBytes(client.total_received)} / ↑ {formatBytes(client.total_sent)}
+                      </span>
+                    </td>
+                    <td>{formatDate(client.last_handshake)}</td>
+                    <td className="actions">
+                      <button 
+                        onClick={() => handleDownloadClientConfig(client.id)} 
+                        className="btn-action"
+                      >
+                        📥 Config
+                      </button>
+                      <button 
+                        onClick={() => handleToggleClientActive(client)} 
+                        className="btn-action"
+                      >
+                        {client.is_active ? '🔒 Disable' : '🔓 Enable'}
+                      </button>
+                      <Link to={`/clients/${client.id}/edit`} className="btn-action">
+                        ✏️ Edit
+                      </Link>
+                      <button 
+                        onClick={() => handleDeleteClient(client.id)} 
+                        className="btn-action btn-danger"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {showConfig && (
+        <div className="modal-overlay" onClick={() => setShowConfig(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Server Configuration</h2>
+              <button onClick={() => setShowConfig(false)} className="modal-close">×</button>
+            </div>
+            <pre className="config-content">{serverConfig}</pre>
+            <div className="modal-footer">
+              <button onClick={handleDownloadConfig} className="btn-primary">Download</button>
+              <button onClick={() => setShowConfig(false)} className="btn-secondary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GroupDetail;
