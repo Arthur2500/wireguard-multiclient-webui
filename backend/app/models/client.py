@@ -15,8 +15,11 @@ class Client(db.Model):
     public_key = db.Column(db.String(44), nullable=False)
     preshared_key = db.Column(db.String(44))  # Optional for extra security
     
-    # IP configuration
+    # IPv4 configuration
     assigned_ip = db.Column(db.String(15), nullable=False)
+    
+    # IPv6 configuration (optional)
+    assigned_ip_v6 = db.Column(db.String(39))
     
     # Client-specific settings
     allowed_ips = db.Column(db.String(255), default='0.0.0.0/0, ::/0')  # What IPs client can route
@@ -48,6 +51,7 @@ class Client(db.Model):
             'description': self.description,
             'public_key': self.public_key,
             'assigned_ip': self.assigned_ip,
+            'assigned_ip_v6': self.assigned_ip_v6,
             'allowed_ips': self.allowed_ips,
             'can_address_peers': self.can_address_peers,
             'dns_override': self.dns_override,
@@ -71,13 +75,20 @@ class Client(db.Model):
         else:
             # Only route to server IP, not other clients
             allowed_ips = f"{group.server_ip}/32"
+            if group.server_ip_v6:
+                allowed_ips += f", {group.server_ip_v6}/128"
             if self.allowed_ips and '0.0.0.0/0' in self.allowed_ips:
                 # Also add internet routing
                 allowed_ips = '0.0.0.0/0, ::/0'
         
+        # Build Address line with IPv4 and optional IPv6
+        address = f"{self.assigned_ip}/{group.get_subnet_mask()}"
+        if self.assigned_ip_v6 and group.ip_range_v6:
+            address += f", {self.assigned_ip_v6}/{group.get_subnet_mask_v6()}"
+        
         config = f"""[Interface]
 PrivateKey = {self.private_key}
-Address = {self.assigned_ip}/{group.get_subnet_mask()}
+Address = {address}
 """
         
         if dns:

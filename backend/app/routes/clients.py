@@ -66,10 +66,15 @@ def create_client(group_id):
     if not name:
         return jsonify({'error': 'Name required'}), 400
     
-    # Get next available IP
+    # Get next available IPv4
     assigned_ip = group.get_next_available_ip()
     if not assigned_ip:
         return jsonify({'error': 'No available IP addresses in the group range'}), 400
+    
+    # Get next available IPv6 if the group has IPv6 configured
+    assigned_ip_v6 = None
+    if group.ip_range_v6:
+        assigned_ip_v6 = group.get_next_available_ip_v6()
     
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
@@ -86,6 +91,7 @@ def create_client(group_id):
         public_key=public_key,
         preshared_key=preshared_key,
         assigned_ip=assigned_ip,
+        assigned_ip_v6=assigned_ip_v6,
         allowed_ips=data.get('allowed_ips', '0.0.0.0/0, ::/0'),
         can_address_peers=data.get('can_address_peers', True),
         dns_override=data.get('dns_override'),

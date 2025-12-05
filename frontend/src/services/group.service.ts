@@ -5,6 +5,7 @@ interface CreateGroupData {
   name: string;
   description?: string;
   ip_range: string;
+  ip_range_v6?: string;
   listen_port?: number;
   dns?: string;
   endpoint?: string;
@@ -16,6 +17,7 @@ interface CreateGroupData {
 interface UpdateGroupData {
   name?: string;
   description?: string;
+  ip_range_v6?: string;
   dns?: string;
   endpoint?: string;
   persistent_keepalive?: number;

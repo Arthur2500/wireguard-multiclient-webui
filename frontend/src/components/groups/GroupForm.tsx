@@ -7,6 +7,7 @@ interface GroupFormData {
   name: string;
   description: string;
   ip_range: string;
+  ip_range_v6: string;
   listen_port: number;
   dns: string;
   endpoint: string;
@@ -24,6 +25,7 @@ const GroupForm: React.FC = () => {
     name: '',
     description: '',
     ip_range: '10.0.0.0/24',
+    ip_range_v6: '',
     listen_port: 51820,
     dns: '1.1.1.1, 8.8.8.8',
     endpoint: '',
@@ -41,6 +43,7 @@ const GroupForm: React.FC = () => {
         name: group.name,
         description: group.description || '',
         ip_range: group.ip_range,
+        ip_range_v6: group.ip_range_v6 || '',
         listen_port: group.listen_port,
         dns: group.dns,
         endpoint: group.endpoint || '',
@@ -131,7 +134,7 @@ const GroupForm: React.FC = () => {
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="ip_range">IP Range (CIDR) *</label>
+              <label htmlFor="ip_range">IPv4 Range (CIDR) *</label>
               <input
                 type="text"
                 id="ip_range"
@@ -142,9 +145,24 @@ const GroupForm: React.FC = () => {
                 placeholder="e.g., 10.0.0.0/24"
                 disabled={isEdit}
               />
-              {isEdit && <small className="help-text">IP range cannot be changed after creation</small>}
+              {isEdit && <small className="help-text">IPv4 range cannot be changed after creation</small>}
             </div>
 
+            <div className="form-group">
+              <label htmlFor="ip_range_v6">IPv6 Range (CIDR)</label>
+              <input
+                type="text"
+                id="ip_range_v6"
+                name="ip_range_v6"
+                value={formData.ip_range_v6}
+                onChange={handleChange}
+                placeholder="e.g., fd00::/64 (optional)"
+              />
+              <small className="help-text">Optional IPv6 range for dual-stack support</small>
+            </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="listen_port">Listen Port</label>
               <input

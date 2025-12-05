@@ -14,6 +14,8 @@ export interface Group {
   description: string | null;
   ip_range: string;
   server_ip: string;
+  ip_range_v6: string | null;
+  server_ip_v6: string | null;
   server_public_key: string;
   listen_port: number;
   dns: string;
@@ -33,6 +35,7 @@ export interface Client {
   description: string | null;
   public_key: string;
   assigned_ip: string;
+  assigned_ip_v6: string | null;
   allowed_ips: string;
   can_address_peers: boolean;
   dns_override: string | null;

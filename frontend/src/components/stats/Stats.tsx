@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import statsService from '../../services/stats.service';
 import { formatBytes } from '../../utils/helpers';
+import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3 } from 'lucide-react';
 import './Stats.css';
 
 interface SystemStats {
@@ -54,7 +55,7 @@ const Stats: React.FC = () => {
 
       <div className="stats-overview">
         <div className="stat-card">
-          <div className="stat-icon">👥</div>
+          <div className="stat-icon"><Users size={32} /></div>
           <div className="stat-content">
             <h3>{stats.total_users}</h3>
             <p>Total Users</p>
@@ -62,7 +63,7 @@ const Stats: React.FC = () => {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">📁</div>
+          <div className="stat-icon"><FolderOpen size={32} /></div>
           <div className="stat-content">
             <h3>{stats.total_groups}</h3>
             <p>Total Groups</p>
@@ -70,7 +71,7 @@ const Stats: React.FC = () => {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">💻</div>
+          <div className="stat-icon"><Monitor size={32} /></div>
           <div className="stat-content">
             <h3>{stats.total_clients}</h3>
             <p>Total Clients</p>
@@ -78,7 +79,7 @@ const Stats: React.FC = () => {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"><CheckCircle size={32} /></div>
           <div className="stat-content">
             <h3>{stats.active_clients}</h3>
             <p>Active Clients</p>
@@ -91,15 +92,15 @@ const Stats: React.FC = () => {
           <h3>Total Network Traffic</h3>
           <div className="traffic-details">
             <div className="traffic-item">
-              <span className="label">📥 Received</span>
+              <span className="label"><Download size={16} /> Received</span>
               <span className="value">{formatBytes(stats.total_received_bytes)}</span>
             </div>
             <div className="traffic-item">
-              <span className="label">📤 Sent</span>
+              <span className="label"><Upload size={16} /> Sent</span>
               <span className="value">{formatBytes(stats.total_sent_bytes)}</span>
             </div>
             <div className="traffic-item">
-              <span className="label">📊 Total</span>
+              <span className="label"><BarChart3 size={16} /> Total</span>
               <span className="value">
                 {formatBytes(stats.total_received_bytes + stats.total_sent_bytes)}
               </span>

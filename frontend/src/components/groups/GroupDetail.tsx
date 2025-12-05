@@ -4,6 +4,7 @@ import groupService from '../../services/group.service';
 import clientService from '../../services/client.service';
 import { Group, Client } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
+import { Download, Lock, Unlock, Pencil, Trash2 } from 'lucide-react';
 import './GroupDetail.css';
 
 const GroupDetail: React.FC = () => {
@@ -108,10 +109,18 @@ const GroupDetail: React.FC = () => {
         <div className="info-card">
           <h3>Network</h3>
           <dl>
-            <dt>IP Range</dt>
+            <dt>IPv4 Range</dt>
             <dd className="mono">{group.ip_range}</dd>
-            <dt>Server IP</dt>
+            <dt>Server IPv4</dt>
             <dd className="mono">{group.server_ip}</dd>
+            {group.ip_range_v6 && (
+              <>
+                <dt>IPv6 Range</dt>
+                <dd className="mono">{group.ip_range_v6}</dd>
+                <dt>Server IPv6</dt>
+                <dd className="mono">{group.server_ip_v6}</dd>
+              </>
+            )}
             <dt>Port</dt>
             <dd>{group.listen_port}</dd>
           </dl>
@@ -177,7 +186,10 @@ const GroupDetail: React.FC = () => {
                         <span className="client-desc">{client.description}</span>
                       )}
                     </td>
-                    <td className="mono">{client.assigned_ip}</td>
+                    <td className="mono">
+                      {client.assigned_ip}
+                      {client.assigned_ip_v6 && <><br />{client.assigned_ip_v6}</>}
+                    </td>
                     <td>
                       <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
                         {client.is_active ? 'Active' : 'Disabled'}
@@ -198,23 +210,26 @@ const GroupDetail: React.FC = () => {
                       <button 
                         onClick={() => handleDownloadClientConfig(client.id)} 
                         className="btn-action"
+                        title="Download Config"
                       >
-                        📥 Config
+                        <Download size={14} /> Config
                       </button>
                       <button 
                         onClick={() => handleToggleClientActive(client)} 
                         className="btn-action"
+                        title={client.is_active ? 'Disable' : 'Enable'}
                       >
-                        {client.is_active ? '🔒 Disable' : '🔓 Enable'}
+                        {client.is_active ? <><Lock size={14} /> Disable</> : <><Unlock size={14} /> Enable</>}
                       </button>
-                      <Link to={`/clients/${client.id}/edit`} className="btn-action">
-                        ✏️ Edit
+                      <Link to={`/clients/${client.id}/edit`} className="btn-action" title="Edit">
+                        <Pencil size={14} /> Edit
                       </Link>
                       <button 
                         onClick={() => handleDeleteClient(client.id)} 
                         className="btn-action btn-danger"
+                        title="Delete"
                       >
-                        🗑️
+                        <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>

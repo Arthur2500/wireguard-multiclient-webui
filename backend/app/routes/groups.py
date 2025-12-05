@@ -62,13 +62,26 @@ def create_group():
     if not name or not ip_range:
         return jsonify({'error': 'Name and IP range required'}), 400
     
-    # Validate IP range
+    # Validate IPv4 range
     try:
         network = ipaddress.ip_network(ip_range, strict=False)
         # Get first usable IP for server
         server_ip = str(next(network.hosts()))
     except ValueError as e:
         return jsonify({'error': f'Invalid IP range: {str(e)}'}), 400
+    
+    # Validate optional IPv6 range
+    ip_range_v6 = data.get('ip_range_v6')
+    server_ip_v6 = None
+    if ip_range_v6:
+        try:
+            network_v6 = ipaddress.ip_network(ip_range_v6, strict=False)
+            if network_v6.version != 6:
+                return jsonify({'error': 'IPv6 range must be an IPv6 address'}), 400
+            # Get first usable IPv6 for server
+            server_ip_v6 = str(next(network_v6.hosts()))
+        except ValueError as e:
+            return jsonify({'error': f'Invalid IPv6 range: {str(e)}'}), 400
     
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
@@ -80,6 +93,8 @@ def create_group():
         server_public_key=public_key,
         ip_range=ip_range,
         server_ip=server_ip,
+        ip_range_v6=ip_range_v6,
+        server_ip_v6=server_ip_v6,
         listen_port=data.get('listen_port', 51820),
         dns=data.get('dns', '1.1.1.1, 8.8.8.8'),
         endpoint=data.get('endpoint', ''),
@@ -132,6 +147,25 @@ def update_group(group_id):
         group.mtu = data['mtu']
     if 'allow_client_to_client' in data:
         group.allow_client_to_client = data['allow_client_to_client']
+    
+    # Handle IPv6 range update (only if not already set or admin)
+    if 'ip_range_v6' in data:
+        ip_range_v6 = data['ip_range_v6']
+        if ip_range_v6:
+            try:
+                network_v6 = ipaddress.ip_network(ip_range_v6, strict=False)
+                if network_v6.version != 6:
+                    return jsonify({'error': 'IPv6 range must be an IPv6 address'}), 400
+                # Get first usable IPv6 for server if not already set
+                if not group.server_ip_v6:
+                    group.server_ip_v6 = str(next(network_v6.hosts()))
+                group.ip_range_v6 = ip_range_v6
+            except ValueError as e:
+                return jsonify({'error': f'Invalid IPv6 range: {str(e)}'}), 400
+        else:
+            # Allow clearing IPv6 settings
+            group.ip_range_v6 = None
+            group.server_ip_v6 = None
     
     # Only admin can change listen_port
     if 'listen_port' in data and user.is_admin():

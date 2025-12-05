@@ -4,6 +4,7 @@ import statsService from '../../services/stats.service';
 import groupService from '../../services/group.service';
 import { StatsOverview, Group, User } from '../../types';
 import { formatBytes } from '../../utils/helpers';
+import { FolderOpen, Monitor, CheckCircle, Users, Download, Upload, Plug } from 'lucide-react';
 import './Dashboard.css';
 
 interface DashboardProps {
@@ -52,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
       <div className="stats-cards">
         <div className="stat-card">
-          <div className="stat-icon">📁</div>
+          <div className="stat-icon"><FolderOpen size={32} /></div>
           <div className="stat-content">
             <h3>{stats?.total_groups || 0}</h3>
             <p>Total Groups</p>
@@ -60,7 +61,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">💻</div>
+          <div className="stat-icon"><Monitor size={32} /></div>
           <div className="stat-content">
             <h3>{stats?.total_clients || 0}</h3>
             <p>Total Clients</p>
@@ -68,7 +69,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"><CheckCircle size={32} /></div>
           <div className="stat-content">
             <h3>{stats?.active_clients || 0}</h3>
             <p>Active Clients</p>
@@ -77,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         
         {user?.role === 'admin' && (
           <div className="stat-card">
-            <div className="stat-icon">👥</div>
+            <div className="stat-icon"><Users size={32} /></div>
             <div className="stat-content">
               <h3>{stats?.total_users || 0}</h3>
               <p>Total Users</p>
@@ -88,11 +89,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
       <div className="traffic-stats">
         <div className="traffic-card">
-          <h3>📥 Data Received</h3>
+          <h3><Download size={18} /> Data Received</h3>
           <p>{formatBytes(stats?.total_received_bytes || 0)}</p>
         </div>
         <div className="traffic-card">
-          <h3>📤 Data Sent</h3>
+          <h3><Upload size={18} /> Data Sent</h3>
           <p>{formatBytes(stats?.total_sent_bytes || 0)}</p>
         </div>
       </div>
@@ -113,9 +114,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
               <Link to={`/groups/${group.id}`} key={group.id} className="group-card">
                 <h3>{group.name}</h3>
                 <p className="ip-range">{group.ip_range}</p>
+                {group.ip_range_v6 && <p className="ip-range-v6">{group.ip_range_v6}</p>}
                 <div className="group-meta">
-                  <span>👥 {group.client_count} clients</span>
-                  <span>🔌 Port {group.listen_port}</span>
+                  <span><Users size={14} /> {group.client_count} clients</span>
+                  <span><Plug size={14} /> Port {group.listen_port}</span>
                 </div>
               </Link>
             ))}

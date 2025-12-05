@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import authService from '../../services/auth.service';
+import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut } from 'lucide-react';
 import './Layout.css';
 
 interface LayoutProps {
@@ -28,31 +29,31 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
     <div className="layout">
       <nav className="sidebar">
         <div className="sidebar-header">
-          <h1>🔐 WireGuard</h1>
+          <h1><Shield size={24} /> WireGuard</h1>
           <span>Multi-Client WebUI</span>
         </div>
         
         <ul className="nav-menu">
           <li>
             <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>
-              📊 Dashboard
+              <LayoutDashboard size={18} /> Dashboard
             </Link>
           </li>
           <li>
             <Link to="/groups" className={isActive('/groups') ? 'active' : ''}>
-              📁 Groups
+              <FolderOpen size={18} /> Groups
             </Link>
           </li>
           {user?.role === 'admin' && (
             <>
               <li>
                 <Link to="/users" className={isActive('/users') ? 'active' : ''}>
-                  👥 Users
+                  <Users size={18} /> Users
                 </Link>
               </li>
               <li>
                 <Link to="/stats" className={isActive('/stats') ? 'active' : ''}>
-                  📈 Statistics
+                  <BarChart3 size={18} /> Statistics
                 </Link>
               </li>
             </>
@@ -68,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
             </div>
           </div>
           <button onClick={handleLogout} className="logout-btn">
-            Logout
+            <LogOut size={16} /> Logout
           </button>
         </div>
       </nav>
