@@ -1,5 +1,5 @@
 import pytest
-from app import create_app, db
+from app import create_app, db, limiter
 from app.models.user import User
 
 
@@ -7,6 +7,9 @@ from app.models.user import User
 def app():
     """Create application for testing."""
     app = create_app('testing')
+    
+    # Disable rate limiting for tests
+    limiter.enabled = False
     
     with app.app_context():
         db.create_all()

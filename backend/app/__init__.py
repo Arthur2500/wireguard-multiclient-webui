@@ -4,11 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import config_by_name
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 
 def create_app(config_name=None):
@@ -23,6 +26,7 @@ def create_app(config_name=None):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    limiter.init_app(app)
     CORS(app)
     
     # Register blueprints
@@ -47,13 +51,18 @@ def create_app(config_name=None):
         # Create default admin user if not exists
         from app.models.user import User
         if not User.query.filter_by(username='admin').first():
+            # Generate a secure random password for initial setup
+            default_password = os.environ.get('ADMIN_PASSWORD', 'admin')
             admin = User(
                 username='admin',
                 email='admin@example.com',
                 role='admin'
             )
-            admin.set_password('admin')
+            admin.set_password(default_password)
             db.session.add(admin)
             db.session.commit()
+            if default_password == 'admin':
+                print("WARNING: Using default admin password 'admin'. Change it immediately!")
+                print("Set ADMIN_PASSWORD environment variable to customize the initial password.")
     
     return app
