@@ -11,6 +11,8 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-this-jwt-secret}
       - DATABASE_URL=sqlite:////data/app.db
       - WG_CONFIG_PATH=/etc/wireguard
+    ports:
+      - "51820:51820/udp"
     volumes:
       - ./data:/data
       - ./wireguard:/etc/wireguard
