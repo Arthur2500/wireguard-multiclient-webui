@@ -15,7 +15,7 @@ groups_bp = Blueprint('groups', __name__)
 def get_groups():
     """Get all groups accessible to the user."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if user.is_admin():
         groups = Group.query.all()
@@ -33,9 +33,9 @@ def get_groups():
 def get_group(group_id):
     """Get a specific group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -50,7 +50,7 @@ def get_group(group_id):
 def create_group():
     """Create a new group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     data = request.get_json()
     if not data:
@@ -115,9 +115,9 @@ def create_group():
 def update_group(group_id):
     """Update a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -181,9 +181,9 @@ def update_group(group_id):
 def delete_group(group_id):
     """Delete a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -202,9 +202,9 @@ def delete_group(group_id):
 def get_group_config(group_id):
     """Get WireGuard server configuration for a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -226,9 +226,9 @@ def get_group_config(group_id):
 def get_group_members(group_id):
     """Get members of a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -243,9 +243,9 @@ def get_group_members(group_id):
 def add_group_member(group_id):
     """Add a member to a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -257,7 +257,7 @@ def add_group_member(group_id):
     if not data or 'user_id' not in data:
         return jsonify({'error': 'User ID required'}), 400
     
-    member = User.query.get(data['user_id'])
+    member = db.session.get(User, data['user_id'])
     if not member:
         return jsonify({'error': 'User not found'}), 404
     
@@ -275,9 +275,9 @@ def add_group_member(group_id):
 def remove_group_member(group_id, member_id):
     """Remove a member from a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -285,7 +285,7 @@ def remove_group_member(group_id, member_id):
     if group.owner_id != user_id and not user.is_admin():
         return jsonify({'error': 'Only owner can remove members'}), 403
     
-    member = User.query.get(member_id)
+    member = db.session.get(User, member_id)
     if not member:
         return jsonify({'error': 'User not found'}), 404
     

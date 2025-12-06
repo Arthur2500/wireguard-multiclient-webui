@@ -14,9 +14,9 @@ clients_bp = Blueprint('clients', __name__)
 def get_clients(group_id):
     """Get all clients in a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -32,9 +32,9 @@ def get_clients(group_id):
 def get_client(client_id):
     """Get a specific client."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -49,9 +49,9 @@ def get_client(client_id):
 def create_client(group_id):
     """Create a new client in a group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -110,9 +110,9 @@ def create_client(group_id):
 def update_client(client_id):
     """Update a client."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -147,9 +147,9 @@ def update_client(client_id):
 def delete_client(client_id):
     """Delete a client."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -167,9 +167,9 @@ def delete_client(client_id):
 def get_client_config(client_id):
     """Get WireGuard client configuration."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -187,9 +187,9 @@ def get_client_config(client_id):
 def download_client_config(client_id):
     """Download WireGuard client configuration as file."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -211,9 +211,9 @@ def download_client_config(client_id):
 def regenerate_keys(client_id):
     """Regenerate WireGuard keys for a client."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     

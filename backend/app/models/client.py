@@ -1,5 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
+
+
+def utc_now():
+    """Return timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class Client(db.Model):
@@ -35,8 +40,8 @@ class Client(db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
+    updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now)
     last_handshake = db.Column(db.DateTime)
     
     # Stats

@@ -1,5 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
+
+
+def utc_now():
+    """Return timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class Settings(db.Model):
@@ -10,7 +15,7 @@ class Settings(db.Model):
     key = db.Column(db.String(100), unique=True, nullable=False)
     value = db.Column(db.Text)
     description = db.Column(db.Text)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now)
     
     @staticmethod
     def get(key, default=None):

@@ -11,7 +11,15 @@ from config import config_by_name
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+
+# Configure rate limiter with explicit storage backend
+# Uses Redis if REDIS_URL is set, otherwise uses in-memory storage
+_storage_uri = os.environ.get('REDIS_URL', 'memory://')
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri=_storage_uri
+)
 
 
 def create_app(config_name=None):

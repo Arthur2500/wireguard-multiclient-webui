@@ -17,6 +17,18 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: wg-redis
+    restart: unless-stopped
+    networks:
+      - wg-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
@@ -28,6 +40,7 @@ services:
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-this-jwt-secret}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-wireguard}:${POSTGRES_PASSWORD:-wireguard}@db:5432/${POSTGRES_DB:-wireguard}
+      - REDIS_URL=redis://redis:6379/0
       - WG_CONFIG_PATH=/etc/wireguard
     volumes:
       - wireguard_configs:/etc/wireguard
@@ -35,6 +48,8 @@ services:
       - wg-network
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     cap_add:
       - NET_ADMIN

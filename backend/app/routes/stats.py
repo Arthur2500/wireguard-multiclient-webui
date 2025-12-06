@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.user import User
 from app.models.group import Group
 from app.models.client import Client
@@ -17,7 +17,7 @@ stats_bp = Blueprint('stats', __name__)
 def get_overview():
     """Get system overview statistics."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if user.is_admin():
         total_groups = Group.query.count()
@@ -63,9 +63,9 @@ def get_overview():
 def get_group_stats(group_id):
     """Get statistics for a specific group."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
     
@@ -107,9 +107,9 @@ def get_group_stats(group_id):
 def get_client_stats(client_id):
     """Get statistics for a specific client."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
-    client = Client.query.get(client_id)
+    client = db.session.get(Client, client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
     
@@ -162,7 +162,7 @@ def get_system_stats():
         })
     
     # Recent activity (last 24 hours)
-    yesterday = datetime.utcnow() - timedelta(hours=24)
+    yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
     recent_logs_count = ConnectionLog.query.filter(
         ConnectionLog.recorded_at >= yesterday
     ).count()

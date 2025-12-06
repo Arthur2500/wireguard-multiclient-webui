@@ -1,5 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
+
+
+def utc_now():
+    """Return timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class ConnectionLog(db.Model):
@@ -19,7 +24,7 @@ class ConnectionLog(db.Model):
     sent_bytes = db.Column(db.BigInteger, default=0)
     
     # Timestamp
-    recorded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    recorded_at = db.Column(db.DateTime, default=utc_now)
     
     # Relationships
     client = db.relationship('Client', backref='connection_logs')

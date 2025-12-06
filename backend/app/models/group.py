@@ -1,6 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 import ipaddress
+
+
+def utc_now():
+    """Return timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class Group(db.Model):
@@ -37,8 +42,8 @@ class Group(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
+    updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now)
     
     # Relationships
     clients = db.relationship('Client', backref='group', lazy='dynamic', cascade='all, delete-orphan')

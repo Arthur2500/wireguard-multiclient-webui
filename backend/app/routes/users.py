@@ -20,13 +20,13 @@ def get_users():
 def get_user(user_id):
     """Get a specific user."""
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = db.session.get(User, current_user_id)
     
     # Users can only view themselves unless admin
     if not current_user.is_admin() and current_user_id != user_id:
         return jsonify({'error': 'Access denied'}), 403
     
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
@@ -80,13 +80,13 @@ def create_user():
 def update_user(user_id):
     """Update a user."""
     current_user_id = get_jwt_identity()
-    current_user = User.query.get(current_user_id)
+    current_user = db.session.get(User, current_user_id)
     
     # Users can only update themselves unless admin
     if not current_user.is_admin() and current_user_id != user_id:
         return jsonify({'error': 'Access denied'}), 403
     
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
@@ -133,7 +133,7 @@ def delete_user(user_id):
     if current_user_id == user_id:
         return jsonify({'error': 'Cannot delete yourself'}), 400
     
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
     

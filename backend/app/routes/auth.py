@@ -42,7 +42,7 @@ def login():
 def get_current_user():
     """Get current user info."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({'error': 'User not found'}), 404
@@ -55,7 +55,7 @@ def get_current_user():
 def change_password():
     """Change user password."""
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     
     if not user:
         return jsonify({'error': 'User not found'}), 404

@@ -1,5 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db, bcrypt
+
+
+def utc_now():
+    """Return timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class User(db.Model):
@@ -12,8 +17,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')  # admin, user
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
+    updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now)
     
     # Relationships
     groups = db.relationship('Group', backref='owner', lazy='dynamic', foreign_keys='Group.owner_id')
