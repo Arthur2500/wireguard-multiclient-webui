@@ -6,6 +6,8 @@ import { Group, Client } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
 import { Download, Lock, Unlock, Pencil, Trash2 } from 'lucide-react';
 import GroupMembers from './GroupMembers';
+import GroupTrafficStats from '../stats/GroupTrafficStats';
+import '../stats/GroupTrafficStats.css';
 import './GroupDetail.css';
 
 const GroupDetail: React.FC = () => {
@@ -249,6 +251,11 @@ const GroupDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Group Traffic Statistics Section */}
+      {group && (
+        <GroupTrafficStats groupId={Number(id)} />
+      )}
 
       {/* Group Members Section */}
       {currentUser && group && (

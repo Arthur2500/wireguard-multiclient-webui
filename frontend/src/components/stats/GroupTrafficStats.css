@@ -1,0 +1,79 @@
+.group-traffic-stats {
+  background: var(--bg-primary);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px var(--shadow);
+  margin-top: 30px;
+}
+
+.traffic-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.traffic-section-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.traffic-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.traffic-loading,
+.no-traffic-data,
+.group-traffic-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.group-traffic-error {
+  color: var(--danger);
+}
+
+.traffic-graph-section {
+  margin-bottom: 25px;
+}
+
+.traffic-graph-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .group-traffic-stats {
+    padding: 15px;
+  }
+  
+  .traffic-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .traffic-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .traffic-controls .time-range-selector {
+    width: 100%;
+  }
+  
+  .traffic-controls .collect-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

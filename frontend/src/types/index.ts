@@ -159,3 +159,55 @@ export interface SystemStats {
   }>;
   recent_connections_24h: number;
 }
+
+// Traffic history types
+export interface TrafficDataPoint {
+  id: number;
+  client_id: number | null;
+  group_id: number | null;
+  received_bytes: number;
+  sent_bytes: number;
+  recorded_at: string | null;
+}
+
+export type TimeRange = '1h' | '1d' | '1w';
+
+export interface TotalTrafficHistory {
+  range: TimeRange;
+  data: TrafficDataPoint[];
+}
+
+export interface GroupTrafficData {
+  group_id: number;
+  group_name: string;
+  data: TrafficDataPoint[];
+}
+
+export interface GroupsTrafficHistory {
+  range: TimeRange;
+  groups: GroupTrafficData[];
+}
+
+export interface ClientTrafficData {
+  client_id: number;
+  client_name: string;
+  group_id: number;
+  data: TrafficDataPoint[];
+}
+
+export interface ClientsTrafficHistory {
+  range: TimeRange;
+  clients: ClientTrafficData[];
+}
+
+export interface GroupDetailedTrafficHistory {
+  range: TimeRange;
+  group_id: number;
+  group_name: string;
+  group_data: TrafficDataPoint[];
+  clients: Array<{
+    client_id: number;
+    client_name: string;
+    data: TrafficDataPoint[];
+  }>;
+}

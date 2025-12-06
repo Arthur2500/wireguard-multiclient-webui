@@ -1,20 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import statsService from '../../services/stats.service';
-import { SystemStats } from '../../types';
+import { 
+  SystemStats, 
+  TimeRange, 
+  TotalTrafficHistory, 
+  GroupsTrafficHistory, 
+  ClientsTrafficHistory 
+} from '../../types';
 import { formatBytes } from '../../utils/helpers';
-import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3 } from 'lucide-react';
+import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3, RefreshCw } from 'lucide-react';
+import { NetworkGraph, NetworkGraphMulti } from './NetworkGraph';
+import TimeRangeSelector from './TimeRangeSelector';
 import './Stats.css';
+
+type GraphView = 'total' | 'groups' | 'clients';
 
 const Stats: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Traffic graph state
+  const [timeRange, setTimeRange] = useState<TimeRange>('1h');
+  const [graphView, setGraphView] = useState<GraphView>('total');
+  const [totalTraffic, setTotalTraffic] = useState<TotalTrafficHistory | null>(null);
+  const [groupsTraffic, setGroupsTraffic] = useState<GroupsTrafficHistory | null>(null);
+  const [clientsTraffic, setClientsTraffic] = useState<ClientsTrafficHistory | null>(null);
+  const [trafficLoading, setTrafficLoading] = useState(false);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const data = await statsService.getSystemStats();
       setStats(data);
@@ -23,11 +37,105 @@ const Stats: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const loadTrafficData = useCallback(async () => {
+    setTrafficLoading(true);
+    try {
+      if (graphView === 'total') {
+        const data = await statsService.getTotalTraffic(timeRange);
+        setTotalTraffic(data);
+      } else if (graphView === 'groups') {
+        const data = await statsService.getGroupsTraffic(timeRange);
+        setGroupsTraffic(data);
+      } else if (graphView === 'clients') {
+        const data = await statsService.getClientsTraffic(timeRange);
+        setClientsTraffic(data);
+      }
+    } catch (err) {
+      console.error('Failed to load traffic data:', err);
+    } finally {
+      setTrafficLoading(false);
+    }
+  }, [timeRange, graphView]);
+
+  const handleCollectTraffic = async () => {
+    try {
+      await statsService.collectTraffic();
+      await loadTrafficData();
+    } catch (err) {
+      console.error('Failed to collect traffic:', err);
+    }
   };
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+
+  useEffect(() => {
+    loadTrafficData();
+  }, [loadTrafficData]);
+
+  // Auto-refresh traffic data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadTrafficData();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [loadTrafficData]);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!stats) return null;
+
+  const renderGraph = () => {
+    if (trafficLoading) {
+      return <div className="graph-loading">Loading graph data...</div>;
+    }
+
+    if (graphView === 'total' && totalTraffic) {
+      return (
+        <NetworkGraph
+          title="Total Network Traffic"
+          data={totalTraffic.data}
+          height={350}
+        />
+      );
+    }
+
+    if (graphView === 'groups' && groupsTraffic) {
+      const series = groupsTraffic.groups.map((g, index) => ({
+        name: g.group_name,
+        data: g.data,
+        color: '',
+      }));
+      return (
+        <NetworkGraphMulti
+          title="Traffic by Group"
+          series={series}
+          height={350}
+        />
+      );
+    }
+
+    if (graphView === 'clients' && clientsTraffic) {
+      const series = clientsTraffic.clients.map((c, index) => ({
+        name: c.client_name,
+        data: c.data,
+        color: '',
+      }));
+      return (
+        <NetworkGraphMulti
+          title="Traffic by Client"
+          series={series}
+          height={350}
+          showLegend={clientsTraffic.clients.length <= 10}
+        />
+      );
+    }
+
+    return <div className="no-data">No traffic data available. Click "Collect Now" to start recording.</div>;
+  };
 
   return (
     <div className="stats-container">
@@ -96,6 +204,46 @@ const Stats: React.FC = () => {
             <span className="number">{stats.recent_connections_24h}</span>
             <span className="label">Connections in last 24h</span>
           </div>
+        </div>
+      </div>
+
+      {/* Network Traffic Graphs Section */}
+      <div className="traffic-graphs-section">
+        <div className="section-header">
+          <h2>Network Traffic Graphs</h2>
+          <div className="graph-controls">
+            <div className="graph-view-selector">
+              <button 
+                className={`view-btn ${graphView === 'total' ? 'active' : ''}`}
+                onClick={() => setGraphView('total')}
+              >
+                Total
+              </button>
+              <button 
+                className={`view-btn ${graphView === 'groups' ? 'active' : ''}`}
+                onClick={() => setGraphView('groups')}
+              >
+                Groups
+              </button>
+              <button 
+                className={`view-btn ${graphView === 'clients' ? 'active' : ''}`}
+                onClick={() => setGraphView('clients')}
+              >
+                Clients
+              </button>
+            </div>
+            <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+            <button 
+              className="btn-secondary collect-btn" 
+              onClick={handleCollectTraffic}
+              title="Collect traffic data now"
+            >
+              <RefreshCw size={16} /> Collect Now
+            </button>
+          </div>
+        </div>
+        <div className="graph-container">
+          {renderGraph()}
         </div>
       </div>
 
