@@ -13,16 +13,16 @@ clients_bp = Blueprint('clients', __name__)
 @jwt_required()
 def get_clients(group_id):
     """Get all clients in a group."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     group = Group.query.get(group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
-    
+
     if not user.can_access_group(group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     clients = Client.query.filter_by(group_id=group_id).all()
     return jsonify([client.to_dict() for client in clients]), 200
 
@@ -31,16 +31,16 @@ def get_clients(group_id):
 @jwt_required()
 def get_client(client_id):
     """Get a specific client."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     return jsonify(client.to_dict()), 200
 
 
@@ -48,42 +48,42 @@ def get_client(client_id):
 @jwt_required()
 def create_client(group_id):
     """Create a new client in a group."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     group = Group.query.get(group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
-    
+
     if not user.can_access_group(group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
-    
+
     name = data.get('name')
     if not name:
         return jsonify({'error': 'Name required'}), 400
-    
+
     # Get next available IPv4
     assigned_ip = group.get_next_available_ip()
     if not assigned_ip:
         return jsonify({'error': 'No available IP addresses in the group range'}), 400
-    
+
     # Get next available IPv6 if the group has IPv6 configured
     assigned_ip_v6 = None
     if group.ip_range_v6:
         assigned_ip_v6 = group.get_next_available_ip_v6()
-    
+
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
-    
+
     # Generate preshared key if requested
     preshared_key = None
     if data.get('use_preshared_key', False):
         preshared_key = generate_preshared_key()
-    
+
     client = Client(
         name=name,
         description=data.get('description', ''),
@@ -98,10 +98,10 @@ def create_client(group_id):
         is_active=True,
         group_id=group_id
     )
-    
+
     db.session.add(client)
     db.session.commit()
-    
+
     return jsonify(client.to_dict()), 201
 
 
@@ -109,20 +109,20 @@ def create_client(group_id):
 @jwt_required()
 def update_client(client_id):
     """Update a client."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
-    
+
     # Update allowed fields
     if 'name' in data:
         client.name = data['name']
@@ -136,9 +136,9 @@ def update_client(client_id):
         client.dns_override = data['dns_override']
     if 'is_active' in data:
         client.is_active = data['is_active']
-    
+
     db.session.commit()
-    
+
     return jsonify(client.to_dict()), 200
 
 
@@ -146,19 +146,19 @@ def update_client(client_id):
 @jwt_required()
 def delete_client(client_id):
     """Delete a client."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     db.session.delete(client)
     db.session.commit()
-    
+
     return jsonify({'message': 'Client deleted'}), 200
 
 
@@ -166,16 +166,16 @@ def delete_client(client_id):
 @jwt_required()
 def get_client_config(client_id):
     """Get WireGuard client configuration."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     return jsonify({
         'config': client.generate_client_config(),
         'filename': f'{client.name.lower().replace(" ", "-")}.conf'
@@ -186,19 +186,19 @@ def get_client_config(client_id):
 @jwt_required()
 def download_client_config(client_id):
     """Download WireGuard client configuration as file."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     config = client.generate_client_config()
     filename = f'{client.name.lower().replace(" ", "-")}.conf'
-    
+
     return Response(
         config,
         mimetype='application/octet-stream',
@@ -210,25 +210,25 @@ def download_client_config(client_id):
 @jwt_required()
 def regenerate_keys(client_id):
     """Regenerate WireGuard keys for a client."""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     client = Client.query.get(client_id)
     if not client:
         return jsonify({'error': 'Client not found'}), 404
-    
+
     if not user.can_access_group(client.group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     # Generate new keys
     private_key, public_key = generate_keypair()
     client.private_key = private_key
     client.public_key = public_key
-    
+
     data = request.get_json() or {}
     if data.get('regenerate_preshared_key', False) or client.preshared_key:
         client.preshared_key = generate_preshared_key()
-    
+
     db.session.commit()
-    
+
     return jsonify(client.to_dict()), 200
