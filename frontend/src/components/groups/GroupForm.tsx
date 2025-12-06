@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import groupService from '../../services/group.service';
+import settingsService from '../../services/settings.service';
 import './GroupForm.css';
 
 interface GroupFormData {
@@ -35,6 +36,29 @@ const GroupForm: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [defaults, setDefaults] = useState<any>(null);
+
+  const loadDefaults = useCallback(async () => {
+    try {
+      const settingsDefaults = await settingsService.getDefaults();
+      setDefaults(settingsDefaults);
+
+      // Set initial form data with defaults from backend
+      if (!isEdit) {
+        setFormData(prev => ({
+          ...prev,
+          listen_port: parseInt(settingsDefaults.wg_default_port) || 51820,
+          dns: settingsDefaults.wg_default_dns || '1.1.1.1, 8.8.8.8',
+          endpoint: settingsDefaults.wg_default_endpoint || '',
+          persistent_keepalive: parseInt(settingsDefaults.wg_default_keepalive) || 25,
+          mtu: parseInt(settingsDefaults.wg_default_mtu) || 1420,
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to load defaults:', err);
+      // Fall back to hardcoded defaults on error
+    }
+  }, [isEdit]);
 
   const loadGroup = useCallback(async () => {
     try {
@@ -57,16 +81,17 @@ const GroupForm: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
+    loadDefaults();
     if (isEdit && id) {
       loadGroup();
     }
-  }, [id, isEdit, loadGroup]);
+  }, [id, isEdit, loadDefaults, loadGroup]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
               type === 'number' ? Number(value) : value,
     }));
   };
@@ -102,7 +127,7 @@ const GroupForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="group-form">
         <div className="form-section">
           <h2>Basic Information</h2>
-          
+
           <div className="form-group">
             <label htmlFor="name">Group Name *</label>
             <input
@@ -131,7 +156,7 @@ const GroupForm: React.FC = () => {
 
         <div className="form-section">
           <h2>Network Configuration</h2>
-          
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="ip_range">IPv4 Range (CIDR) *</label>
@@ -205,7 +230,7 @@ const GroupForm: React.FC = () => {
 
         <div className="form-section">
           <h2>Advanced Options</h2>
-          
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="persistent_keepalive">Persistent Keepalive (seconds)</label>
