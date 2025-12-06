@@ -1,3 +1,90 @@
+/* CSS Variables for theming - Red/White with Dark Mode */
+:root {
+  /* Light mode (default) - Red/White theme */
+  --color-primary: #dc2626;
+  --color-primary-dark: #b91c1c;
+  --color-primary-light: #ef4444;
+  --color-primary-gradient: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  
+  --color-secondary: #6b7280;
+  --color-secondary-dark: #4b5563;
+  
+  --color-background: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f3f4f6;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  
+  --color-border: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  
+  --color-success: #10b981;
+  --color-success-bg: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+  --color-info: #3b82f6;
+  --color-info-bg: #dbeafe;
+  
+  --color-sidebar: #1f2937;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-sidebar-active: rgba(220, 38, 38, 0.2);
+  --color-sidebar-text: rgba(255, 255, 255, 0.7);
+  --color-sidebar-text-active: #dc2626;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --color-primary: #ef4444;
+  --color-primary-dark: #dc2626;
+  --color-primary-light: #f87171;
+  --color-primary-gradient: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  
+  --color-secondary: #9ca3af;
+  --color-secondary-dark: #6b7280;
+  
+  --color-background: #111827;
+  --color-surface: #1f2937;
+  --color-surface-secondary: #374151;
+  
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  
+  --color-border: #374151;
+  --color-border-light: #4b5563;
+  
+  --color-success: #34d399;
+  --color-success-bg: #064e3b;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #78350f;
+  --color-danger: #f87171;
+  --color-danger-bg: #7f1d1d;
+  --color-info: #60a5fa;
+  --color-info-bg: #1e3a8a;
+  
+  --color-sidebar: #0f172a;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-sidebar-active: rgba(239, 68, 68, 0.2);
+  --color-sidebar-text: rgba(255, 255, 255, 0.7);
+  --color-sidebar-text-active: #ef4444;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +92,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 code {

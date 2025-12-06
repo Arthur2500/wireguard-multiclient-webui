@@ -5,7 +5,7 @@
 
 .sidebar {
   width: 250px;
-  background: #1a1a2e;
+  background: var(--color-sidebar);
   color: white;
   display: flex;
   flex-direction: column;
@@ -13,6 +13,7 @@
   top: 0;
   left: 0;
   bottom: 0;
+  transition: background-color 0.3s;
 }
 
 .sidebar-header {
@@ -46,21 +47,21 @@
   align-items: center;
   gap: 10px;
   padding: 12px 20px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-sidebar-text);
   text-decoration: none;
   transition: all 0.3s;
   border-left: 3px solid transparent;
 }
 
 .nav-menu li a:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-sidebar-hover);
   color: white;
 }
 
 .nav-menu li a.active {
-  background: rgba(102, 126, 234, 0.2);
-  color: #667eea;
-  border-left-color: #667eea;
+  background: var(--color-sidebar-active);
+  color: var(--color-sidebar-text-active);
+  border-left-color: var(--color-primary);
 }
 
 .sidebar-footer {
@@ -78,7 +79,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,7 +107,7 @@
   padding: 10px;
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   color: white;
   cursor: pointer;
   transition: background 0.3s;
@@ -120,11 +121,34 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Theme toggle button */
+.theme-toggle {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .main-content {
   flex: 1;
   margin-left: 250px;
-  background: #f5f6fa;
+  background: var(--color-background);
   min-height: 100vh;
+  transition: background-color 0.3s;
 }
 
 @media (max-width: 768px) {

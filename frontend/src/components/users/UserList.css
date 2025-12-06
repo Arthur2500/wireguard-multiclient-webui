@@ -5,10 +5,11 @@
 }
 
 .users-table-container {
-  background: white;
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s;
 }
 
 .users-table {
@@ -20,13 +21,13 @@
 .users-table td {
   padding: 15px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .users-table th {
-  background: #f9f9f9;
+  background: var(--color-surface-secondary);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .users-table tr.disabled {
@@ -35,17 +36,17 @@
 
 .user-name {
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .badge-admin {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--color-info-bg);
+  color: var(--color-info);
 }
 
 .badge-user {
-  background: #f5f5f5;
-  color: #666;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
 }
 
 .user-form {
@@ -60,28 +61,30 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .user-form input,
 .user-form select {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 16px;
   box-sizing: border-box;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .user-form input:focus,
 .user-form select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .user-form input:disabled {
-  background: #f5f5f5;
-  color: #999;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
 }
 
 .user-form .form-actions {
@@ -90,5 +93,5 @@
   gap: 15px;
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
 }

@@ -5,7 +5,7 @@
 }
 
 .back-link {
-  color: #667eea;
+  color: var(--color-primary);
   text-decoration: none;
   font-size: 14px;
 }
@@ -23,11 +23,11 @@
 
 .page-header h1 {
   margin: 10px 0 5px;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .description {
-  color: #666;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -38,17 +38,17 @@
 
 .btn-secondary {
   padding: 10px 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  color: #333;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.3s;
   text-decoration: none;
 }
 
 .btn-secondary:hover {
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
 }
 
 .group-info-cards {
@@ -59,17 +59,18 @@
 }
 
 .info-card {
-  background: white;
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s;
 }
 
 .info-card h3 {
   margin: 0 0 15px;
-  color: #333;
+  color: var(--color-text-primary);
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .info-card dl {
@@ -78,20 +79,21 @@
 
 .info-card dt {
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-muted);
   margin-top: 10px;
 }
 
 .info-card dd {
   margin: 5px 0 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .clients-section {
-  background: white;
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s;
 }
 
 .section-header {
@@ -103,7 +105,7 @@
 
 .section-header h2 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .clients-table-container {
@@ -119,13 +121,13 @@
 .clients-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .clients-table th {
-  background: #f9f9f9;
+  background: var(--color-surface-secondary);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .clients-table tr.disabled {
@@ -134,24 +136,24 @@
 
 .client-name {
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .client-desc {
   display: block;
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .traffic {
   font-family: monospace;
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .badge-danger {
-  background: #fee;
-  color: #c33;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
 
 .actions {
@@ -174,8 +176,8 @@
 }
 
 .modal {
-  background: white;
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   width: 90%;
   max-width: 700px;
   max-height: 80vh;
@@ -189,11 +191,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-header h2 {
   margin: 0;
+  color: var(--color-text-primary);
 }
 
 .modal-close {
@@ -201,26 +204,31 @@
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: #999;
+  color: var(--color-text-muted);
   padding: 0;
   line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--color-text-primary);
 }
 
 .config-content {
   flex: 1;
   overflow: auto;
   padding: 20px;
-  background: #f5f5f5;
+  background: var(--color-surface-secondary);
   margin: 0;
   font-family: 'Monaco', 'Consolas', monospace;
   font-size: 13px;
   white-space: pre-wrap;
   word-break: break-all;
+  color: var(--color-text-primary);
 }
 
 .modal-footer {
   padding: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -229,7 +237,7 @@
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 900px) {

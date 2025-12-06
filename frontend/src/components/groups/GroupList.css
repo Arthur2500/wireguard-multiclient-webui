@@ -13,14 +13,15 @@
 
 .page-header h1 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .groups-table-container {
-  background: white;
-  border-radius: 10px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s;
 }
 
 .groups-table {
@@ -32,21 +33,21 @@
 .groups-table td {
   padding: 15px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .groups-table th {
-  background: #f9f9f9;
+  background: var(--color-surface-secondary);
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .groups-table td {
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .group-name {
-  color: #667eea;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
 }
@@ -58,7 +59,7 @@
 .group-desc {
   display: block;
   font-size: 12px;
-  color: #999;
+  color: var(--color-text-muted);
   margin-top: 3px;
 }
 
@@ -75,13 +76,13 @@
 }
 
 .badge-success {
-  background: #e6f7e6;
-  color: #2d8a2d;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .badge-warning {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 
 .actions {
@@ -91,52 +92,53 @@
 
 .btn-action {
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   text-decoration: none;
   border: none;
   cursor: pointer;
-  background: #f0f0f0;
-  color: #333;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-primary);
   transition: background 0.3s;
 }
 
 .btn-action:hover {
-  background: #e0e0e0;
+  background: var(--color-border);
 }
 
 .btn-danger {
-  background: #fee;
-  color: #c33;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
 
 .btn-danger:hover {
-  background: #fdd;
+  background: var(--color-danger-bg);
+  opacity: 0.8;
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .empty-state h2 {
-  color: #333;
+  color: var(--color-text-primary);
   margin-bottom: 10px;
 }
 
 .empty-state p {
-  color: #666;
+  color: var(--color-text-secondary);
   margin-bottom: 20px;
 }
 
 .error-message {
-  background: #fee;
-  color: #c33;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
   padding: 15px;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   margin-bottom: 20px;
 }
 
@@ -144,5 +146,5 @@
   text-align: center;
   padding: 60px;
   font-size: 18px;
-  color: #666;
+  color: var(--color-text-secondary);
 }

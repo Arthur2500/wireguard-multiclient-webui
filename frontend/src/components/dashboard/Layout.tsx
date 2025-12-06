@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import authService from '../../services/auth.service';
-import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut } from 'lucide-react';
+import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut, Sun, Moon } from 'lucide-react';
 import './Layout.css';
 
 interface LayoutProps {
@@ -14,6 +14,20 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const handleLogout = () => {
     authService.logout();
@@ -68,6 +82,10 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
               <span className="user-role">{user?.role}</span>
             </div>
           </div>
+          <button onClick={toggleTheme} className="theme-toggle">
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={16} /> Logout
           </button>
