@@ -1,11 +1,7 @@
 from datetime import datetime, timezone
 from app import db
+from app.utils.datetime_utils import utc_now
 import ipaddress
-
-
-def utc_now():
-    """Return timezone-aware UTC datetime."""
-    return datetime.now(timezone.utc)
 
 
 class Group(db.Model):

@@ -1,10 +1,6 @@
 from datetime import datetime, timezone
 from app import db
-
-
-def utc_now():
-    """Return timezone-aware UTC datetime."""
-    return datetime.now(timezone.utc)
+from app.utils.datetime_utils import utc_now
 
 
 class Client(db.Model):

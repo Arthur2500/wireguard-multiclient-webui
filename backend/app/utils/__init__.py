@@ -1,4 +1,4 @@
 from app.utils.wireguard import generate_keypair, generate_preshared_key
-from app.utils.decorators import admin_required
+from app.utils.datetime_utils import utc_now
 
-__all__ = ['generate_keypair', 'generate_preshared_key', 'admin_required']
+__all__ = ['generate_keypair', 'generate_preshared_key', 'utc_now']
