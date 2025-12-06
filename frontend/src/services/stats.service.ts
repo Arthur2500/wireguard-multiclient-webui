@@ -1,5 +1,5 @@
 import api from './api';
-import { StatsOverview, GroupStats, UserStats, SystemStats } from '../types';
+import { StatsOverview, GroupStats, UserStats, SystemStats, DetailedClientStats } from '../types';
 
 export const statsService = {
   getOverview: async (): Promise<StatsOverview> => {
@@ -12,8 +12,8 @@ export const statsService = {
     return response.data;
   },
 
-  getClientStats: async (clientId: number): Promise<any> => {
-    const response = await api.get<any>(`/stats/client/${clientId}`);
+  getClientStats: async (clientId: number): Promise<DetailedClientStats> => {
+    const response = await api.get<DetailedClientStats>(`/stats/client/${clientId}`);
     return response.data;
   },
 

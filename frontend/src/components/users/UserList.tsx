@@ -133,9 +133,9 @@ const UserList: React.FC = () => {
                 </td>
                 <td>
                   <div className="permissions-badges">
-                    {user.can_create_groups && <span className="badge badge-success">Groups</span>}
-                    {user.can_create_clients && <span className="badge badge-success">Clients</span>}
-                    {!user.can_create_groups && !user.can_create_clients && <span className="badge badge-muted">None</span>}
+                    {user.can_create_groups && <span className="badge badge-success" title="Can create groups">✓ Groups</span>}
+                    {user.can_create_clients && <span className="badge badge-success" title="Can create clients">✓ Clients</span>}
+                    {!user.can_create_groups && !user.can_create_clients && <span className="badge badge-muted">No permissions</span>}
                   </div>
                 </td>
                 <td>
@@ -219,17 +219,19 @@ const UserList: React.FC = () => {
               <div className="form-group">
                 <label>Permissions</label>
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" htmlFor="can_create_groups">
                     <input
                       type="checkbox"
+                      id="can_create_groups"
                       checked={formData.can_create_groups}
                       onChange={e => setFormData({...formData, can_create_groups: e.target.checked})}
                     />
                     <span>Can create groups</span>
                   </label>
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" htmlFor="can_create_clients">
                     <input
                       type="checkbox"
+                      id="can_create_clients"
                       checked={formData.can_create_clients}
                       onChange={e => setFormData({...formData, can_create_clients: e.target.checked})}
                     />

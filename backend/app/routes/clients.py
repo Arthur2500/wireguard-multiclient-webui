@@ -93,9 +93,16 @@ def create_client(group_id):
     expires_at = None
     if data.get('expires_at'):
         try:
-            expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
-        except ValueError:
-            return jsonify({'error': 'Invalid expiration date format'}), 400
+            expires_str = data['expires_at']
+            # Handle various date formats
+            if 'T' in expires_str:
+                # ISO format with time
+                expires_at = datetime.fromisoformat(expires_str.replace('Z', '+00:00'))
+            else:
+                # Date only format (YYYY-MM-DD) - set to end of day
+                expires_at = datetime.strptime(expires_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid expiration date format. Expected YYYY-MM-DD or ISO format'}), 400
 
     client = Client(
         name=name,
@@ -153,9 +160,16 @@ def update_client(client_id):
     if 'expires_at' in data:
         if data['expires_at']:
             try:
-                client.expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
-            except ValueError:
-                return jsonify({'error': 'Invalid expiration date format'}), 400
+                expires_str = data['expires_at']
+                # Handle various date formats
+                if 'T' in expires_str:
+                    # ISO format with time
+                    client.expires_at = datetime.fromisoformat(expires_str.replace('Z', '+00:00'))
+                else:
+                    # Date only format (YYYY-MM-DD) - set to end of day
+                    client.expires_at = datetime.strptime(expires_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Invalid expiration date format. Expected YYYY-MM-DD or ISO format'}), 400
         else:
             client.expires_at = None
 

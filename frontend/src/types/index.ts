@@ -91,6 +91,25 @@ export interface ClientStats {
   last_handshake: string | null;
 }
 
+export interface DetailedClientStats {
+  client_id: number;
+  client_name: string;
+  is_active: boolean;
+  total_received_bytes: number;
+  total_sent_bytes: number;
+  last_handshake: string | null;
+  connection_logs: Array<{
+    id: number;
+    client_id: number;
+    group_id: number;
+    handshake_time: string | null;
+    endpoint: string | null;
+    received_bytes: number;
+    sent_bytes: number;
+    recorded_at: string | null;
+  }>;
+}
+
 export interface UserStats {
   user_id: number;
   username: string;
