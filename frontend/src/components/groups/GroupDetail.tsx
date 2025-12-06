@@ -5,6 +5,7 @@ import clientService from '../../services/client.service';
 import { Group, Client } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
 import { Download, Lock, Unlock, Pencil, Trash2 } from 'lucide-react';
+import GroupMembers from './GroupMembers';
 import './GroupDetail.css';
 
 const GroupDetail: React.FC = () => {
@@ -15,6 +16,7 @@ const GroupDetail: React.FC = () => {
   const [error, setError] = useState('');
   const [showConfig, setShowConfig] = useState(false);
   const [serverConfig, setServerConfig] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -24,6 +26,12 @@ const GroupDetail: React.FC = () => {
       ]);
       setGroup(groupData);
       setClients(clientsData);
+
+      // Get current user from localStorage
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        setCurrentUser(JSON.parse(userStr));
+      }
     } catch (err) {
       setError('Failed to load group data');
     } finally {
@@ -58,7 +66,7 @@ const GroupDetail: React.FC = () => {
 
   const handleDeleteClient = async (clientId: number) => {
     if (!window.confirm('Are you sure you want to delete this client?')) return;
-    
+
     try {
       await clientService.delete(clientId);
       setClients(clients.filter(c => c.id !== clientId));
@@ -125,22 +133,24 @@ const GroupDetail: React.FC = () => {
             <dd>{group.listen_port}</dd>
           </dl>
         </div>
-        
+
         <div className="info-card">
           <h3>Settings</h3>
           <dl>
             <dt>DNS</dt>
-            <dd>{group.dns}</dd>
+            <dd className="mono">{group.dns}</dd>
             <dt>Endpoint</dt>
-            <dd>{group.endpoint || 'Not set'}</dd>
+            <dd className="mono">{group.endpoint || 'Not set'}</dd>
             <dt>MTU</dt>
             <dd>{group.mtu}</dd>
           </dl>
         </div>
-        
+
         <div className="info-card">
           <h3>Options</h3>
           <dl>
+            <dt>Owner</dt>
+            <dd>{group.owner_username || 'Unknown'}</dd>
             <dt>Keepalive</dt>
             <dd>{group.persistent_keepalive}s</dd>
             <dt>Client-to-Client</dt>
@@ -207,15 +217,15 @@ const GroupDetail: React.FC = () => {
                     </td>
                     <td>{formatDate(client.last_handshake)}</td>
                     <td className="actions">
-                      <button 
-                        onClick={() => handleDownloadClientConfig(client.id)} 
+                      <button
+                        onClick={() => handleDownloadClientConfig(client.id)}
                         className="btn-action"
                         title="Download Config"
                       >
                         <Download size={14} /> Config
                       </button>
-                      <button 
-                        onClick={() => handleToggleClientActive(client)} 
+                      <button
+                        onClick={() => handleToggleClientActive(client)}
                         className="btn-action"
                         title={client.is_active ? 'Disable' : 'Enable'}
                       >
@@ -224,8 +234,8 @@ const GroupDetail: React.FC = () => {
                       <Link to={`/clients/${client.id}/edit`} className="btn-action" title="Edit">
                         <Pencil size={14} /> Edit
                       </Link>
-                      <button 
-                        onClick={() => handleDeleteClient(client.id)} 
+                      <button
+                        onClick={() => handleDeleteClient(client.id)}
                         className="btn-action btn-danger"
                         title="Delete"
                       >
@@ -239,6 +249,15 @@ const GroupDetail: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Group Members Section */}
+      {currentUser && group && (
+        <GroupMembers
+          groupId={Number(id)}
+          isOwnerOrAdmin={currentUser.role === 'admin' || group.owner_id === currentUser.id}
+          isAdmin={currentUser.role === 'admin'}
+        />
+      )}
 
       {showConfig && (
         <div className="modal-overlay" onClick={() => setShowConfig(false)}>

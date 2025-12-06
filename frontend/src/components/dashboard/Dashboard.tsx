@@ -4,7 +4,7 @@ import statsService from '../../services/stats.service';
 import groupService from '../../services/group.service';
 import { StatsOverview, Group, User } from '../../types';
 import { formatBytes } from '../../utils/helpers';
-import { FolderOpen, Monitor, CheckCircle, Users, Download, Upload, Plug } from 'lucide-react';
+import { FolderOpen, Monitor, CheckCircle, Users, Plug } from 'lucide-react';
 import './Dashboard.css';
 
 interface DashboardProps {
@@ -59,7 +59,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <p>Total Groups</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon"><Monitor size={32} /></div>
           <div className="stat-content">
@@ -67,7 +67,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <p>Total Clients</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon"><CheckCircle size={32} /></div>
           <div className="stat-content">
@@ -75,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <p>Active Clients</p>
           </div>
         </div>
-        
+
         {user?.role === 'admin' && (
           <div className="stat-card">
             <div className="stat-icon"><Users size={32} /></div>
@@ -87,23 +87,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         )}
       </div>
 
-      <div className="traffic-stats">
-        <div className="traffic-card">
-          <h3><Download size={18} /> Data Received</h3>
-          <p>{formatBytes(stats?.total_received_bytes || 0)}</p>
-        </div>
-        <div className="traffic-card">
-          <h3><Upload size={18} /> Data Sent</h3>
-          <p>{formatBytes(stats?.total_sent_bytes || 0)}</p>
-        </div>
-      </div>
-
       <div className="groups-section">
         <div className="section-header">
           <h2>Your Groups</h2>
           <Link to="/groups/new" className="btn-primary">+ New Group</Link>
         </div>
-        
+
         {groups.length === 0 ? (
           <div className="empty-state">
             <p>No groups yet. Create your first WireGuard group!</p>
@@ -113,8 +102,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             {groups.map((group) => (
               <Link to={`/groups/${group.id}`} key={group.id} className="group-card">
                 <h3>{group.name}</h3>
-                <p className="ip-range">{group.ip_range}</p>
-                {group.ip_range_v6 && <p className="ip-range-v6">{group.ip_range_v6}</p>}
+                <p className="ip-range mono">{group.ip_range}</p>
+                {group.ip_range_v6 && <p className="ip-range-v6 mono">{group.ip_range_v6}</p>}
                 <div className="group-meta">
                   <span><Users size={14} /> {group.client_count} clients</span>
                   <span><Plug size={14} /> Port {group.listen_port}</span>

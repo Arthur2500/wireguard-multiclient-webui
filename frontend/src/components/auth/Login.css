@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: var(--primary);
+  background: var(--bg-secondary);
   padding: 20px;
 }
 
@@ -26,9 +26,36 @@
 .login-box h2 {
   text-align: center;
   color: var(--text-secondary);
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   font-weight: normal;
   font-size: 18px;
+}
+
+.login-theme-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.theme-toggle-btn {
+  background: var(--bg-tertiary) !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer;
+  padding: 8px !important;
+  border-radius: 5px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--border) !important;
+  color: var(--text-primary) !important;
 }
 
 .form-group {
@@ -65,7 +92,7 @@
   margin-top: 4px;
 }
 
-.login-box button {
+.login-box form button {
   width: 100%;
   padding: 14px;
   background: var(--primary);
@@ -77,11 +104,11 @@
   transition: background 0.3s;
 }
 
-.login-box button:hover {
+.login-box form button:hover {
   background: var(--primary-dark);
 }
 
-.login-box button:disabled {
+.login-box form button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }

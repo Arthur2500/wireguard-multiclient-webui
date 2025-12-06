@@ -5,7 +5,7 @@ from app import db, bcrypt
 class User(db.Model):
     """User model for account management."""
     __tablename__ = 'users'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -16,23 +16,23 @@ class User(db.Model):
     can_create_clients = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     groups = db.relationship('Group', backref='owner', lazy='dynamic', foreign_keys='Group.owner_id')
     managed_groups = db.relationship('Group', secondary='user_groups', backref='members')
-    
+
     def set_password(self, password):
         """Set password hash."""
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-    
+
     def check_password(self, password):
         """Check password against hash."""
         return bcrypt.check_password_hash(self.password_hash, password)
-    
+
     def is_admin(self):
         """Check if user is admin."""
         return self.role == 'admin'
-    
+
     def can_access_group(self, group):
         """Check if user can access a group."""
         if self.is_admin():
@@ -40,7 +40,7 @@ class User(db.Model):
         if group.owner_id == self.id:
             return True
         return group in self.managed_groups
-    
+
     def to_dict(self):
         """Convert to dictionary."""
         return {

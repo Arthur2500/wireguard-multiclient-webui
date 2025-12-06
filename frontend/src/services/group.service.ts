@@ -60,6 +60,19 @@ export const groupService = {
     const response = await api.get<GroupConfig>(`/groups/${id}/config`);
     return response.data;
   },
+
+  getMembers: async (id: number): Promise<any[]> => {
+    const response = await api.get(`/groups/${id}/members`);
+    return response.data;
+  },
+
+  addMember: async (groupId: number, userId: number): Promise<void> => {
+    await api.post(`/groups/${groupId}/members`, { user_id: userId });
+  },
+
+  removeMember: async (groupId: number, userId: number): Promise<void> => {
+    await api.delete(`/groups/${groupId}/members/${userId}`);
+  },
 };
 
 export default groupService;

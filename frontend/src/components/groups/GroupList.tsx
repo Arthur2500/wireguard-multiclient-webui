@@ -26,7 +26,7 @@ const GroupList: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this group?')) return;
-    
+
     try {
       await groupService.delete(id);
       setGroups(groups.filter(g => g.id !== id));
@@ -58,6 +58,7 @@ const GroupList: React.FC = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Owner</th>
                 <th>IP Range</th>
                 <th>Server IP</th>
                 <th>Port</th>
@@ -77,6 +78,7 @@ const GroupList: React.FC = () => {
                       <span className="group-desc">{group.description}</span>
                     )}
                   </td>
+                  <td>{group.owner_username || 'Unknown'}</td>
                   <td className="mono">{group.ip_range}</td>
                   <td className="mono">{group.server_ip}</td>
                   <td>{group.listen_port}</td>

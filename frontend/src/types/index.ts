@@ -26,6 +26,7 @@ export interface Group {
   mtu: number;
   allow_client_to_client: boolean;
   owner_id: number;
+  owner_username: string | null;
   client_count: number;
   created_at: string | null;
   updated_at: string | null;

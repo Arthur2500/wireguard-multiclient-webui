@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
           <h1><Shield size={24} /> WireGuard</h1>
           <span>Multi-Client WebUI</span>
         </div>
-        
+
         <ul className="nav-menu">
           <li>
             <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>
@@ -94,22 +94,22 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
         </ul>
 
         <div className="sidebar-footer">
-          <button onClick={toggleDarkMode} className="theme-toggle desktop-only" aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           <div className="user-info">
             <div className="user-avatar">{user?.username.charAt(0).toUpperCase()}</div>
             <div className="user-details">
               <span className="user-name">{user?.username}</span>
               <span className="user-role">{user?.role}</span>
             </div>
+            <button onClick={toggleDarkMode} className="theme-toggle" aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
           </div>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={16} /> Logout
           </button>
         </div>
       </nav>
-      
+
       <main className="main-content">
         {children}
       </main>

@@ -74,6 +74,11 @@ def create_group():
     except ValueError as e:
         return jsonify({'error': f'Invalid IP range: {str(e)}'}), 400
 
+    # Check if IPv4 range already exists
+    existing_group = Group.query.filter_by(ip_range=str(network)).first()
+    if existing_group:
+        return jsonify({'error': f'IP range {str(network)} is already in use'}), 400
+
     # Validate optional IPv6 range
     ip_range_v6 = data.get('ip_range_v6')
     server_ip_v6 = None
@@ -86,6 +91,11 @@ def create_group():
             server_ip_v6 = str(next(network_v6.hosts()))
         except ValueError as e:
             return jsonify({'error': f'Invalid IPv6 range: {str(e)}'}), 400
+
+        # Check if IPv6 range already exists
+        existing_group_v6 = Group.query.filter_by(ip_range_v6=str(network_v6)).first()
+        if existing_group_v6:
+            return jsonify({'error': f'IPv6 range {str(network_v6)} is already in use'}), 400
 
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
@@ -160,6 +170,16 @@ def update_group(group_id):
                 network_v6 = ipaddress.ip_network(ip_range_v6, strict=False)
                 if network_v6.version != 6:
                     return jsonify({'error': 'IPv6 range must be an IPv6 address'}), 400
+
+                # Check if IPv6 range is already used by another group
+                if str(network_v6) != group.ip_range_v6:
+                    existing_group_v6 = Group.query.filter(
+                        Group.ip_range_v6 == str(network_v6),
+                        Group.id != group_id
+                    ).first()
+                    if existing_group_v6:
+                        return jsonify({'error': f'IPv6 range {str(network_v6)} is already in use'}), 400
+
                 # Get first usable IPv6 for server if not already set
                 if not group.server_ip_v6:
                     group.server_ip_v6 = str(next(network_v6.hosts()))
