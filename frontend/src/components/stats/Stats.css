@@ -210,6 +210,15 @@
   font-size: 16px;
 }
 
+.graph-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 350px;
+  color: var(--danger);
+  font-size: 16px;
+}
+
 .network-graph {
   width: 100%;
 }

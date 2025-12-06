@@ -36,6 +36,7 @@ const GroupTrafficStats: React.FC<GroupTrafficStatsProps> = ({ groupId }) => {
       await loadTrafficData();
     } catch (err) {
       console.error('Failed to collect traffic:', err);
+      setError('Failed to collect traffic data');
     }
   };
 

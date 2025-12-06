@@ -27,6 +27,7 @@ const Stats: React.FC = () => {
   const [groupsTraffic, setGroupsTraffic] = useState<GroupsTrafficHistory | null>(null);
   const [clientsTraffic, setClientsTraffic] = useState<ClientsTrafficHistory | null>(null);
   const [trafficLoading, setTrafficLoading] = useState(false);
+  const [trafficError, setTrafficError] = useState('');
 
   const loadStats = useCallback(async () => {
     try {
@@ -41,6 +42,7 @@ const Stats: React.FC = () => {
 
   const loadTrafficData = useCallback(async () => {
     setTrafficLoading(true);
+    setTrafficError('');
     try {
       if (graphView === 'total') {
         const data = await statsService.getTotalTraffic(timeRange);
@@ -54,17 +56,20 @@ const Stats: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to load traffic data:', err);
+      setTrafficError('Failed to load traffic data');
     } finally {
       setTrafficLoading(false);
     }
   }, [timeRange, graphView]);
 
   const handleCollectTraffic = async () => {
+    setTrafficError('');
     try {
       await statsService.collectTraffic();
       await loadTrafficData();
     } catch (err) {
       console.error('Failed to collect traffic:', err);
+      setTrafficError('Failed to collect traffic data');
     }
   };
 
@@ -91,6 +96,10 @@ const Stats: React.FC = () => {
   const renderGraph = () => {
     if (trafficLoading) {
       return <div className="graph-loading">Loading graph data...</div>;
+    }
+
+    if (trafficError) {
+      return <div className="graph-error">{trafficError}</div>;
     }
 
     if (graphView === 'total' && totalTraffic) {
