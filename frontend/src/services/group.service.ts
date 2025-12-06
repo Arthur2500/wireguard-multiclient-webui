@@ -73,6 +73,31 @@ export const groupService = {
   removeMember: async (groupId: number, userId: number): Promise<void> => {
     await api.delete(`/groups/${groupId}/members/${userId}`);
   },
+
+  toggleWireGuard: async (id: number): Promise<{ message: string; is_running: boolean }> => {
+    const response = await api.post<{ message: string; is_running: boolean }>(`/groups/${id}/wireguard/toggle`);
+    return response.data;
+  },
+
+  updateStats: async (id: number): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(`/groups/${id}/wireguard/stats`);
+    return response.data;
+  },
+
+  downloadConfigZip: async (id: number): Promise<void> => {
+    const response = await api.get(`/groups/${id}/config/download-zip`, {
+      responseType: 'blob'
+    });
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `group-${id}-configs.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default groupService;

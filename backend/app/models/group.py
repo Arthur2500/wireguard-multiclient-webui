@@ -1,6 +1,10 @@
 from datetime import datetime
 from app import db
 import ipaddress
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Group(db.Model):
@@ -32,6 +36,9 @@ class Group(db.Model):
 
     # Client-to-client communication
     allow_client_to_client = db.Column(db.Boolean, default=True)
+    
+    # WireGuard status
+    is_running = db.Column(db.Boolean, default=False)
 
     # Ownership
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -118,6 +125,7 @@ class Group(db.Model):
             'persistent_keepalive': self.persistent_keepalive,
             'mtu': self.mtu,
             'allow_client_to_client': self.allow_client_to_client,
+            'is_running': self.is_running,
             'owner_id': self.owner_id,
             'owner_username': self.owner.username if self.owner else None,
             'client_count': self.clients.count(),
@@ -164,3 +172,142 @@ AllowedIPs = {allowed_ips}
                 config += f"PresharedKey = {client.preshared_key}\n"
 
         return config
+
+    def get_group_config_dir(self):
+        """Get the configuration directory path for this group."""
+        from config import Config
+
+        config_path = Config.WG_CONFIG_PATH
+        if not config_path:
+            return None
+
+        group_dirname = f"{self.name.lower().replace(' ', '-').replace('/', '-')}"
+        return os.path.join(config_path, group_dirname)
+
+    def save_server_config(self):
+        """Save WireGuard server configuration to file."""
+        group_dir = self.get_group_config_dir()
+        if not group_dir:
+            logger.warning("WG_CONFIG_PATH not set, cannot save server config for group_id=%s", self.id)
+            return False
+
+        # Create group directory if it doesn't exist
+        os.makedirs(group_dir, exist_ok=True)
+
+        # Save server config
+        server_filepath = os.path.join(group_dir, "server.conf")
+        try:
+            config_content = self.generate_server_config()
+            with open(server_filepath, 'w') as f:
+                f.write(config_content)
+            logger.info("Server config saved for group_id=%s to %s", self.id, server_filepath)
+        except Exception as e:
+            logger.error("Failed to save server config for group_id=%s: %s", self.id, e, exc_info=True)
+            return False
+
+        # Get list of expected client config files
+        expected_client_files = set()
+        for client in self.clients.filter_by(is_active=True):
+            client_filename = f"{client.name.lower().replace(' ', '-').replace('/', '-')}.conf"
+            expected_client_files.add(client_filename)
+            client.save_client_config()
+
+        # Remove client config files that are no longer needed
+        try:
+            existing_files = os.listdir(group_dir)
+            for filename in existing_files:
+                if filename == "server.conf":
+                    continue
+                if filename.endswith('.conf') and filename not in expected_client_files:
+                    old_filepath = os.path.join(group_dir, filename)
+                    os.remove(old_filepath)
+                    logger.info("Removed obsolete client config: %s", old_filepath)
+        except Exception as e:
+            logger.error("Failed to clean up old client configs for group_id=%s: %s", self.id, e)
+
+        # Start/reload WireGuard interface only if it was already running
+        if self.is_running:
+            self.start_wireguard()
+
+        return True
+
+    def get_wireguard_interface_name(self):
+        """Get the WireGuard interface name for this group."""
+        # Use group ID to create unique interface names (wg0, wg1, etc.)
+        return f"wg{self.id}"
+
+    def start_wireguard(self):
+        """Start or reload the WireGuard interface for this group."""
+        from app.utils.wireguard import reload_wireguard_interface
+        
+        group_dir = self.get_group_config_dir()
+        if not group_dir:
+            return False
+        
+        server_filepath = os.path.join(group_dir, "server.conf")
+        interface_name = self.get_wireguard_interface_name()
+        
+        success = reload_wireguard_interface(interface_name, server_filepath)
+        if success:
+            self.is_running = True
+            db.session.commit()
+        return success
+
+    def stop_wireguard(self):
+        """Stop the WireGuard interface for this group."""
+        from app.utils.wireguard import stop_wireguard_interface
+        
+        interface_name = self.get_wireguard_interface_name()
+        success = stop_wireguard_interface(interface_name)
+        if success:
+            self.is_running = False
+            db.session.commit()
+        return success
+
+    def update_client_stats(self):
+        """Update client statistics from WireGuard interface."""
+        from app.utils.wireguard import get_wireguard_stats
+        from datetime import datetime, timezone
+        
+        if not self.is_running:
+            return False
+        
+        interface_name = self.get_wireguard_interface_name()
+        stats = get_wireguard_stats(interface_name)
+        
+        if not stats:
+            return False
+        
+        # Update each client's stats
+        for client in self.clients.filter_by(is_active=True):
+            if client.public_key in stats:
+                peer_stats = stats[client.public_key]
+                
+                # Update handshake time (Unix timestamp to datetime)
+                if peer_stats['latest_handshake'] > 0:
+                    client.last_handshake = datetime.fromtimestamp(peer_stats['latest_handshake'], tz=timezone.utc).replace(tzinfo=None)
+                
+                # Update traffic stats
+                client.total_received = peer_stats['received_bytes']
+                client.total_sent = peer_stats['sent_bytes']
+        
+        db.session.commit()
+        return True
+
+    def delete_server_config(self):
+        """Delete WireGuard server configuration directory and all its contents."""
+        # Stop WireGuard interface first
+        self.stop_wireguard()
+        
+        group_dir = self.get_group_config_dir()
+        if not group_dir:
+            return
+
+        try:
+            if os.path.exists(group_dir):
+                import shutil
+                shutil.rmtree(group_dir)
+                logger.info("Group config directory deleted for group_id=%s from %s", self.id, group_dir)
+        except Exception as e:
+            logger.error("Failed to delete group config directory for group_id=%s: %s", self.id, e, exc_info=True)
+

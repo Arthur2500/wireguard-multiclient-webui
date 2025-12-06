@@ -25,6 +25,7 @@ export interface Group {
   persistent_keepalive: number;
   mtu: number;
   allow_client_to_client: boolean;
+  is_running: boolean;
   owner_id: number;
   owner_username: string | null;
   client_count: number;

@@ -1,4 +1,5 @@
 import logging
+import os
 from flask import Blueprint, request, jsonify, Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
@@ -134,6 +135,12 @@ def create_client(group_id):
     db.session.add(client)
     db.session.commit()
 
+    # Save client configuration file
+    client.save_client_config()
+
+    # Update WireGuard server configuration file
+    group.save_server_config()
+
     logger.info(
         "Client created id=%s name=%s in group_id=%s by user_id=%s", client.id, client.name, group_id, user_id
     )
@@ -194,6 +201,12 @@ def update_client(client_id):
 
     db.session.commit()
 
+    # Update client configuration file (in case name changed)
+    client.save_client_config()
+
+    # Update WireGuard server configuration file
+    client.group.save_server_config()
+
     logger.info("Client updated id=%s by user_id=%s", client_id, user_id)
 
     return jsonify(client.to_dict()), 200
@@ -215,8 +228,26 @@ def delete_client(client_id):
         logger.warning("Access denied deleting client_id=%s by user_id=%s", client_id, user_id)
         return jsonify({'error': 'Access denied'}), 403
 
+    # Store group reference and client name before deleting
+    group = client.group
+    client_name = client.name.lower().replace(' ', '-').replace('/', '-')
+
     db.session.delete(client)
     db.session.commit()
+
+    # Delete client configuration file after DB deletion
+    group_dir = group.get_group_config_dir()
+    if group_dir:
+        client_filepath = os.path.join(group_dir, f"{client_name}.conf")
+        try:
+            if os.path.exists(client_filepath):
+                os.remove(client_filepath)
+                logger.info("Client config file deleted: %s", client_filepath)
+        except Exception as e:
+            logger.error("Failed to delete client config file %s: %s", client_filepath, e)
+
+    # Update WireGuard server configuration file
+    group.save_server_config()
 
     logger.info("Client deleted id=%s by user_id=%s", client_id, user_id)
 
@@ -299,6 +330,12 @@ def regenerate_keys(client_id):
 
     db.session.commit()
 
+    # Update client configuration file with new keys
+    client.save_client_config()
+
+    # Update WireGuard server configuration file
+    client.group.save_server_config()
+
     logger.info("Keys regenerated for client_id=%s by user_id=%s", client_id, user_id)
 
     return jsonify(client.to_dict()), 200
@@ -323,8 +360,10 @@ def check_expiration():
     ).all()
 
     deactivated = []
+    affected_groups = set()
     for client in expired_clients:
         client.is_active = False
+        affected_groups.add(client.group)
         deactivated.append({
             'id': client.id,
             'name': client.name,
@@ -332,6 +371,10 @@ def check_expiration():
         })
 
     db.session.commit()
+
+    # Update WireGuard server configuration for all affected groups
+    for group in affected_groups:
+        group.save_server_config()
 
     logger.info(
         "Expired clients deactivated count=%s by user_id=%s", len(deactivated), user_id

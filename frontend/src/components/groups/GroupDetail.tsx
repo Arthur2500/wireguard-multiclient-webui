@@ -4,7 +4,7 @@ import groupService from '../../services/group.service';
 import clientService from '../../services/client.service';
 import { Group, Client } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
-import { Download, Lock, Unlock, Pencil, Trash2 } from 'lucide-react';
+import { Download, Lock, Unlock, Pencil, Trash2, PlayCircle, StopCircle, RefreshCw } from 'lucide-react';
 import GroupMembers from './GroupMembers';
 import GroupTrafficStats from '../stats/GroupTrafficStats';
 import '../stats/GroupTrafficStats.css';
@@ -19,6 +19,7 @@ const GroupDetail: React.FC = () => {
   const [showConfig, setShowConfig] = useState(false);
   const [serverConfig, setServerConfig] = useState('');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [wireguardAction, setWireguardAction] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -95,6 +96,52 @@ const GroupDetail: React.FC = () => {
     }
   };
 
+  const handleToggleWireGuard = async () => {
+    const action = group?.is_running ? 'stop' : 'start';
+    if (group?.is_running && !window.confirm('Are you sure you want to stop the WireGuard interface?')) return;
+    
+    setWireguardAction(true);
+    try {
+      const result = await groupService.toggleWireGuard(Number(id));
+      setError('');
+      // Update local group state with new is_running status
+      if (group) {
+        setGroup({ ...group, is_running: result.is_running });
+      }
+      // Reload group data to ensure consistency
+      await loadData();
+      alert(`WireGuard interface ${action}ed successfully`);
+    } catch (err: any) {
+      setError(err.response?.data?.error || `Failed to ${action} WireGuard`);
+    } finally {
+      setWireguardAction(false);
+    }
+  };
+
+  const handleDownloadAllConfigs = async () => {
+    try {
+      setWireguardAction(true);
+      await groupService.downloadConfigZip(Number(id));
+      setError('');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to download config ZIP');
+    } finally {
+      setWireguardAction(false);
+    }
+  };
+
+  const handleUpdateStats = async () => {
+    try {
+      await groupService.updateStats(Number(id));
+      // Reload clients to get updated stats
+      const clientsData = await clientService.getByGroup(Number(id));
+      setClients(clientsData);
+      setError('');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to update statistics');
+    }
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!group) return <div className="error">Group not found</div>;
 
@@ -108,7 +155,17 @@ const GroupDetail: React.FC = () => {
         </div>
         <div className="header-actions">
           <button onClick={handleShowConfig} className="btn-secondary">View Config</button>
-          <button onClick={handleDownloadConfig} className="btn-secondary">Download Config</button>
+          <button onClick={handleDownloadAllConfigs} className="btn-secondary" disabled={wireguardAction} title="Download all configs as ZIP">
+            <Download size={16} /> Download Configs (ZIP)
+          </button>
+          <button 
+            onClick={handleToggleWireGuard} 
+            className={group.is_running ? 'btn-danger' : 'btn-success'}
+            disabled={wireguardAction}
+            title={group.is_running ? 'Disable WireGuard' : 'Enable WireGuard'}
+          >
+            {group.is_running ? <><StopCircle size={16} /> Disable</> : <><PlayCircle size={16} /> Enable</>}
+          </button>
           <Link to={`/groups/${id}/edit`} className="btn-primary">Edit Group</Link>
         </div>
       </div>
@@ -168,7 +225,14 @@ const GroupDetail: React.FC = () => {
       <div className="clients-section">
         <div className="section-header">
           <h2>Clients ({clients.length})</h2>
-          <Link to={`/groups/${id}/clients/new`} className="btn-primary">+ Add Client</Link>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {group.is_running && (
+              <button onClick={handleUpdateStats} className="btn-secondary" title="Refresh statistics from WireGuard">
+                <RefreshCw size={16} /> Update Stats
+              </button>
+            )}
+            <Link to={`/groups/${id}/clients/new`} className="btn-primary">+ Add Client</Link>
+          </div>
         </div>
 
         {clients.length === 0 ? (

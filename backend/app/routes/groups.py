@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
 from app.models.group import Group
@@ -7,6 +7,9 @@ from app.utils.wireguard import generate_keypair
 from app.utils.decorators import admin_required
 from app import db
 import ipaddress
+import zipfile
+import io
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +137,9 @@ def create_group():
     db.session.add(group)
     db.session.commit()
 
+    # Save WireGuard server configuration file
+    group.save_server_config()
+
     logger.info(
         "Group created id=%s name=%s by user_id=%s ip_range=%s", group.id, group.name, user_id, group.ip_range
     )
@@ -222,6 +228,9 @@ def update_group(group_id):
 
     db.session.commit()
 
+    # Update WireGuard server configuration file
+    group.save_server_config()
+
     logger.info("Group updated id=%s by user_id=%s", group_id, user_id)
 
     return jsonify(group.to_dict()), 200
@@ -243,6 +252,9 @@ def delete_group(group_id):
     if group.owner_id != user_id and not user.is_admin():
         logger.warning("User_id=%s attempted to delete group_id=%s without ownership", user_id, group_id)
         return jsonify({'error': 'Only owner can delete group'}), 403
+
+    # Delete WireGuard server configuration file
+    group.delete_server_config()
 
     db.session.delete(group)
     db.session.commit()
@@ -278,6 +290,124 @@ def get_group_config(group_id):
         'config': group.generate_server_config(),
         'filename': f'wg-{group.name.lower().replace(" ", "-")}.conf'
     }), 200
+
+
+@groups_bp.route('/<int:group_id>/config/download-zip', methods=['GET'])
+@jwt_required()
+def download_group_config_zip(group_id):
+    """Download all WireGuard configurations (server + all clients) as ZIP."""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+
+    group = Group.query.get(group_id)
+    if not group:
+        logger.info("Group config ZIP requested for missing group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Group not found'}), 404
+
+    if not user.can_access_group(group):
+        logger.warning("Access denied to group config ZIP group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Access denied'}), 403
+
+    # Only owner or admin can get configs
+    if group.owner_id != user_id and not user.is_admin():
+        logger.warning("Config ZIP access denied for group_id=%s by user_id=%s (not owner/admin)", group_id, user_id)
+        return jsonify({'error': 'Only owner can access server config'}), 403
+
+    try:
+        # Create ZIP file in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Add server config
+            server_config = group.generate_server_config()
+            zip_file.writestr('server.conf', server_config)
+            
+            # Add all active client configs
+            for client in group.clients.filter_by(is_active=True):
+                client_config = client.generate_client_config()
+                client_filename = f"{client.name.lower().replace(' ', '-').replace('/', '-')}.conf"
+                zip_file.writestr(client_filename, client_config)
+        
+        zip_buffer.seek(0)
+        
+        logger.info("Group config ZIP generated for group_id=%s by user_id=%s", group_id, user_id)
+        
+        zip_filename = f"{group.name.lower().replace(' ', '-')}-configs.zip"
+        return send_file(
+            zip_buffer,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=zip_filename
+        )
+        
+    except Exception as e:
+        logger.error("Failed to generate config ZIP for group_id=%s: %s", group_id, e, exc_info=True)
+        return jsonify({'error': 'Failed to generate ZIP file'}), 500
+
+
+@groups_bp.route('/<int:group_id>/wireguard/toggle', methods=['POST'])
+@jwt_required()
+def toggle_group_wireguard(group_id):
+    """Toggle WireGuard interface enabled/disabled state for a group."""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+
+    group = Group.query.get(group_id)
+    if not group:
+        logger.info("Toggle WireGuard requested for missing group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Group not found'}), 404
+
+    if not user.can_access_group(group):
+        logger.warning("Access denied to toggle WireGuard for group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Access denied'}), 403
+
+    # Only owner or admin can toggle WireGuard
+    if group.owner_id != user_id and not user.is_admin():
+        logger.warning("WireGuard toggle denied for group_id=%s by user_id=%s (not owner/admin)", group_id, user_id)
+        return jsonify({'error': 'Only owner can toggle WireGuard'}), 403
+
+    if group.is_running:
+        # Stop it
+        success = group.stop_wireguard()
+        action = 'stopped'
+    else:
+        # Start it
+        success = group.start_wireguard()
+        action = 'started'
+
+    if success:
+        logger.info("WireGuard %s for group_id=%s by user_id=%s", action, group_id, user_id)
+        return jsonify({
+            'message': f'WireGuard interface {action}',
+            'is_running': group.is_running
+        }), 200
+    else:
+        logger.error("Failed to toggle WireGuard for group_id=%s", group_id)
+        return jsonify({'error': f'Failed to {action} WireGuard interface'}), 500
+
+
+@groups_bp.route('/<int:group_id>/wireguard/stats', methods=['POST'])
+@jwt_required()
+def update_group_stats(group_id):
+    """Update WireGuard statistics for a group."""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+
+    group = Group.query.get(group_id)
+    if not group:
+        logger.info("Update stats requested for missing group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Group not found'}), 404
+
+    if not user.can_access_group(group):
+        logger.warning("Access denied to update stats for group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'error': 'Access denied'}), 403
+
+    success = group.update_client_stats()
+    if success:
+        logger.info("Stats updated for group_id=%s by user_id=%s", group_id, user_id)
+        return jsonify({'message': 'Statistics updated successfully'}), 200
+    else:
+        logger.warning("Failed to update stats for group_id=%s (may not be running)", group_id)
+        return jsonify({'error': 'Failed to update statistics. WireGuard may not be running.'}), 400
 
 
 @groups_bp.route('/<int:group_id>/members', methods=['GET'])
