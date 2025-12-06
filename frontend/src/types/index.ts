@@ -158,6 +158,14 @@ export interface SystemStats {
     received_bytes: number;
     sent_bytes: number;
   }>;
+  clients: Array<{
+    id: number;
+    name: string;
+    group_name: string;
+    is_active: boolean;
+    received_bytes: number;
+    sent_bytes: number;
+  }>;
   recent_connections_24h: number;
 }
 

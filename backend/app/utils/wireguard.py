@@ -83,11 +83,11 @@ def generate_preshared_key():
 
 def start_wireguard_interface(interface_name, config_path):
     """Start a WireGuard interface using wg-quick.
-    
+
     Args:
         interface_name: Name of the interface (e.g., 'wg0')
         config_path: Full path to the config file
-        
+
     Returns:
         bool: True if successful, False otherwise
     """
@@ -102,7 +102,7 @@ def start_wireguard_interface(interface_name, config_path):
             logger.info("WireGuard interface %s already running", interface_name)
             # Reload config by stopping and starting
             stop_wireguard_interface(interface_name)
-        
+
         # Start the interface with wg-quick
         subprocess.run(
             ['wg-quick', 'up', config_path],
@@ -112,7 +112,7 @@ def start_wireguard_interface(interface_name, config_path):
         )
         logger.info("WireGuard interface %s started successfully", interface_name)
         return True
-        
+
     except subprocess.CalledProcessError as e:
         logger.error("Failed to start WireGuard interface %s: %s", interface_name, e.stderr)
         return False
@@ -123,10 +123,10 @@ def start_wireguard_interface(interface_name, config_path):
 
 def stop_wireguard_interface(interface_name):
     """Stop a WireGuard interface using wg-quick.
-    
+
     Args:
         interface_name: Name of the interface (e.g., 'wg0')
-        
+
     Returns:
         bool: True if successful, False otherwise
     """
@@ -143,7 +143,7 @@ def stop_wireguard_interface(interface_name):
             # Interface might not be running, still consider it success
             logger.debug("WireGuard interface %s down returned code %d: %s", interface_name, result.returncode, result.stderr)
             return True
-        
+
     except FileNotFoundError:
         logger.error("wg-quick command not found. Install wireguard-tools.")
         return False
@@ -154,11 +154,11 @@ def stop_wireguard_interface(interface_name):
 
 def reload_wireguard_interface(interface_name, config_path):
     """Reload a WireGuard interface configuration.
-    
+
     Args:
         interface_name: Name of the interface (e.g., 'wg0')
         config_path: Full path to the config file
-        
+
     Returns:
         bool: True if successful, False otherwise
     """
@@ -168,10 +168,10 @@ def reload_wireguard_interface(interface_name, config_path):
 
 def get_wireguard_stats(interface_name):
     """Get statistics for a WireGuard interface.
-    
+
     Args:
         interface_name: Name of the interface (e.g., 'wg0')
-        
+
     Returns:
         dict: Dictionary with peer statistics or None if failed
     """
@@ -182,15 +182,15 @@ def get_wireguard_stats(interface_name):
             text=True,
             check=True
         )
-        
+
         peers = {}
         lines = result.stdout.strip().split('\n')
-        
+
         # Skip header line (interface info)
         for line in lines[1:]:
             if not line:
                 continue
-                
+
             parts = line.split('\t')
             if len(parts) >= 6:
                 public_key = parts[0]
@@ -200,15 +200,15 @@ def get_wireguard_stats(interface_name):
                 latest_handshake = int(parts[4]) if parts[4] else 0
                 received_bytes = int(parts[5]) if parts[5] else 0
                 sent_bytes = int(parts[6]) if len(parts) > 6 and parts[6] else 0
-                
+
                 peers[public_key] = {
                     'latest_handshake': latest_handshake,
                     'received_bytes': received_bytes,
                     'sent_bytes': sent_bytes
                 }
-        
+
         return peers
-        
+
     except subprocess.CalledProcessError as e:
         logger.debug("Failed to get WireGuard stats for %s: %s", interface_name, e.stderr)
         return None

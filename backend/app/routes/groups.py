@@ -320,17 +320,17 @@ def download_group_config_zip(group_id):
             # Add server config
             server_config = group.generate_server_config()
             zip_file.writestr('server.conf', server_config)
-            
+
             # Add all active client configs
             for client in group.clients.filter_by(is_active=True):
                 client_config = client.generate_client_config()
                 client_filename = f"{client.name.lower().replace(' ', '-').replace('/', '-')}.conf"
                 zip_file.writestr(client_filename, client_config)
-        
+
         zip_buffer.seek(0)
-        
+
         logger.info("Group config ZIP generated for group_id=%s by user_id=%s", group_id, user_id)
-        
+
         zip_filename = f"{group.name.lower().replace(' ', '-')}-configs.zip"
         return send_file(
             zip_buffer,
@@ -338,7 +338,7 @@ def download_group_config_zip(group_id):
             as_attachment=True,
             download_name=zip_filename
         )
-        
+
     except Exception as e:
         logger.error("Failed to generate config ZIP for group_id=%s: %s", group_id, e, exc_info=True)
         return jsonify({'error': 'Failed to generate ZIP file'}), 500

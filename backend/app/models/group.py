@@ -36,7 +36,7 @@ class Group(db.Model):
 
     # Client-to-client communication
     allow_client_to_client = db.Column(db.Boolean, default=True)
-    
+
     # WireGuard status
     is_running = db.Column(db.Boolean, default=False)
 
@@ -146,19 +146,73 @@ Address = {address}
 ListenPort = {self.listen_port}
 """
 
-        # Add PostUp and PostDown for NAT if client-to-client is enabled
-        if self.allow_client_to_client:
-            config += """PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT"""
-            if self.ip_range_v6:
-                config += """; ip6tables -A FORWARD -i %i -j ACCEPT; ip6tables -A FORWARD -o %i -j ACCEPT"""
-            config += "\n"
-            config += """PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT"""
-            if self.ip_range_v6:
-                config += """; ip6tables -D FORWARD -i %i -j ACCEPT; ip6tables -D FORWARD -o %i -j ACCEPT"""
-            config += "\n"
+        # Build PostUp rules for NAT and forwarding
+        postup_rules = [
+            # Enable NAT/masquerading for outbound traffic to internet
+            "iptables -t nat -A POSTROUTING ! -o %i -j MASQUERADE",
+            # Allow forwarding from WireGuard to other interfaces (outbound)
+            "iptables -A FORWARD -i %i -j ACCEPT",
+            # Allow forwarding to WireGuard from other interfaces (inbound)
+            "iptables -A FORWARD -o %i -j ACCEPT",
+        ]
+
+        postdown_rules = [
+            # Disable NAT/masquerading
+            "iptables -t nat -D POSTROUTING ! -o %i -j MASQUERADE",
+            # Disable forwarding rules
+            "iptables -D FORWARD -i %i -j ACCEPT",
+            "iptables -D FORWARD -o %i -j ACCEPT",
+        ]
+
+        # Add client-to-client communication restrictions based on group and client settings
+        active_clients = self.clients.filter_by(is_active=True).all()
+
+        if not self.allow_client_to_client:
+            # Group-level restriction: block ALL client-to-client communication
+            # Add rules to drop packets between clients
+            for client in active_clients:
+                postup_rules.append(f"iptables -A FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
+                postdown_rules.insert(0, f"iptables -D FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
+        else:
+            # Group allows client-to-client, but check individual client restrictions
+            for client in active_clients:
+                if not client.can_address_peers:
+                    # This client cannot address other peers
+                    # Drop packets from this client to other clients (but allow to server)
+                    postup_rules.append(f"iptables -A FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
+                    postdown_rules.insert(0, f"iptables -D FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
+
+        # Add IPv6 rules if configured
+        if self.ip_range_v6:
+            postup_rules.extend([
+                "ip6tables -t nat -A POSTROUTING ! -o %i -j MASQUERADE",
+                "ip6tables -A FORWARD -i %i -j ACCEPT",
+                "ip6tables -A FORWARD -o %i -j ACCEPT",
+            ])
+            postdown_rules.extend([
+                "ip6tables -t nat -D POSTROUTING ! -o %i -j MASQUERADE",
+                "ip6tables -D FORWARD -i %i -j ACCEPT",
+                "ip6tables -D FORWARD -o %i -j ACCEPT",
+            ])
+
+            # Add IPv6 client-to-client restrictions if configured
+            if not self.allow_client_to_client:
+                for client in active_clients:
+                    if client.assigned_ip_v6:
+                        postup_rules.append(f"ip6tables -A FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
+                        postdown_rules.insert(0, f"ip6tables -D FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
+            else:
+                for client in active_clients:
+                    if not client.can_address_peers and client.assigned_ip_v6:
+                        postup_rules.append(f"ip6tables -A FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
+                        postdown_rules.insert(0, f"ip6tables -D FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
+
+        # Add PostUp and PostDown rules
+        config += "PostUp = " + "; ".join(postup_rules) + "\n"
+        config += "PostDown = " + "; ".join(postdown_rules) + "\n"
 
         # Add client peers
-        for client in self.clients.filter_by(is_active=True):
+        for client in active_clients:
             allowed_ips = f"{client.assigned_ip}/32"
             if client.assigned_ip_v6:
                 allowed_ips += f", {client.assigned_ip_v6}/128"
@@ -239,14 +293,14 @@ AllowedIPs = {allowed_ips}
     def start_wireguard(self):
         """Start or reload the WireGuard interface for this group."""
         from app.utils.wireguard import reload_wireguard_interface
-        
+
         group_dir = self.get_group_config_dir()
         if not group_dir:
             return False
-        
+
         server_filepath = os.path.join(group_dir, "server.conf")
         interface_name = self.get_wireguard_interface_name()
-        
+
         success = reload_wireguard_interface(interface_name, server_filepath)
         if success:
             self.is_running = True
@@ -256,7 +310,7 @@ AllowedIPs = {allowed_ips}
     def stop_wireguard(self):
         """Stop the WireGuard interface for this group."""
         from app.utils.wireguard import stop_wireguard_interface
-        
+
         interface_name = self.get_wireguard_interface_name()
         success = stop_wireguard_interface(interface_name)
         if success:
@@ -268,29 +322,29 @@ AllowedIPs = {allowed_ips}
         """Update client statistics from WireGuard interface."""
         from app.utils.wireguard import get_wireguard_stats
         from datetime import datetime, timezone
-        
+
         if not self.is_running:
             return False
-        
+
         interface_name = self.get_wireguard_interface_name()
         stats = get_wireguard_stats(interface_name)
-        
+
         if not stats:
             return False
-        
+
         # Update each client's stats
         for client in self.clients.filter_by(is_active=True):
             if client.public_key in stats:
                 peer_stats = stats[client.public_key]
-                
+
                 # Update handshake time (Unix timestamp to datetime)
                 if peer_stats['latest_handshake'] > 0:
                     client.last_handshake = datetime.fromtimestamp(peer_stats['latest_handshake'], tz=timezone.utc).replace(tzinfo=None)
-                
+
                 # Update traffic stats
                 client.total_received = peer_stats['received_bytes']
                 client.total_sent = peer_stats['sent_bytes']
-        
+
         db.session.commit()
         return True
 
@@ -298,7 +352,7 @@ AllowedIPs = {allowed_ips}
         """Delete WireGuard server configuration directory and all its contents."""
         # Stop WireGuard interface first
         self.stop_wireguard()
-        
+
         group_dir = self.get_group_config_dir()
         if not group_dir:
             return

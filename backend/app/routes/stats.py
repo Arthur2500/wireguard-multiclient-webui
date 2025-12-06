@@ -235,6 +235,19 @@ def get_system_stats():
             'sent_bytes': sum(c.total_sent for c in user_clients),
         })
 
+    # Per-client statistics
+    clients_stats = []
+    clients = Client.query.all()
+    for client in clients:
+        clients_stats.append({
+            'id': client.id,
+            'name': client.name,
+            'group_name': client.group.name,
+            'is_active': client.is_active,
+            'received_bytes': client.total_received,
+            'sent_bytes': client.total_sent,
+        })
+
     # Recent activity (last 24 hours)
     yesterday = datetime.utcnow() - timedelta(hours=24)
     recent_logs_count = ConnectionLog.query.filter(
@@ -250,6 +263,7 @@ def get_system_stats():
         'total_sent_bytes': total_sent,
         'groups': groups_stats,
         'users': users_stats,
+        'clients': clients_stats,
         'recent_connections_24h': recent_logs_count,
     }), 200
 
@@ -273,14 +287,14 @@ def get_total_traffic_history():
     """Get total system traffic history (admin only)."""
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
-    
+
     # Get traffic history where both client_id and group_id are null (system-wide)
     history = TrafficHistory.query.filter(
         TrafficHistory.recorded_at >= start_time,
         TrafficHistory.client_id.is_(None),
         TrafficHistory.group_id.is_(None)
     ).order_by(TrafficHistory.recorded_at.asc()).all()
-    
+
     return jsonify({
         'range': range_param,
         'data': [h.to_dict() for h in history]
@@ -293,10 +307,10 @@ def get_groups_traffic_history():
     """Get traffic history per group (admin only)."""
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
-    
+
     # Get all groups
     groups = Group.query.all()
-    
+
     result = []
     for group in groups:
         history = TrafficHistory.query.filter(
@@ -304,13 +318,13 @@ def get_groups_traffic_history():
             TrafficHistory.group_id == group.id,
             TrafficHistory.client_id.is_(None)
         ).order_by(TrafficHistory.recorded_at.asc()).all()
-        
+
         result.append({
             'group_id': group.id,
             'group_name': group.name,
             'data': [h.to_dict() for h in history]
         })
-    
+
     return jsonify({
         'range': range_param,
         'groups': result
@@ -323,24 +337,24 @@ def get_clients_traffic_history():
     """Get traffic history per client (admin only)."""
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
-    
+
     # Get all clients
     clients = Client.query.all()
-    
+
     result = []
     for client in clients:
         history = TrafficHistory.query.filter(
             TrafficHistory.recorded_at >= start_time,
             TrafficHistory.client_id == client.id
         ).order_by(TrafficHistory.recorded_at.asc()).all()
-        
+
         result.append({
             'client_id': client.id,
             'client_name': client.name,
             'group_id': client.group_id,
             'data': [h.to_dict() for h in history]
         })
-    
+
     return jsonify({
         'range': range_param,
         'clients': result
@@ -353,24 +367,24 @@ def get_group_traffic_history(group_id):
     """Get traffic history for a specific group."""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
-    
+
     group = Group.query.get(group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
-    
+
     if not user.can_access_group(group):
         return jsonify({'error': 'Access denied'}), 403
-    
+
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
-    
+
     # Get group total traffic history
     group_history = TrafficHistory.query.filter(
         TrafficHistory.recorded_at >= start_time,
         TrafficHistory.group_id == group_id,
         TrafficHistory.client_id.is_(None)
     ).order_by(TrafficHistory.recorded_at.asc()).all()
-    
+
     # Get per-client traffic history
     clients = Client.query.filter_by(group_id=group_id).all()
     clients_data = []
@@ -379,13 +393,13 @@ def get_group_traffic_history(group_id):
             TrafficHistory.recorded_at >= start_time,
             TrafficHistory.client_id == client.id
         ).order_by(TrafficHistory.recorded_at.asc()).all()
-        
+
         clients_data.append({
             'client_id': client.id,
             'client_name': client.name,
             'data': [h.to_dict() for h in history]
         })
-    
+
     return jsonify({
         'range': range_param,
         'group_id': group_id,
@@ -400,12 +414,12 @@ def get_group_traffic_history(group_id):
 def record_traffic():
     """Record traffic data (for background task or external collector)."""
     data = request.get_json()
-    
+
     if not data:
         return jsonify({'error': 'No data provided'}), 400
-    
+
     records = data.get('records', [])
-    
+
     for record in records:
         history = TrafficHistory(
             client_id=record.get('client_id'),
@@ -415,9 +429,9 @@ def record_traffic():
             recorded_at=datetime.utcnow()
         )
         db.session.add(history)
-    
+
     db.session.commit()
-    
+
     return jsonify({'message': f'Recorded {len(records)} traffic entries'}), 201
 
 
@@ -426,13 +440,13 @@ def record_traffic():
 def collect_traffic():
     """Collect current traffic stats from all clients and record them."""
     now = datetime.utcnow()
-    
+
     # Get all clients and their current traffic
     clients = Client.query.all()
     groups_data = {}
     total_received = 0
     total_sent = 0
-    
+
     for client in clients:
         # Record client traffic (absolute values)
         client_history = TrafficHistory(
@@ -443,16 +457,16 @@ def collect_traffic():
             recorded_at=now
         )
         db.session.add(client_history)
-        
+
         # Aggregate for group
         if client.group_id not in groups_data:
             groups_data[client.group_id] = {'received': 0, 'sent': 0}
         groups_data[client.group_id]['received'] += client.total_received
         groups_data[client.group_id]['sent'] += client.total_sent
-        
+
         total_received += client.total_received
         total_sent += client.total_sent
-    
+
     # Record group totals
     for group_id, data in groups_data.items():
         group_history = TrafficHistory(
@@ -463,7 +477,7 @@ def collect_traffic():
             recorded_at=now
         )
         db.session.add(group_history)
-    
+
     # Record system total
     total_history = TrafficHistory(
         client_id=None,
@@ -473,9 +487,9 @@ def collect_traffic():
         recorded_at=now
     )
     db.session.add(total_history)
-    
+
     db.session.commit()
-    
+
     return jsonify({
         'message': 'Traffic collected successfully',
         'clients_count': len(clients),
@@ -488,13 +502,13 @@ def collect_traffic():
 def cleanup_traffic_history():
     """Clean up old traffic history data (older than 1 week)."""
     cutoff = datetime.utcnow() - timedelta(weeks=1)
-    
+
     deleted = TrafficHistory.query.filter(
         TrafficHistory.recorded_at < cutoff
     ).delete()
-    
+
     db.session.commit()
-    
+
     return jsonify({
         'message': f'Deleted {deleted} old traffic records'
     }), 200

@@ -4,7 +4,7 @@ import groupService from '../../services/group.service';
 import clientService from '../../services/client.service';
 import { Group, Client } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
-import { Download, Lock, Unlock, Pencil, Trash2, PlayCircle, StopCircle, RefreshCw } from 'lucide-react';
+import { Download, Lock, Unlock, Pencil, Trash2, PlayCircle, StopCircle } from 'lucide-react';
 import GroupMembers from './GroupMembers';
 import GroupTrafficStats from '../stats/GroupTrafficStats';
 import '../stats/GroupTrafficStats.css';
@@ -47,6 +47,25 @@ const GroupDetail: React.FC = () => {
       loadData();
     }
   }, [id, loadData]);
+
+  // Auto-update stats every 5 seconds when WireGuard is running
+  useEffect(() => {
+    if (!group?.is_running) return;
+
+    const interval = setInterval(async () => {
+      try {
+        await groupService.updateStats(Number(id));
+        // Reload clients to get updated stats
+        const clientsData = await clientService.getByGroup(Number(id));
+        setClients(clientsData);
+      } catch (err) {
+        // Silently fail - don't show error for background updates
+        console.debug('Failed to auto-update stats', err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [group?.is_running, id]);
 
   const handleShowConfig = async () => {
     try {
@@ -99,7 +118,7 @@ const GroupDetail: React.FC = () => {
   const handleToggleWireGuard = async () => {
     const action = group?.is_running ? 'stop' : 'start';
     if (group?.is_running && !window.confirm('Are you sure you want to stop the WireGuard interface?')) return;
-    
+
     setWireguardAction(true);
     try {
       const result = await groupService.toggleWireGuard(Number(id));
@@ -130,18 +149,6 @@ const GroupDetail: React.FC = () => {
     }
   };
 
-  const handleUpdateStats = async () => {
-    try {
-      await groupService.updateStats(Number(id));
-      // Reload clients to get updated stats
-      const clientsData = await clientService.getByGroup(Number(id));
-      setClients(clientsData);
-      setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update statistics');
-    }
-  };
-
   if (loading) return <div className="loading">Loading...</div>;
   if (!group) return <div className="error">Group not found</div>;
 
@@ -156,10 +163,10 @@ const GroupDetail: React.FC = () => {
         <div className="header-actions">
           <button onClick={handleShowConfig} className="btn-secondary">View Config</button>
           <button onClick={handleDownloadAllConfigs} className="btn-secondary" disabled={wireguardAction} title="Download all configs as ZIP">
-            <Download size={16} /> Download Configs (ZIP)
+            <Download size={16} /> Download Configs
           </button>
-          <button 
-            onClick={handleToggleWireGuard} 
+          <button
+            onClick={handleToggleWireGuard}
             className={group.is_running ? 'btn-danger' : 'btn-success'}
             disabled={wireguardAction}
             title={group.is_running ? 'Disable WireGuard' : 'Enable WireGuard'}
@@ -226,11 +233,6 @@ const GroupDetail: React.FC = () => {
         <div className="section-header">
           <h2>Clients ({clients.length})</h2>
           <div style={{ display: 'flex', gap: '10px' }}>
-            {group.is_running && (
-              <button onClick={handleUpdateStats} className="btn-secondary" title="Refresh statistics from WireGuard">
-                <RefreshCw size={16} /> Update Stats
-              </button>
-            )}
             <Link to={`/groups/${id}/clients/new`} className="btn-primary">+ Add Client</Link>
           </div>
         </div>

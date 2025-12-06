@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import statsService from '../../services/stats.service';
-import { 
-  SystemStats, 
-  TimeRange, 
-  TotalTrafficHistory, 
-  GroupsTrafficHistory, 
-  ClientsTrafficHistory 
+import {
+  SystemStats,
+  TimeRange,
+  TotalTrafficHistory,
+  GroupsTrafficHistory,
+  ClientsTrafficHistory
 } from '../../types';
 import { formatBytes } from '../../utils/helpers';
 import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3, RefreshCw } from 'lucide-react';
@@ -19,7 +19,7 @@ const Stats: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Traffic graph state
   const [timeRange, setTimeRange] = useState<TimeRange>('1h');
   const [graphView, setGraphView] = useState<GraphView>('total');
@@ -160,7 +160,7 @@ const Stats: React.FC = () => {
             <p>Total Users</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon"><FolderOpen size={32} /></div>
           <div className="stat-content">
@@ -168,7 +168,7 @@ const Stats: React.FC = () => {
             <p>Total Groups</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon"><Monitor size={32} /></div>
           <div className="stat-content">
@@ -176,7 +176,7 @@ const Stats: React.FC = () => {
             <p>Total Clients</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon"><CheckCircle size={32} /></div>
           <div className="stat-content">
@@ -206,7 +206,7 @@ const Stats: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="traffic-card connections">
           <h3>Recent Activity</h3>
           <div className="connections-count">
@@ -222,19 +222,19 @@ const Stats: React.FC = () => {
           <h2>Network Traffic Graphs</h2>
           <div className="graph-controls">
             <div className="graph-view-selector">
-              <button 
+              <button
                 className={`view-btn ${graphView === 'total' ? 'active' : ''}`}
                 onClick={() => setGraphView('total')}
               >
                 Total
               </button>
-              <button 
+              <button
                 className={`view-btn ${graphView === 'groups' ? 'active' : ''}`}
                 onClick={() => setGraphView('groups')}
               >
                 Groups
               </button>
-              <button 
+              <button
                 className={`view-btn ${graphView === 'clients' ? 'active' : ''}`}
                 onClick={() => setGraphView('clients')}
               >
@@ -242,8 +242,8 @@ const Stats: React.FC = () => {
               </button>
             </div>
             <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
-            <button 
-              className="btn-secondary collect-btn" 
+            <button
+              className="btn-secondary collect-btn"
               onClick={handleCollectTraffic}
               title="Collect traffic data now"
             >
@@ -296,6 +296,46 @@ const Stats: React.FC = () => {
             )}
           </tbody>
         </table>
+
+            <div className="clients-stats">
+              <h2>Clients Breakdown</h2>
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th>Client Name</th>
+                    <th>Group</th>
+                    <th>Status</th>
+                    <th>Data Received</th>
+                    <th>Data Sent</th>
+                    <th>Total Traffic</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
+                    <tr key={client.id}>
+                      <td className="group-name">{client.name}</td>
+                      <td>{client.group_name}</td>
+                      <td>
+                        <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
+                          {client.is_active ? 'Active' : 'Disabled'}
+                        </span>
+                      </td>
+                      <td>{formatBytes(client.received_bytes)}</td>
+                      <td>{formatBytes(client.sent_bytes)}</td>
+                      <td className="total-traffic">
+                        {formatBytes(client.received_bytes + client.sent_bytes)}
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '30px' }}>
+                        No clients found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
       </div>
 
       <div className="users-stats">
