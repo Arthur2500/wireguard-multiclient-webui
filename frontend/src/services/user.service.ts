@@ -6,6 +6,8 @@ interface CreateUserData {
   email: string;
   password: string;
   role: 'admin' | 'user';
+  can_create_groups?: boolean;
+  can_create_clients?: boolean;
 }
 
 interface UpdateUserData {
@@ -13,6 +15,8 @@ interface UpdateUserData {
   role?: 'admin' | 'user';
   is_active?: boolean;
   password?: string;
+  can_create_groups?: boolean;
+  can_create_clients?: boolean;
 }
 
 export const userService = {

@@ -8,6 +8,7 @@ interface CreateClientData {
   can_address_peers?: boolean;
   dns_override?: string;
   use_preshared_key?: boolean;
+  expires_at?: string;
 }
 
 interface UpdateClientData {
@@ -17,6 +18,7 @@ interface UpdateClientData {
   can_address_peers?: boolean;
   dns_override?: string;
   is_active?: boolean;
+  expires_at?: string | null;
 }
 
 interface ClientConfig {
@@ -58,6 +60,11 @@ export const clientService = {
     const response = await api.post<Client>(`/clients/${id}/regenerate-keys`, {
       regenerate_preshared_key: regeneratePresharedKey,
     });
+    return response.data;
+  },
+
+  checkExpiration: async (): Promise<{ deactivated_count: number; deactivated_clients: any[] }> => {
+    const response = await api.post<{ deactivated_count: number; deactivated_clients: any[] }>('/clients/check-expiration');
     return response.data;
   },
 };

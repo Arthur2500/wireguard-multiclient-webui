@@ -3,11 +3,12 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary);
+  padding: 20px;
 }
 
 .login-box {
-  background: white;
+  background: var(--bg-primary);
   padding: 40px;
   border-radius: 10px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
@@ -17,14 +18,14 @@
 
 .login-box h1 {
   text-align: center;
-  color: #333;
+  color: var(--primary);
   margin-bottom: 10px;
   font-size: 24px;
 }
 
 .login-box h2 {
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 30px;
   font-weight: normal;
   font-size: 18px;
@@ -37,39 +38,47 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 5px;
   font-size: 16px;
   transition: border-color 0.3s;
   box-sizing: border-box;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--primary);
+}
+
+.form-group .help-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
 .login-box button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: background 0.3s;
 }
 
 .login-box button:hover {
-  opacity: 0.9;
+  background: var(--primary-dark);
 }
 
 .login-box button:disabled {
@@ -78,10 +87,17 @@
 }
 
 .error-message {
-  background: #fee;
-  color: #c33;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
   padding: 12px;
   border-radius: 5px;
   margin-bottom: 20px;
   text-align: center;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@media (max-width: 480px) {
+  .login-box {
+    padding: 30px 20px;
+  }
 }

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime
 from app.models.user import User
 from app.models.group import Group
 from app.models.client import Client
@@ -51,6 +52,10 @@ def create_client(group_id):
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
 
+    # Check if user has permission to create clients
+    if not user.is_admin() and not user.can_create_clients:
+        return jsonify({'error': 'You do not have permission to create clients'}), 403
+
     group = Group.query.get(group_id)
     if not group:
         return jsonify({'error': 'Group not found'}), 404
@@ -84,6 +89,14 @@ def create_client(group_id):
     if data.get('use_preshared_key', False):
         preshared_key = generate_preshared_key()
 
+    # Parse expiration date if provided
+    expires_at = None
+    if data.get('expires_at'):
+        try:
+            expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
+        except ValueError:
+            return jsonify({'error': 'Invalid expiration date format'}), 400
+
     client = Client(
         name=name,
         description=data.get('description', ''),
@@ -96,6 +109,7 @@ def create_client(group_id):
         can_address_peers=data.get('can_address_peers', True),
         dns_override=data.get('dns_override'),
         is_active=True,
+        expires_at=expires_at,
         group_id=group_id
     )
 
@@ -136,6 +150,14 @@ def update_client(client_id):
         client.dns_override = data['dns_override']
     if 'is_active' in data:
         client.is_active = data['is_active']
+    if 'expires_at' in data:
+        if data['expires_at']:
+            try:
+                client.expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
+            except ValueError:
+                return jsonify({'error': 'Invalid expiration date format'}), 400
+        else:
+            client.expires_at = None
 
     db.session.commit()
 
@@ -232,3 +254,37 @@ def regenerate_keys(client_id):
     db.session.commit()
 
     return jsonify(client.to_dict()), 200
+
+
+@clients_bp.route('/check-expiration', methods=['POST'])
+@jwt_required()
+def check_expiration():
+    """Check and deactivate expired clients."""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+
+    if not user.is_admin():
+        return jsonify({'error': 'Admin access required'}), 403
+
+    now = datetime.utcnow()
+    expired_clients = Client.query.filter(
+        Client.expires_at.isnot(None),
+        Client.expires_at <= now,
+        Client.is_active == True
+    ).all()
+
+    deactivated = []
+    for client in expired_clients:
+        client.is_active = False
+        deactivated.append({
+            'id': client.id,
+            'name': client.name,
+            'expires_at': client.expires_at.isoformat() if client.expires_at else None
+        })
+
+    db.session.commit()
+
+    return jsonify({
+        'deactivated_count': len(deactivated),
+        'deactivated_clients': deactivated
+    }), 200

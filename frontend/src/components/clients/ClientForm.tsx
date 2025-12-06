@@ -13,6 +13,7 @@ interface ClientFormData {
   dns_override: string;
   use_preshared_key: boolean;
   is_active: boolean;
+  expires_at: string;
 }
 
 const ClientForm: React.FC = () => {
@@ -29,6 +30,7 @@ const ClientForm: React.FC = () => {
     dns_override: '',
     use_preshared_key: false,
     is_active: true,
+    expires_at: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,6 +55,7 @@ const ClientForm: React.FC = () => {
         dns_override: client.dns_override || '',
         use_preshared_key: false,
         is_active: client.is_active,
+        expires_at: client.expires_at ? client.expires_at.split('T')[0] : '',
       });
     } catch (err) {
       setError('Failed to load client');
@@ -90,6 +93,7 @@ const ClientForm: React.FC = () => {
           can_address_peers: formData.can_address_peers,
           dns_override: formData.dns_override || undefined,
           is_active: formData.is_active,
+          expires_at: formData.expires_at ? formData.expires_at : null,
         });
       } else if (groupId) {
         await clientService.create(Number(groupId), {
@@ -99,6 +103,7 @@ const ClientForm: React.FC = () => {
           can_address_peers: formData.can_address_peers,
           dns_override: formData.dns_override || undefined,
           use_preshared_key: formData.use_preshared_key,
+          expires_at: formData.expires_at || undefined,
         });
       }
       navigate(groupId ? `/groups/${groupId}` : '/groups');
@@ -180,6 +185,21 @@ const ClientForm: React.FC = () => {
               placeholder="Leave empty to use group DNS"
             />
             <small className="help-text">Override the group's DNS settings for this client</small>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="expires_at">Expiration Date (Optional)</label>
+            <input
+              type="date"
+              id="expires_at"
+              name="expires_at"
+              value={formData.expires_at}
+              onChange={handleChange}
+              min={new Date().toISOString().split('T')[0]}
+            />
+            <small className="help-text">
+              Client will be automatically deactivated after this date. Leave empty for no expiration.
+            </small>
           </div>
         </div>
 

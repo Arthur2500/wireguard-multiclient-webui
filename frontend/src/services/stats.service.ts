@@ -1,24 +1,5 @@
 import api from './api';
-import { StatsOverview, GroupStats, ClientStats } from '../types';
-
-interface SystemStats {
-  total_users: number;
-  total_groups: number;
-  total_clients: number;
-  active_clients: number;
-  total_received_bytes: number;
-  total_sent_bytes: number;
-  groups: Array<{
-    id: number;
-    name: string;
-    owner: string;
-    client_count: number;
-    active_clients: number;
-    received_bytes: number;
-    sent_bytes: number;
-  }>;
-  recent_connections_24h: number;
-}
+import { StatsOverview, GroupStats, UserStats, SystemStats } from '../types';
 
 export const statsService = {
   getOverview: async (): Promise<StatsOverview> => {
@@ -31,8 +12,13 @@ export const statsService = {
     return response.data;
   },
 
-  getClientStats: async (clientId: number): Promise<ClientStats> => {
-    const response = await api.get<ClientStats>(`/stats/client/${clientId}`);
+  getClientStats: async (clientId: number): Promise<any> => {
+    const response = await api.get<any>(`/stats/client/${clientId}`);
+    return response.data;
+  },
+
+  getUserStats: async (userId: number): Promise<UserStats> => {
+    const response = await api.get<UserStats>(`/stats/user/${userId}`);
     return response.data;
   },
 

@@ -46,6 +46,8 @@ def create_user():
     email = data.get('email')
     password = data.get('password')
     role = data.get('role', 'user')
+    can_create_groups = data.get('can_create_groups', True)
+    can_create_clients = data.get('can_create_clients', True)
 
     if not username or not email or not password:
         return jsonify({'error': 'Username, email, and password required'}), 400
@@ -65,7 +67,9 @@ def create_user():
     user = User(
         username=username,
         email=email,
-        role=role
+        role=role,
+        can_create_groups=can_create_groups,
+        can_create_clients=can_create_clients
     )
     user.set_password(password)
 
@@ -112,6 +116,13 @@ def update_user(user_id):
 
     if 'is_active' in data and current_user.is_admin():
         user.is_active = data['is_active']
+
+    # Only admins can change permissions
+    if 'can_create_groups' in data and current_user.is_admin():
+        user.can_create_groups = data['can_create_groups']
+
+    if 'can_create_clients' in data and current_user.is_admin():
+        user.can_create_clients = data['can_create_clients']
 
     if 'password' in data:
         if len(data['password']) < 8:

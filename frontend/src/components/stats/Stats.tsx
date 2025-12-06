@@ -1,27 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import statsService from '../../services/stats.service';
+import { SystemStats } from '../../types';
 import { formatBytes } from '../../utils/helpers';
 import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3 } from 'lucide-react';
 import './Stats.css';
-
-interface SystemStats {
-  total_users: number;
-  total_groups: number;
-  total_clients: number;
-  active_clients: number;
-  total_received_bytes: number;
-  total_sent_bytes: number;
-  groups: Array<{
-    id: number;
-    name: string;
-    owner: string;
-    client_count: number;
-    active_clients: number;
-    received_bytes: number;
-    sent_bytes: number;
-  }>;
-  recent_connections_24h: number;
-}
 
 const Stats: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
@@ -132,7 +114,7 @@ const Stats: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {stats.groups.map((group) => (
+            {stats.groups.length > 0 ? stats.groups.map((group) => (
               <tr key={group.id}>
                 <td className="group-name">{group.name}</td>
                 <td>{group.owner}</td>
@@ -148,7 +130,55 @@ const Stats: React.FC = () => {
                   {formatBytes(group.received_bytes + group.sent_bytes)}
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
+                  No groups found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="users-stats">
+        <h2>Users Breakdown</h2>
+        <table className="stats-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Groups</th>
+              <th>Clients</th>
+              <th>Data Received</th>
+              <th>Data Sent</th>
+              <th>Total Traffic</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.users && stats.users.length > 0 ? stats.users.map((user) => (
+              <tr key={user.id}>
+                <td className="group-name">{user.username}</td>
+                <td>
+                  <span className={`badge ${user.role === 'admin' ? 'badge-warning' : 'badge-muted'}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td>{user.group_count}</td>
+                <td>{user.client_count}</td>
+                <td>{formatBytes(user.received_bytes)}</td>
+                <td>{formatBytes(user.sent_bytes)}</td>
+                <td className="total-traffic">
+                  {formatBytes(user.received_bytes + user.sent_bytes)}
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
+                  No users found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

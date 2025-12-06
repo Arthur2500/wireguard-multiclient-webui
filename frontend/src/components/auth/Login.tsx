@@ -42,15 +42,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username or Email</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username or email"
               required
               autoFocus
             />
+            <span className="help-text">You can use your username or email to sign in</span>
           </div>
           
           <div className="form-group">

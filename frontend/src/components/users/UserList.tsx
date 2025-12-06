@@ -14,6 +14,8 @@ const UserList: React.FC = () => {
     email: '',
     password: '',
     role: 'user' as 'admin' | 'user',
+    can_create_groups: true,
+    can_create_clients: true,
   });
 
   useEffect(() => {
@@ -57,7 +59,12 @@ const UserList: React.FC = () => {
     
     try {
       if (editUser) {
-        const updateData: any = { email: formData.email, role: formData.role };
+        const updateData: any = { 
+          email: formData.email, 
+          role: formData.role,
+          can_create_groups: formData.can_create_groups,
+          can_create_clients: formData.can_create_clients,
+        };
         if (formData.password) updateData.password = formData.password;
         const updated = await userService.update(editUser.id, updateData);
         setUsers(users.map(u => u.id === editUser.id ? updated : u));
@@ -74,7 +81,7 @@ const UserList: React.FC = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditUser(null);
-    setFormData({ username: '', email: '', password: '', role: 'user' });
+    setFormData({ username: '', email: '', password: '', role: 'user', can_create_groups: true, can_create_clients: true });
   };
 
   const openEditForm = (user: User) => {
@@ -84,6 +91,8 @@ const UserList: React.FC = () => {
       email: user.email,
       password: '',
       role: user.role,
+      can_create_groups: user.can_create_groups,
+      can_create_clients: user.can_create_clients,
     });
     setShowForm(true);
   };
@@ -106,6 +115,7 @@ const UserList: React.FC = () => {
               <th>Username</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Permissions</th>
               <th>Status</th>
               <th>Created</th>
               <th>Actions</th>
@@ -120,6 +130,13 @@ const UserList: React.FC = () => {
                   <span className={`badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
                     {user.role}
                   </span>
+                </td>
+                <td>
+                  <div className="permissions-badges">
+                    {user.can_create_groups && <span className="badge badge-success">Groups</span>}
+                    {user.can_create_clients && <span className="badge badge-success">Clients</span>}
+                    {!user.can_create_groups && !user.can_create_clients && <span className="badge badge-muted">None</span>}
+                  </div>
                 </td>
                 <td>
                   <span className={`badge ${user.is_active ? 'badge-success' : 'badge-danger'}`}>
@@ -197,6 +214,28 @@ const UserList: React.FC = () => {
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label>Permissions</label>
+                <div className="checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.can_create_groups}
+                      onChange={e => setFormData({...formData, can_create_groups: e.target.checked})}
+                    />
+                    <span>Can create groups</span>
+                  </label>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.can_create_clients}
+                      onChange={e => setFormData({...formData, can_create_clients: e.target.checked})}
+                    />
+                    <span>Can create clients</span>
+                  </label>
+                </div>
               </div>
 
               <div className="form-actions">

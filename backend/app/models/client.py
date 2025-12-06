@@ -30,6 +30,7 @@ class Client(db.Model):
     
     # Status
     is_active = db.Column(db.Boolean, default=True)
+    expires_at = db.Column(db.DateTime, nullable=True)  # Optional expiration date
     
     # Group relationship
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
@@ -56,6 +57,7 @@ class Client(db.Model):
             'can_address_peers': self.can_address_peers,
             'dns_override': self.dns_override,
             'is_active': self.is_active,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
             'group_id': self.group_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

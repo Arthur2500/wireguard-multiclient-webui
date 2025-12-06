@@ -4,6 +4,8 @@ export interface User {
   email: string;
   role: 'admin' | 'user';
   is_active: boolean;
+  can_create_groups: boolean;
+  can_create_clients: boolean;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -40,6 +42,7 @@ export interface Client {
   can_address_peers: boolean;
   dns_override: string | null;
   is_active: boolean;
+  expires_at: string | null;
   group_id: number;
   created_at: string | null;
   updated_at: string | null;
@@ -86,4 +89,53 @@ export interface ClientStats {
   received_bytes: number;
   sent_bytes: number;
   last_handshake: string | null;
+}
+
+export interface UserStats {
+  user_id: number;
+  username: string;
+  total_groups: number;
+  owned_groups: number;
+  member_groups: number;
+  total_clients: number;
+  active_clients: number;
+  total_received_bytes: number;
+  total_sent_bytes: number;
+  groups: Array<{
+    id: number;
+    name: string;
+    is_owner: boolean;
+    client_count: number;
+    active_clients: number;
+    received_bytes: number;
+    sent_bytes: number;
+  }>;
+}
+
+export interface SystemStats {
+  total_users: number;
+  total_groups: number;
+  total_clients: number;
+  active_clients: number;
+  total_received_bytes: number;
+  total_sent_bytes: number;
+  groups: Array<{
+    id: number;
+    name: string;
+    owner: string;
+    client_count: number;
+    active_clients: number;
+    received_bytes: number;
+    sent_bytes: number;
+  }>;
+  users: Array<{
+    id: number;
+    username: string;
+    role: string;
+    group_count: number;
+    client_count: number;
+    received_bytes: number;
+    sent_bytes: number;
+  }>;
+  recent_connections_24h: number;
 }

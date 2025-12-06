@@ -19,12 +19,15 @@ def login():
     password = data.get('password')
 
     if not username or not password:
-        return jsonify({'error': 'Username and password required'}), 400
+        return jsonify({'error': 'Username/email and password required'}), 400
 
+    # Try to find user by username or email
     user = User.query.filter_by(username=username).first()
+    if not user:
+        user = User.query.filter_by(email=username).first()
 
     if not user or not user.check_password(password):
-        return jsonify({'error': 'Invalid username or password'}), 401
+        return jsonify({'error': 'Invalid username/email or password'}), 401
 
     if not user.is_active:
         return jsonify({'error': 'Account is disabled'}), 403

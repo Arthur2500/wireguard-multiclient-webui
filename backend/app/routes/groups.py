@@ -52,6 +52,10 @@ def create_group():
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
 
+    # Check if user has permission to create groups
+    if not user.is_admin() and not user.can_create_groups:
+        return jsonify({'error': 'You do not have permission to create groups'}), 403
+
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400

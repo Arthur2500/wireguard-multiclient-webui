@@ -12,6 +12,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')  # admin, user
     is_active = db.Column(db.Boolean, default=True)
+    can_create_groups = db.Column(db.Boolean, default=True)
+    can_create_clients = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -47,6 +49,8 @@ class User(db.Model):
             'email': self.email,
             'role': self.role,
             'is_active': self.is_active,
+            'can_create_groups': self.can_create_groups,
+            'can_create_clients': self.can_create_clients,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

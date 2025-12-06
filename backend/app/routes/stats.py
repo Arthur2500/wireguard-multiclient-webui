@@ -132,6 +132,63 @@ def get_client_stats(client_id):
     }), 200
 
 
+@stats_bp.route('/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_stats(user_id):
+    """Get statistics for a specific user."""
+    current_user_id = int(get_jwt_identity())
+    current_user = User.query.get(current_user_id)
+
+    # Users can only view their own stats unless admin
+    if not current_user.is_admin() and current_user_id != user_id:
+        return jsonify({'error': 'Access denied'}), 403
+
+    target_user = User.query.get(user_id)
+    if not target_user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Get all groups owned by or accessible to this user
+    owned_groups = Group.query.filter_by(owner_id=user_id).all()
+    member_groups = target_user.managed_groups
+
+    all_groups = list(set(owned_groups + member_groups))
+    group_ids = [g.id for g in all_groups]
+
+    # Get clients from all accessible groups
+    clients = Client.query.filter(Client.group_id.in_(group_ids)).all() if group_ids else []
+
+    total_received = sum(c.total_received for c in clients)
+    total_sent = sum(c.total_sent for c in clients)
+    active_clients = sum(1 for c in clients if c.is_active)
+
+    # Per-group breakdown
+    groups_stats = []
+    for group in all_groups:
+        group_clients = [c for c in clients if c.group_id == group.id]
+        groups_stats.append({
+            'id': group.id,
+            'name': group.name,
+            'is_owner': group.owner_id == user_id,
+            'client_count': len(group_clients),
+            'active_clients': sum(1 for c in group_clients if c.is_active),
+            'received_bytes': sum(c.total_received for c in group_clients),
+            'sent_bytes': sum(c.total_sent for c in group_clients),
+        })
+
+    return jsonify({
+        'user_id': user_id,
+        'username': target_user.username,
+        'total_groups': len(all_groups),
+        'owned_groups': len(owned_groups),
+        'member_groups': len(member_groups),
+        'total_clients': len(clients),
+        'active_clients': active_clients,
+        'total_received_bytes': total_received,
+        'total_sent_bytes': total_sent,
+        'groups': groups_stats,
+    }), 200
+
+
 @stats_bp.route('/system', methods=['GET'])
 @admin_required
 def get_system_stats():
@@ -161,6 +218,23 @@ def get_system_stats():
             'sent_bytes': sum(c.total_sent for c in clients),
         })
 
+    # Per-user statistics
+    users_stats = []
+    users = User.query.all()
+    for user in users:
+        user_groups = Group.query.filter_by(owner_id=user.id).all()
+        user_group_ids = [g.id for g in user_groups] + [g.id for g in user.managed_groups]
+        user_clients = Client.query.filter(Client.group_id.in_(user_group_ids)).all() if user_group_ids else []
+        users_stats.append({
+            'id': user.id,
+            'username': user.username,
+            'role': user.role,
+            'group_count': len(set(user_group_ids)),
+            'client_count': len(user_clients),
+            'received_bytes': sum(c.total_received for c in user_clients),
+            'sent_bytes': sum(c.total_sent for c in user_clients),
+        })
+
     # Recent activity (last 24 hours)
     yesterday = datetime.utcnow() - timedelta(hours=24)
     recent_logs_count = ConnectionLog.query.filter(
@@ -175,5 +249,6 @@ def get_system_stats():
         'total_received_bytes': total_received,
         'total_sent_bytes': total_sent,
         'groups': groups_stats,
+        'users': users_stats,
         'recent_connections_24h': recent_logs_count,
     }), 200
