@@ -1,6 +1,8 @@
 services:
   backend:
-    image: ghcr.io/arthur2500/wireguard-multiclient-webui-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: wg-backend
     restart: unless-stopped
     environment:
@@ -24,7 +26,9 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
 
   frontend:
-    image: ghcr.io/arthur2500/wireguard-multiclient-webui-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: wg-frontend
     restart: unless-stopped
     ports:

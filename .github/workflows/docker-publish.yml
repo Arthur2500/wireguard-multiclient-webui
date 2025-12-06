@@ -32,7 +32,7 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-backend:latest
+          tags: ghcr.io/${{ github.repository }}-backend:latest
 
       - name: Image digest
         run: echo ${{ steps.build-and-push-backend.outputs.digest }}
@@ -63,7 +63,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}-frontend:latest
+          tags: ghcr.io/${{ github.repository }}-frontend:latest
 
       - name: Image digest
         run: echo ${{ steps.build-and-push-frontend.outputs.digest }}
