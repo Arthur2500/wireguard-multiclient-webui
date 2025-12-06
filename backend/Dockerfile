@@ -19,6 +19,7 @@ COPY . .
 # Set environment variables
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
+ENV LOG_LEVEL=INFO
 
 EXPOSE 5000
 

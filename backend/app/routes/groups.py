@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
@@ -6,6 +7,8 @@ from app.utils.wireguard import generate_keypair
 from app.utils.decorators import admin_required
 from app import db
 import ipaddress
+
+logger = logging.getLogger(__name__)
 
 groups_bp = Blueprint('groups', __name__)
 
@@ -16,6 +19,8 @@ def get_groups():
     """Get all groups accessible to the user."""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
+
+    logger.debug("Fetching groups for user_id=%s", user_id)
 
     if user.is_admin():
         groups = Group.query.all()
@@ -37,9 +42,11 @@ def get_group(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Group not found for id=%s requested by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     if not user.can_access_group(group):
+        logger.warning("Access denied to group_id=%s for user_id=%s", group_id, user_id)
         return jsonify({'error': 'Access denied'}), 403
 
     return jsonify(group.to_dict()), 200
@@ -54,10 +61,12 @@ def create_group():
 
     # Check if user has permission to create groups
     if not user.is_admin() and not user.can_create_groups:
+        logger.warning("User_id=%s attempted to create group without permission", user_id)
         return jsonify({'error': 'You do not have permission to create groups'}), 403
 
     data = request.get_json()
     if not data:
+        logger.debug("Create group called without payload by user_id=%s", user_id)
         return jsonify({'error': 'No data provided'}), 400
 
     name = data.get('name')
@@ -72,11 +81,13 @@ def create_group():
         # Get first usable IP for server
         server_ip = str(next(network.hosts()))
     except ValueError as e:
+        logger.info("Invalid IPv4 range provided by user_id=%s: %s", user_id, ip_range)
         return jsonify({'error': f'Invalid IP range: {str(e)}'}), 400
 
     # Check if IPv4 range already exists
     existing_group = Group.query.filter_by(ip_range=str(network)).first()
     if existing_group:
+        logger.info("Duplicate IPv4 range %s attempted by user_id=%s", str(network), user_id)
         return jsonify({'error': f'IP range {str(network)} is already in use'}), 400
 
     # Validate optional IPv6 range
@@ -90,11 +101,13 @@ def create_group():
             # Get first usable IPv6 for server
             server_ip_v6 = str(next(network_v6.hosts()))
         except ValueError as e:
+            logger.info("Invalid IPv6 range provided by user_id=%s: %s", user_id, ip_range_v6)
             return jsonify({'error': f'Invalid IPv6 range: {str(e)}'}), 400
 
         # Check if IPv6 range already exists
         existing_group_v6 = Group.query.filter_by(ip_range_v6=str(network_v6)).first()
         if existing_group_v6:
+            logger.info("Duplicate IPv6 range %s attempted by user_id=%s", str(network_v6), user_id)
             return jsonify({'error': f'IPv6 range {str(network_v6)} is already in use'}), 400
 
     # Generate WireGuard keys
@@ -121,6 +134,10 @@ def create_group():
     db.session.add(group)
     db.session.commit()
 
+    logger.info(
+        "Group created id=%s name=%s by user_id=%s ip_range=%s", group.id, group.name, user_id, group.ip_range
+    )
+
     return jsonify(group.to_dict()), 201
 
 
@@ -133,17 +150,21 @@ def update_group(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Update failed: group_id=%s not found for user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     if not user.can_access_group(group):
+        logger.warning("Access denied on update for group_id=%s by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Access denied'}), 403
 
     # Only owner or admin can update
     if group.owner_id != user_id and not user.is_admin():
+        logger.warning("User_id=%s attempted to update group_id=%s without ownership", user_id, group_id)
         return jsonify({'error': 'Only owner can update group'}), 403
 
     data = request.get_json()
     if not data:
+        logger.debug("Update group called without payload by user_id=%s for group_id=%s", user_id, group_id)
         return jsonify({'error': 'No data provided'}), 400
 
     # Update allowed fields
@@ -178,6 +199,10 @@ def update_group(group_id):
                         Group.id != group_id
                     ).first()
                     if existing_group_v6:
+                        logger.info(
+                            "IPv6 range %s already used; update blocked for group_id=%s user_id=%s",
+                            str(network_v6), group_id, user_id
+                        )
                         return jsonify({'error': f'IPv6 range {str(network_v6)} is already in use'}), 400
 
                 # Get first usable IPv6 for server if not already set
@@ -197,6 +222,8 @@ def update_group(group_id):
 
     db.session.commit()
 
+    logger.info("Group updated id=%s by user_id=%s", group_id, user_id)
+
     return jsonify(group.to_dict()), 200
 
 
@@ -209,14 +236,18 @@ def delete_group(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Delete failed: group_id=%s not found for user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     # Only owner or admin can delete
     if group.owner_id != user_id and not user.is_admin():
+        logger.warning("User_id=%s attempted to delete group_id=%s without ownership", user_id, group_id)
         return jsonify({'error': 'Only owner can delete group'}), 403
 
     db.session.delete(group)
     db.session.commit()
+
+    logger.info("Group deleted id=%s by user_id=%s", group_id, user_id)
 
     return jsonify({'message': 'Group deleted'}), 200
 
@@ -230,15 +261,19 @@ def get_group_config(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Group config requested for missing group_id=%s by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     if not user.can_access_group(group):
+        logger.warning("Access denied to group config group_id=%s by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Access denied'}), 403
 
     # Only owner or admin can get server config
     if group.owner_id != user_id and not user.is_admin():
+        logger.warning("Config access denied for group_id=%s by user_id=%s (not owner/admin)", group_id, user_id)
         return jsonify({'error': 'Only owner can access server config'}), 403
 
+    logger.info("Group config retrieved for group_id=%s by user_id=%s", group_id, user_id)
     return jsonify({
         'config': group.generate_server_config(),
         'filename': f'wg-{group.name.lower().replace(" ", "-")}.conf'
@@ -254,9 +289,11 @@ def get_group_members(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Members requested for missing group_id=%s by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     if not user.can_access_group(group):
+        logger.warning("Access denied to group members group_id=%s by user_id=%s", group_id, user_id)
         return jsonify({'error': 'Access denied'}), 403
 
     return jsonify([member.to_dict() for member in group.members]), 200
@@ -271,25 +308,37 @@ def add_group_member(group_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Add member failed: group_id=%s not found for user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     # Only owner or admin can add members
     if group.owner_id != user_id and not user.is_admin():
+        logger.warning("User_id=%s attempted to add member to group_id=%s without ownership", user_id, group_id)
         return jsonify({'error': 'Only owner can add members'}), 403
 
     data = request.get_json()
     if not data or 'user_id' not in data:
+        logger.debug("Add member called without user_id by user_id=%s for group_id=%s", user_id, group_id)
         return jsonify({'error': 'User ID required'}), 400
 
     member = User.query.get(data['user_id'])
     if not member:
+        logger.info("Add member failed: member_id=%s not found for group_id=%s", data['user_id'], group_id)
         return jsonify({'error': 'User not found'}), 404
 
     if member in group.members:
+        logger.info("User_id=%s already member of group_id=%s", member.id, group_id)
         return jsonify({'error': 'User is already a member'}), 409
 
     group.members.append(member)
     db.session.commit()
+
+    logger.info(
+        "Member user_id=%s added to group_id=%s by user_id=%s",
+        member.id,
+        group_id,
+        user_id
+    )
 
     return jsonify({'message': 'Member added'}), 200
 
@@ -303,20 +352,31 @@ def remove_group_member(group_id, member_id):
 
     group = Group.query.get(group_id)
     if not group:
+        logger.info("Remove member failed: group_id=%s not found for user_id=%s", group_id, user_id)
         return jsonify({'error': 'Group not found'}), 404
 
     # Only owner or admin can remove members
     if group.owner_id != user_id and not user.is_admin():
+        logger.warning("User_id=%s attempted to remove member from group_id=%s without ownership", user_id, group_id)
         return jsonify({'error': 'Only owner can remove members'}), 403
 
     member = User.query.get(member_id)
     if not member:
+        logger.info("Remove member failed: member_id=%s not found for group_id=%s", member_id, group_id)
         return jsonify({'error': 'User not found'}), 404
 
     if member not in group.members:
+        logger.info("Remove member failed: member_id=%s not in group_id=%s", member_id, group_id)
         return jsonify({'error': 'User is not a member'}), 404
 
     group.members.remove(member)
     db.session.commit()
+
+    logger.info(
+        "Member user_id=%s removed from group_id=%s by user_id=%s",
+        member_id,
+        group_id,
+        user_id
+    )
 
     return jsonify({'message': 'Member removed'}), 200

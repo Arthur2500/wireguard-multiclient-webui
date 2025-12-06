@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -18,17 +19,19 @@ def create_app(config_name=None):
     """Application factory."""
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
-    
+
     app = Flask(__name__)
     app.config.from_object(config_by_name[config_name])
-    
+
+    _configure_logging(app)
+
     # Initialize extensions
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
     CORS(app)
-    
+
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.users import users_bp
@@ -36,18 +39,18 @@ def create_app(config_name=None):
     from app.routes.clients import clients_bp
     from app.routes.stats import stats_bp
     from app.routes.settings import settings_bp
-    
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(groups_bp, url_prefix='/api/groups')
     app.register_blueprint(clients_bp, url_prefix='/api/clients')
     app.register_blueprint(stats_bp, url_prefix='/api/stats')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
-    
+
     # Create database tables
     with app.app_context():
         db.create_all()
-        
+
         # Create default admin user if not exists
         from app.models.user import User
         if not User.query.filter_by(username='admin').first():
@@ -62,7 +65,30 @@ def create_app(config_name=None):
             db.session.add(admin)
             db.session.commit()
             if default_password == 'admin':
-                print("WARNING: Using default admin password 'admin'. Change it immediately!")
-                print("Set ADMIN_PASSWORD environment variable to customize the initial password.")
-    
+                app.logger.warning("Using default admin password 'admin'. Change it immediately!")
+                app.logger.warning("Set ADMIN_PASSWORD environment variable to customize the initial password.")
+
     return app
+
+
+def _configure_logging(app):
+    """Configure basic structured logging to stdout."""
+    log_level = app.config.get('LOG_LEVEL', 'INFO').upper()
+
+    # Avoid adding duplicate handlers if the app factory is called multiple times (e.g., tests)
+    if app.logger.handlers:
+        app.logger.setLevel(log_level)
+        return
+
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        fmt='%(asctime)s %(levelname)s %(name)s %(message)s',
+        datefmt='%Y-%m-%dT%H:%M:%SZ'
+    )
+    handler.setFormatter(formatter)
+
+    app.logger.addHandler(handler)
+    app.logger.setLevel(log_level)
+
+    # Align werkzeug (request logs) with app logging level
+    logging.getLogger('werkzeug').setLevel(log_level)

@@ -11,7 +11,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES_HOURS', 24)))
-    
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+
     # WireGuard defaults
     WG_DEFAULT_DNS = os.environ.get('WG_DEFAULT_DNS', '1.1.1.1, 8.8.8.8')
     WG_DEFAULT_ENDPOINT = os.environ.get('WG_DEFAULT_ENDPOINT', '')

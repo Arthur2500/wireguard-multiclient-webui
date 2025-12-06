@@ -3,6 +3,8 @@ services:
     image: ghcr.io/arthur2500/wireguard-multiclient-webui-backend:latest
     container_name: wg-backend
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
