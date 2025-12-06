@@ -1,9 +1,13 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import App from './App';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe('App', () => {
+  it('renders login page when not authenticated', () => {
+    localStorage.clear();
+    render(<App />);
+    // Look for the WireGuard WebUI heading on login page
+    const titleElement = screen.getByText('WireGuard WebUI');
+    expect(titleElement).toBeInTheDocument();
+  });
 });
