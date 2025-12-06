@@ -49,7 +49,7 @@ class TrafficHistory(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=True)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=True)
     
-    # Traffic data (delta since last measurement)
+    # Traffic data (absolute cumulative values at time of measurement)
     received_bytes = db.Column(db.BigInteger, default=0)
     sent_bytes = db.Column(db.BigInteger, default=0)
     

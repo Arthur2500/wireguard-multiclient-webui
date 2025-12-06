@@ -104,7 +104,7 @@ const Stats: React.FC = () => {
     }
 
     if (graphView === 'groups' && groupsTraffic) {
-      const series = groupsTraffic.groups.map((g, index) => ({
+      const series = groupsTraffic.groups.map((g) => ({
         name: g.group_name,
         data: g.data,
         color: '',
@@ -119,7 +119,7 @@ const Stats: React.FC = () => {
     }
 
     if (graphView === 'clients' && clientsTraffic) {
-      const series = clientsTraffic.clients.map((c, index) => ({
+      const series = clientsTraffic.clients.map((c) => ({
         name: c.client_name,
         data: c.data,
         color: '',

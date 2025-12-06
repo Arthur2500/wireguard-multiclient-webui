@@ -434,19 +434,7 @@ def collect_traffic():
     total_sent = 0
     
     for client in clients:
-        # Get the last recorded traffic for this client to calculate delta
-        last_record = TrafficHistory.query.filter_by(
-            client_id=client.id
-        ).order_by(TrafficHistory.recorded_at.desc()).first()
-        
-        if last_record:
-            delta_received = max(0, client.total_received - (last_record.received_bytes or 0))
-            delta_sent = max(0, client.total_sent - (last_record.sent_bytes or 0))
-        else:
-            delta_received = client.total_received
-            delta_sent = client.total_sent
-        
-        # Record client traffic (absolute values, delta will be computed on read)
+        # Record client traffic (absolute values)
         client_history = TrafficHistory(
             client_id=client.id,
             group_id=client.group_id,

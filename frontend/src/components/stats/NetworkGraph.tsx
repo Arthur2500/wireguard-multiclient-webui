@@ -162,6 +162,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
         grid: {
           color: 'var(--border)',
         },
+        min: 0,
         ticks: {
           color: 'var(--text-secondary)',
           callback: (value) => formatBytes(value as number),
@@ -266,6 +267,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
         grid: {
           color: 'var(--border)',
         },
+        min: 0,
         ticks: {
           color: 'var(--text-secondary)',
           callback: (value) => formatBytes(value as number),
