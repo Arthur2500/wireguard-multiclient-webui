@@ -95,7 +95,10 @@ docker-compose up -d
 |----------|-------------|---------|
 | `SECRET_KEY` | Flask secret key | (required) |
 | `JWT_SECRET_KEY` | JWT signing key | (required) |
-| `DATABASE_URL` | Database connection string | `sqlite:////data/app.db` |
+| `POSTGRES_USER` | PostgreSQL username | `wireguard` |
+| `POSTGRES_PASSWORD` | PostgreSQL password | `wireguard` |
+| `POSTGRES_DB` | PostgreSQL database name | `wireguard` |
+| `DATABASE_URL` | Database connection string | `postgresql://wireguard:wireguard@db:5432/wireguard` |
 | `WG_CONFIG_PATH` | WireGuard config directory | `/etc/wireguard` |
 | `WG_DEFAULT_DNS` | Default DNS servers | `1.1.1.1, 8.8.8.8` |
 | `WG_DEFAULT_PORT` | Default listen port | `51820` |
@@ -185,8 +188,8 @@ pytest tests/ -v
                     ┌────────────┴────────────┐
                     ▼                         ▼
            ┌─────────────────┐      ┌─────────────────┐
-           │   SQLite DB     │      │   WireGuard     │
-           │                 │      │   Configs       │
+           │  PostgreSQL DB  │      │   WireGuard     │
+           │   (Container)   │      │   Configs       │
            └─────────────────┘      └─────────────────┘
 ```
 

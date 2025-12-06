@@ -5,6 +5,7 @@ Flask-Bcrypt
 Flask-CORS
 Flask-Limiter
 SQLAlchemy
+psycopg2-binary
 python-dotenv
 gunicorn
 pytest

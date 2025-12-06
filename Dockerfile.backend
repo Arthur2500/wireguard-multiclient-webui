@@ -2,11 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install WireGuard tools and dependencies
+# Install WireGuard tools, PostgreSQL client and dependencies
 RUN apt-get update && apt-get install -y \
     wireguard-tools \
     iptables \
     iproute2 \
+    libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies

@@ -1,4 +1,22 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: wg-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-wireguard}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-wireguard}
+      - POSTGRES_DB=${POSTGRES_DB:-wireguard}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wg-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wireguard} -d ${POSTGRES_DB:-wireguard}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
@@ -6,16 +24,18 @@ services:
     container_name: wg-backend
     restart: unless-stopped
     environment:
-      - FLASK_ENV=production
+      - FLASK_ENV=${FLASK_ENV:-production}
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-this-jwt-secret}
-      - DATABASE_URL=sqlite:////data/app.db
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-wireguard}:${POSTGRES_PASSWORD:-wireguard}@db:5432/${POSTGRES_DB:-wireguard}
       - WG_CONFIG_PATH=/etc/wireguard
     volumes:
-      - ./data:/data
-      - ./wireguard:/etc/wireguard
+      - wireguard_configs:/etc/wireguard
     networks:
       - wg-network
+    depends_on:
+      db:
+        condition: service_healthy
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -39,3 +59,7 @@ services:
 networks:
   wg-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  wireguard_configs:
