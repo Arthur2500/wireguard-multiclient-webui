@@ -1,5 +1,5 @@
 .group-detail {
-  padding: 20px;
+  padding: var(--spacing-lg);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -18,9 +18,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .page-header h1 {
@@ -35,15 +35,15 @@
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
 .btn-secondary {
-  padding: 10px 20px;
+  padding: var(--spacing-sm) 20px;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s;
@@ -57,15 +57,15 @@
 .group-info-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  gap: var(--spacing-lg);
   margin-bottom: 40px;
 }
 
 .info-card {
   background: var(--bg-primary);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px var(--shadow);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .info-card h3 {
@@ -92,18 +92,18 @@
 
 .clients-section {
   background: var(--bg-primary);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px var(--shadow);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
   flex-wrap: wrap;
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .section-header h2 {
@@ -191,12 +191,12 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 20px;
+  padding: var(--spacing-lg);
 }
 
 .modal {
   background: var(--bg-primary);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 700px;
   max-height: 80vh;
@@ -209,7 +209,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: var(--spacing-lg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -231,7 +231,7 @@
 .config-content {
   flex: 1;
   overflow: auto;
-  padding: 20px;
+  padding: var(--spacing-lg);
   background: var(--bg-tertiary);
   margin: 0;
   font-family: 'Monaco', 'Consolas', monospace;
@@ -242,11 +242,11 @@
 }
 
 .modal-footer {
-  padding: 20px;
+  padding: var(--spacing-lg);
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .empty-state {
@@ -273,16 +273,17 @@
   .header-actions .btn-primary {
     flex: 1;
     text-align: center;
+    min-height: 44px;
   }
 }
 
 @media (max-width: 768px) {
   .group-detail {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
 
   .clients-section {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
 
   .section-header {
@@ -293,5 +294,24 @@
   .section-header .btn-primary {
     width: 100%;
     text-align: center;
+    min-height: 48px;
+  }
+
+  .clients-table {
+    font-size: 14px;
+  }
+
+  .clients-table th,
+  .clients-table td {
+    padding: var(--spacing-sm);
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .actions .btn-action {
+    width: 100%;
   }
 }
