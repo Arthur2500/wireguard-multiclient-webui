@@ -123,8 +123,12 @@ const formatTime = (dateString: string | null): string => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
+// Constants for graph configuration
+const EMPTY_GRAPH_TIME_POINTS = 12;
+const TIME_INTERVAL_MINUTES = 5;
+
 // Generate time labels even when data is empty
-const generateTimeLabels = (data: TrafficDataPoint[], count: number = 12): string[] => {
+const generateTimeLabels = (data: TrafficDataPoint[], count: number = EMPTY_GRAPH_TIME_POINTS): string[] => {
   if (data.length > 0) {
     return data.map(d => formatTime(d.recorded_at));
   }
@@ -133,7 +137,7 @@ const generateTimeLabels = (data: TrafficDataPoint[], count: number = 12): strin
   const now = new Date();
   const labels: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
-    const time = new Date(now.getTime() - i * 5 * 60 * 1000); // 5 minute intervals
+    const time = new Date(now.getTime() - i * TIME_INTERVAL_MINUTES * 60 * 1000);
     labels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   }
   return labels;
@@ -319,18 +323,16 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
     });
 
     let sortedTimestamps = Array.from(allTimestamps).sort();
-    let labels = sortedTimestamps.map(t => formatTime(t));
+    let labels: string[];
     
-    // If no data, generate empty time labels
+    // If no data, generate empty time labels using the shared function
     if (sortedTimestamps.length === 0) {
-      const now = new Date();
-      const tempLabels: string[] = [];
-      for (let i = 11; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 5 * 60 * 1000); // 5 minute intervals
-        tempLabels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-      }
-      labels = tempLabels;
-      sortedTimestamps = Array(12).fill(null);
+      // Create dummy data points for label generation
+      const dummyData: TrafficDataPoint[] = [];
+      labels = generateTimeLabels(dummyData, EMPTY_GRAPH_TIME_POINTS);
+      sortedTimestamps = Array(EMPTY_GRAPH_TIME_POINTS).fill(null);
+    } else {
+      labels = sortedTimestamps.map(t => formatTime(t));
     }
 
     const datasets = series.map((s, index) => {

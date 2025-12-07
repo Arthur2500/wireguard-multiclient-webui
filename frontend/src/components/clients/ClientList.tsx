@@ -26,12 +26,12 @@ const ClientList: React.FC = () => {
       const groupsData = await groupService.getAll();
       setGroups(groupsData);
 
-      // Load clients from all groups
-      const allClients: Client[] = [];
-      for (const group of groupsData) {
-        const groupClients = await clientService.getByGroup(group.id);
-        allClients.push(...groupClients);
-      }
+      // Load clients from all groups concurrently for better performance
+      const clientPromises = groupsData.map(group => 
+        clientService.getByGroup(group.id)
+      );
+      const clientsArrays = await Promise.all(clientPromises);
+      const allClients = clientsArrays.flat();
       setClients(allClients);
     } catch (err: any) {
       setError('Failed to load clients');
