@@ -6,7 +6,8 @@ import tempfile
 if 'WG_CONFIG_PATH' not in os.environ:
     os.environ['WG_CONFIG_PATH'] = tempfile.mkdtemp(prefix='wg-test-')
 
-from app import create_app, db, limiter
+from app import create_app, db
+from app.routes.auth import limiter
 from app.models.user import User
 
 

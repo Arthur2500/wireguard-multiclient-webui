@@ -1,7 +1,11 @@
+"""Decorators for route authorization and access control."""
+import logging
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 
 
 def admin_required(fn):
@@ -13,6 +17,7 @@ def admin_required(fn):
         user = User.query.get(user_id)
 
         if not user or not user.is_admin():
+            logger.warning("Admin access denied for user_id=%s on %s", user_id, fn.__name__)
             return jsonify({'error': 'Admin access required'}), 403
 
         return fn(*args, **kwargs)
@@ -28,6 +33,7 @@ def group_access_required(fn):
         user = User.query.get(user_id)
 
         if not user:
+            logger.warning("User not found for user_id=%s on %s", user_id, fn.__name__)
             return jsonify({'error': 'User not found'}), 404
 
         # Store user in kwargs for access in route

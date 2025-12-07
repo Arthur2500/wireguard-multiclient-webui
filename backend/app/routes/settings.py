@@ -1,8 +1,13 @@
+"""Settings management routes for WireGuard configuration."""
+import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.models.settings import Settings, DEFAULT_SETTINGS
 from app.utils.decorators import admin_required
+from app.utils.helpers import create_error_response, create_success_response
 from app import db
+
+logger = logging.getLogger(__name__)
 
 settings_bp = Blueprint('settings', __name__)
 
@@ -11,6 +16,7 @@ settings_bp = Blueprint('settings', __name__)
 @jwt_required()
 def get_settings():
     """Get all settings."""
+    logger.debug("Fetching all settings")
     settings = Settings.query.all()
     
     # Return settings as key-value pairs
@@ -25,6 +31,7 @@ def get_settings():
 @jwt_required()
 def get_setting(key):
     """Get a specific setting."""
+    logger.debug("Fetching setting key=%s", key)
     setting = Settings.query.filter_by(key=key).first()
     
     if setting:
@@ -39,7 +46,8 @@ def get_setting(key):
             'updated_at': None,
         }), 200
     
-    return jsonify({'error': 'Setting not found'}), 404
+    logger.info("Setting not found key=%s", key)
+    return create_error_response('Setting not found', 404)
 
 
 @settings_bp.route('/<string:key>', methods=['PUT'])
@@ -49,7 +57,8 @@ def update_setting(key):
     data = request.get_json()
     
     if not data or 'value' not in data:
-        return jsonify({'error': 'Value required'}), 400
+        logger.debug("Setting update with missing value key=%s", key)
+        return create_error_response('Value required', 400)
     
     setting = Settings.set(
         key=key,
@@ -57,6 +66,7 @@ def update_setting(key):
         description=data.get('description')
     )
     
+    logger.info("Setting updated key=%s", key)
     return jsonify(setting.to_dict()), 200
 
 
@@ -67,13 +77,15 @@ def update_settings_bulk():
     data = request.get_json()
     
     if not data or not isinstance(data, dict):
-        return jsonify({'error': 'Settings dictionary required'}), 400
+        logger.debug("Bulk settings update with invalid data")
+        return create_error_response('Settings dictionary required', 400)
     
     updated = []
     for key, value in data.items():
         setting = Settings.set(key=key, value=str(value))
         updated.append(setting.to_dict())
     
+    logger.info("Bulk settings updated count=%s", len(updated))
     return jsonify(updated), 200
 
 
@@ -81,6 +93,7 @@ def update_settings_bulk():
 @jwt_required()
 def get_default_settings():
     """Get default WireGuard settings."""
+    logger.debug("Fetching default settings")
     return jsonify(DEFAULT_SETTINGS), 200
 
 
@@ -89,7 +102,8 @@ def get_default_settings():
 def reset_settings():
     """Reset all settings to defaults (admin only)."""
     # Delete all settings
-    Settings.query.delete()
+    deleted_count = Settings.query.delete()
     db.session.commit()
     
-    return jsonify({'message': 'Settings reset to defaults'}), 200
+    logger.info("Settings reset to defaults count=%s", deleted_count)
+    return create_success_response(message='Settings reset to defaults')
