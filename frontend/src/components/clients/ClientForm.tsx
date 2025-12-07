@@ -44,8 +44,8 @@ const ClientForm: React.FC = () => {
 
   const isSubnetMode = (allowedIps: string, groupData: Group | null): boolean => {
     if (!groupData) return false;
-    
-    return allowedIps === groupData.ip_range || 
+
+    return allowedIps === groupData.ip_range ||
            allowedIps === `${groupData.ip_range}, ${groupData.ip_range_v6}` ||
            allowedIps === groupData.ip_range_v6;
   };
@@ -60,7 +60,7 @@ const ClientForm: React.FC = () => {
       } else if (isSubnetMode(client.allowed_ips, group)) {
         mode = 'subnet';
       }
-      
+
       setFormData({
         name: client.name,
         description: client.description || '',
@@ -95,7 +95,7 @@ const ClientForm: React.FC = () => {
   const handleAllowedIpsModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const mode = e.target.value as 'all' | 'subnet' | 'custom';
     let newAllowedIps = formData.allowed_ips;
-    
+
     if (mode === 'all') {
       newAllowedIps = '0.0.0.0/0, ::/0';
     } else if (mode === 'subnet' && group) {
@@ -107,7 +107,7 @@ const ClientForm: React.FC = () => {
       }
     }
     // For 'custom', keep the current value
-    
+
     setFormData(prev => ({
       ...prev,
       allowed_ips_mode: mode,
@@ -162,7 +162,7 @@ const ClientForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="client-form">
         <div className="form-section">
           <h2>Client Information</h2>
-          
+
           <div className="form-group">
             <label htmlFor="name">Client Name *</label>
             <input
@@ -191,7 +191,7 @@ const ClientForm: React.FC = () => {
 
         <div className="form-section">
           <h2>Network Settings</h2>
-          
+
           <div className="form-group">
             <label htmlFor="allowed_ips_mode">Traffic Routing</label>
             <select
@@ -236,8 +236,8 @@ const ClientForm: React.FC = () => {
                 style={{ backgroundColor: 'var(--bg-secondary)', cursor: 'not-allowed' }}
               />
               <small className="help-text">
-                {formData.allowed_ips_mode === 'all' 
-                  ? 'All traffic will be routed through the VPN' 
+                {formData.allowed_ips_mode === 'all'
+                  ? 'All traffic will be routed through the VPN'
                   : 'Only traffic to the VPN subnet will be routed through the VPN'}
               </small>
             </div>
@@ -270,27 +270,6 @@ const ClientForm: React.FC = () => {
               Client will be automatically deactivated after this date. Leave empty for no expiration.
             </small>
           </div>
-        </div>
-
-        <div className="form-section">
-          <h2>Options</h2>
-          
-          {isEdit && (
-            <div className="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={handleChange}
-                />
-                <span>Client is active</span>
-              </label>
-              <small className="help-text">
-                Disabled clients won't be included in the server configuration
-              </small>
-            </div>
-          )}
         </div>
 
         <div className="form-actions">

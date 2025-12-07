@@ -147,6 +147,16 @@
   color: var(--text-primary);
 }
 
+.client-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.client-link:hover .client-name {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .client-desc {
   display: block;
   font-size: 12px;
@@ -250,15 +260,15 @@
   .group-info-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .page-header {
     flex-direction: column;
   }
-  
+
   .header-actions {
     width: 100%;
   }
-  
+
   .header-actions .btn-secondary,
   .header-actions .btn-primary {
     flex: 1;
@@ -270,16 +280,16 @@
   .group-detail {
     padding: 15px;
   }
-  
+
   .clients-section {
     padding: 15px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .section-header .btn-primary {
     width: 100%;
     text-align: center;

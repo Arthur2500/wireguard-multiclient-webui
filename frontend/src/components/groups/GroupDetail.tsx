@@ -252,7 +252,9 @@ const GroupDetail: React.FC = () => {
                 {clients.map((client) => (
                   <tr key={client.id} className={!client.is_active ? 'disabled' : ''}>
                     <td>
-                      <span className="client-name">{client.name}</span>
+                      <Link to={`/clients/${client.id}`} className="client-link">
+                        <span className="client-name">{client.name}</span>
+                      </Link>
                       {client.description && (
                         <span className="client-desc">{client.description}</span>
                       )}

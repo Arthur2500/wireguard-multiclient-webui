@@ -5,14 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from config import config_by_name
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-limiter = Limiter(key_func=get_remote_address, default_limits=["1000 per hour"])
 
 
 def create_app(config_name=None):
@@ -29,16 +26,18 @@ def create_app(config_name=None):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    limiter.init_app(app)
     CORS(app)
 
     # Register blueprints
-    from app.routes.auth import auth_bp
+    from app.routes.auth import auth_bp, limiter as auth_limiter
     from app.routes.users import users_bp
     from app.routes.groups import groups_bp
     from app.routes.clients import clients_bp
     from app.routes.stats import stats_bp
     from app.routes.settings import settings_bp
+
+    # Initialize limiter for auth routes
+    auth_limiter.init_app(app)
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -71,7 +70,7 @@ def create_app(config_name=None):
         # Restart all WireGuard interfaces that should be running
         # This ensures interfaces come back up when the container/application restarts
         _restart_wireguard_interfaces(app)
-        
+
         # Initialize background scheduler for statistics collection
         from app.scheduler import init_scheduler
         scheduler = init_scheduler(app)

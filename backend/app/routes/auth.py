@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from app.models.user import User
-from app import db, limiter
+from app import db
 
 auth_bp = Blueprint('auth', __name__)
+limiter = Limiter(key_func=get_remote_address)
 
 
 @auth_bp.route('/login', methods=['POST'])

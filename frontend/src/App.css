@@ -313,6 +313,8 @@ select option {
   background: rgba(239, 68, 68, 0.3);
 }
 
+/* Compact toggle buttons matching primary success/danger palette */
+
 .modal-overlay {
   position: fixed;
   top: 0;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import statsService from '../../services/stats.service';
 import {
   SystemStats,
@@ -255,7 +256,11 @@ const Stats: React.FC = () => {
           <tbody>
             {stats.groups.length > 0 ? stats.groups.map((group) => (
               <tr key={group.id}>
-                <td className="group-name">{group.name}</td>
+                <td className="group-name">
+                  <Link to={`/groups/${group.id}`} className="stats-link">
+                    {group.name}
+                  </Link>
+                </td>
                 <td>{group.owner}</td>
                 <td>{group.client_count}</td>
                 <td>
@@ -296,7 +301,11 @@ const Stats: React.FC = () => {
           <tbody>
             {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
               <tr key={client.id}>
-                <td className="group-name">{client.name}</td>
+                <td className="group-name">
+                  <Link to={`/clients/${client.id}`} className="stats-link">
+                    {client.name}
+                  </Link>
+                </td>
                 <td>{client.group_name}</td>
                 <td>
                   <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
@@ -337,7 +346,11 @@ const Stats: React.FC = () => {
           <tbody>
             {stats.users && stats.users.length > 0 ? stats.users.map((user) => (
               <tr key={user.id}>
-                <td className="group-name">{user.username}</td>
+                <td className="group-name">
+                  <Link to="/users" className="stats-link">
+                    {user.username}
+                  </Link>
+                </td>
                 <td>
                   <span className={`badge ${user.role === 'admin' ? 'badge-warning' : 'badge-muted'}`}>
                     {user.role}

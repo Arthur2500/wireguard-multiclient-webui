@@ -278,6 +278,16 @@
   color: var(--primary);
 }
 
+.stats-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stats-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .stats-table .total-traffic {
   font-weight: 500;
   color: var(--text-primary);

@@ -4,7 +4,7 @@ import clientService from '../../services/client.service';
 import statsService from '../../services/stats.service';
 import { Client, TimeRange, TrafficDataPoint } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
-import { Download, Lock, Unlock, Pencil, Trash2, ArrowLeft } from 'lucide-react';
+import { Download, Pencil, Trash2, ArrowLeft, StopCircle, PlayCircle } from 'lucide-react';
 import { NetworkGraph } from '../stats/NetworkGraph';
 import TimeRangeSelector from '../stats/TimeRangeSelector';
 import './ClientDetail.css';
@@ -16,7 +16,7 @@ const ClientDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Traffic graph state
   const [timeRange, setTimeRange] = useState<TimeRange>('1h');
   const [trafficData, setTrafficData] = useState<TrafficDataPoint[]>([]);
@@ -84,7 +84,7 @@ const ClientDetail: React.FC = () => {
 
   const handleToggleActive = async () => {
     if (!client) return;
-    
+
     try {
       const updated = await clientService.update(client.id, { is_active: !client.is_active });
       setClient(updated);
@@ -95,7 +95,7 @@ const ClientDetail: React.FC = () => {
 
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this client?')) return;
-    
+
     try {
       await clientService.delete(Number(id));
       navigate('/clients');
@@ -106,7 +106,7 @@ const ClientDetail: React.FC = () => {
 
   const handleDownloadConfig = async () => {
     if (!client) return;
-    
+
     try {
       const config = await clientService.getConfig(client.id);
       downloadFile(config.config, config.filename);
@@ -132,8 +132,8 @@ const ClientDetail: React.FC = () => {
           <button onClick={handleDownloadConfig} className="btn-secondary">
             <Download size={16} /> Download Config
           </button>
-          <button onClick={handleToggleActive} className={client.is_active ? 'btn-warning' : 'btn-success'}>
-            {client.is_active ? <><Lock size={16} /> Disable</> : <><Unlock size={16} /> Enable</>}
+          <button onClick={handleToggleActive} className={client.is_active ? 'btn-danger' : 'btn-success'}>
+            {client.is_active ? <><StopCircle size={16} /> Disable</> : <><PlayCircle size={16} /> Enable</>}
           </button>
           <Link to={`/clients/${id}/edit`} className="btn-primary">
             <Pencil size={16} /> Edit

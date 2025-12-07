@@ -27,7 +27,7 @@ const ClientList: React.FC = () => {
       setGroups(groupsData);
 
       // Load clients from all groups concurrently using Promise.all() to reduce total loading time compared to sequential requests
-      const clientPromises = groupsData.map(group => 
+      const clientPromises = groupsData.map(group =>
         clientService.getByGroup(group.id)
       );
       const clientsArrays = await Promise.all(clientPromises);
