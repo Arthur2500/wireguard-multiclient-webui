@@ -358,7 +358,6 @@ AllowedIPs = {allowed_ips}
         except Exception as e:
             logger.debug("Failed to disable systemd service for group_id=%s: %s", self.id, e)
             return True
-        return success
 
     def update_client_stats(self):
         """Update client statistics from WireGuard interface."""
