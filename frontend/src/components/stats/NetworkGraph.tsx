@@ -126,6 +126,7 @@ const formatTime = (dateString: string | null): string => {
 // Constants for graph configuration
 const EMPTY_GRAPH_TIME_POINTS = 12;
 const TIME_INTERVAL_MINUTES = 5;
+const DEFAULT_DATA_POINT = { received_bytes: 0, sent_bytes: 0 };
 
 // Generate time labels even when data is empty
 const generateTimeLabels = (data: TrafficDataPoint[], count: number = EMPTY_GRAPH_TIME_POINTS): string[] => {
@@ -155,7 +156,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
   const chartData: ChartData<'line'> = useMemo(() => {
     const labels = generateTimeLabels(data);
-    const dataPoints = data.length > 0 ? data : Array(labels.length).fill({ received_bytes: 0, sent_bytes: 0 });
+    const dataPoints = data.length > 0 ? data : Array(labels.length).fill(DEFAULT_DATA_POINT);
 
     const datasets = [];
 

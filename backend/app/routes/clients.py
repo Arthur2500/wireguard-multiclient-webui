@@ -321,7 +321,7 @@ def regenerate_keys(client_id):
     client.private_key = private_key
     client.public_key = public_key
 
-    # Regenerate preshared key if it exists or if config setting is enabled
+    # Regenerate preshared key if client already has one or if globally enabled via WG_USE_PRESHARED_KEY config
     if client.preshared_key or current_app.config.get('WG_USE_PRESHARED_KEY', False):
         client.preshared_key = generate_preshared_key()
 
