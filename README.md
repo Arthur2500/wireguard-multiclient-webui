@@ -1,6 +1,6 @@
 # WireGuard Multi-Client WebUI
 
-A comprehensive web-based management interface for WireGuard VPN, featuring multi-user support, group management, and client-to-client communication controls.
+A simple web-based management interface for WireGuard VPN as a wg-quick wrapper, featuring multi-user support and group management with automatic systemd persistence.
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 
@@ -17,12 +17,12 @@ A comprehensive web-based management interface for WireGuard VPN, featuring mult
 - Each group has its own IP range
 - Assign group access to users
 - Per-group configuration settings
+- **Auto-start on boot**: Groups are enabled by default with systemd integration for absolute reliability
 
 ### 3. Client Management
 - Add unlimited clients to each group
 - Automatic IP address allocation
 - Per-client settings:
-  - Enable/disable client-to-client communication
   - Custom DNS override
   - Custom allowed IPs
 - One-click configuration download
@@ -35,11 +35,11 @@ A comprehensive web-based management interface for WireGuard VPN, featuring mult
   - DNS servers
   - MTU
   - Persistent keepalive
-  - Client-to-client toggle
 - **System-Wide Defaults** (Admin only):
   - Default DNS
   - Default port
   - Default MTU
+- **Systemd Integration**: Automatic restart of WireGuard interfaces across reboots
 
 ### 5. Statistics & Monitoring
 - System overview dashboard
