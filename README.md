@@ -1,6 +1,6 @@
 # WireGuard Multi-Client WebUI
 
-A simple web-based management interface for WireGuard VPN as a wg-quick wrapper, featuring multi-user support and group management with automatic systemd persistence.
+A simple web-based management interface for WireGuard VPN as a wg-quick wrapper, featuring multi-user support and group management with automatic restart on container/application startup.
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 
@@ -17,7 +17,7 @@ A simple web-based management interface for WireGuard VPN as a wg-quick wrapper,
 - Each group has its own IP range
 - Assign group access to users
 - Per-group configuration settings
-- **Auto-start on boot**: Groups are enabled by default with systemd integration for absolute reliability
+- **Auto-restart on startup**: Groups enabled by default, automatically restart when container/application starts
 
 ### 3. Client Management
 - Add unlimited clients to each group
@@ -39,7 +39,7 @@ A simple web-based management interface for WireGuard VPN as a wg-quick wrapper,
   - Default DNS
   - Default port
   - Default MTU
-- **Systemd Integration**: Automatic restart of WireGuard interfaces across reboots
+- **Docker-Compatible Auto-Restart**: WireGuard interfaces automatically restart when application starts
 
 ### 5. Statistics & Monitoring
 - System overview dashboard

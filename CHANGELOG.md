@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - **Simplified Architecture**: Removed all peer-to-peer communication features to make this a simple wg-quick wrapper
 - **Auto-Start Groups**: Groups now default to `is_running=True` and are automatically started on creation
-- **Systemd Integration**: WireGuard interfaces now automatically restart across reboots via systemd service integration
+- **Docker-Compatible Auto-Restart**: WireGuard interfaces automatically restart when application/container starts (replaces systemd integration)
 - **Server Config Location**: Server configurations are now properly saved in the group-specific directory
 
 ### Removed
@@ -19,8 +19,8 @@ All notable changes to this project will be documented in this file.
 
 ### Technical Details
 - Groups are created with `is_running=True` by default for immediate availability
-- When a group is started, systemd service `wg-quick@wg{id}` is automatically enabled
-- When a group is stopped, the corresponding systemd service is disabled
+- On application startup, all groups with `is_running=True` are automatically restarted
+- This works in Docker containers (no systemd required) and provides absolute reliability
 - Server configuration files are stored in `/etc/wireguard/{group-name}/server.conf`
 - Client configuration files are stored in `/etc/wireguard/{group-name}/{client-name}.conf`
 

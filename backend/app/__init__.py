@@ -68,7 +68,45 @@ def create_app(config_name=None):
                 app.logger.warning("Using default admin password 'admin'. Change it immediately!")
                 app.logger.warning("Set ADMIN_PASSWORD environment variable to customize the initial password.")
 
+        # Restart all WireGuard interfaces that should be running
+        # This ensures interfaces come back up when the container/application restarts
+        _restart_wireguard_interfaces(app)
+
     return app
+
+
+def _restart_wireguard_interfaces(app):
+    """Restart all WireGuard interfaces marked as running.
+    
+    This function is called on application startup to ensure that all
+    WireGuard interfaces that should be running are restarted. This provides
+    automatic recovery after container/application restarts.
+    """
+    try:
+        from app.models.group import Group
+        
+        # Find all groups that should be running
+        running_groups = Group.query.filter_by(is_running=True).all()
+        
+        if running_groups:
+            app.logger.info(f"Restarting {len(running_groups)} WireGuard interface(s) on startup...")
+            
+            for group in running_groups:
+                try:
+                    # Start the interface
+                    success = group.start_wireguard()
+                    if success:
+                        app.logger.info(f"Started WireGuard interface {group.get_wireguard_interface_name()} for group '{group.name}'")
+                    else:
+                        app.logger.warning(f"Failed to start WireGuard interface for group '{group.name}'")
+                except Exception as e:
+                    app.logger.error(f"Error starting WireGuard interface for group '{group.name}': {e}")
+        else:
+            app.logger.debug("No WireGuard interfaces to restart on startup")
+            
+    except Exception as e:
+        # Don't fail startup if WireGuard restart fails
+        app.logger.error(f"Error during WireGuard interface restart: {e}", exc_info=True)
 
 
 def _configure_logging(app):

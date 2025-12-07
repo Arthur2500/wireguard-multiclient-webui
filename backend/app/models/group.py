@@ -272,8 +272,6 @@ AllowedIPs = {allowed_ips}
         if success:
             self.is_running = True
             db.session.commit()
-            # Enable systemd service for automatic startup on boot
-            self.enable_systemd_service()
         return success
 
     def stop_wireguard(self):
@@ -285,79 +283,7 @@ AllowedIPs = {allowed_ips}
         if success:
             self.is_running = False
             db.session.commit()
-            # Disable systemd service to prevent automatic startup on boot
-            self.disable_systemd_service()
         return success
-
-    def enable_systemd_service(self):
-        """Enable systemd service for this WireGuard interface to start on boot.
-        
-        This creates a systemd service unit that ensures the WireGuard interface
-        starts automatically on system boot for absolute reliability.
-        
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            interface_name = self.get_wireguard_interface_name()
-            group_dir = self.get_group_config_dir()
-            if not group_dir:
-                return False
-            
-            server_filepath = os.path.join(group_dir, "server.conf")
-            
-            # Use wg-quick@<interface> systemd service
-            # This is the standard way to enable WireGuard interfaces on boot
-            import subprocess
-            
-            # Enable the service
-            result = subprocess.run(
-                ['systemctl', 'enable', f'wg-quick@{interface_name}'],
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode == 0:
-                logger.info("Systemd service enabled for interface %s", interface_name)
-                return True
-            else:
-                logger.warning("Could not enable systemd service for %s: %s", interface_name, result.stderr)
-                # This is not critical - the interface can still work without systemd
-                return True
-                
-        except Exception as e:
-            logger.warning("Failed to enable systemd service for group_id=%s: %s", self.id, e)
-            # Not critical, return True anyway
-            return True
-
-    def disable_systemd_service(self):
-        """Disable systemd service for this WireGuard interface.
-        
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            interface_name = self.get_wireguard_interface_name()
-            
-            import subprocess
-            
-            # Disable the service
-            result = subprocess.run(
-                ['systemctl', 'disable', f'wg-quick@{interface_name}'],
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode == 0:
-                logger.info("Systemd service disabled for interface %s", interface_name)
-                return True
-            else:
-                logger.debug("Could not disable systemd service for %s: %s", interface_name, result.stderr)
-                return True
-                
-        except Exception as e:
-            logger.debug("Failed to disable systemd service for group_id=%s: %s", self.id, e)
-            return True
 
     def update_client_stats(self):
         """Update client statistics from WireGuard interface."""
