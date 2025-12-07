@@ -1,4 +1,11 @@
 import pytest
+import os
+import tempfile
+
+# Set WG_CONFIG_PATH before importing anything else to avoid permission errors in tests
+if 'WG_CONFIG_PATH' not in os.environ:
+    os.environ['WG_CONFIG_PATH'] = tempfile.mkdtemp(prefix='wg-test-')
+
 from app import create_app, db, limiter
 from app.models.user import User
 

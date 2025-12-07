@@ -5,7 +5,6 @@ interface CreateClientData {
   name: string;
   description?: string;
   allowed_ips?: string;
-  can_address_peers?: boolean;
   dns_override?: string;
   use_preshared_key?: boolean;
   expires_at?: string;
@@ -15,7 +14,6 @@ interface UpdateClientData {
   name?: string;
   description?: string;
   allowed_ips?: string;
-  can_address_peers?: boolean;
   dns_override?: string;
   is_active?: boolean;
   expires_at?: string | null;

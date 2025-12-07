@@ -130,7 +130,6 @@ def create_group():
         endpoint=data.get('endpoint', ''),
         persistent_keepalive=data.get('persistent_keepalive', 25),
         mtu=data.get('mtu', 1420),
-        allow_client_to_client=data.get('allow_client_to_client', True),
         owner_id=user_id
     )
 
@@ -186,8 +185,6 @@ def update_group(group_id):
         group.persistent_keepalive = data['persistent_keepalive']
     if 'mtu' in data:
         group.mtu = data['mtu']
-    if 'allow_client_to_client' in data:
-        group.allow_client_to_client = data['allow_client_to_client']
 
     # Handle IPv6 range update (only if not already set or admin)
     if 'ip_range_v6' in data:

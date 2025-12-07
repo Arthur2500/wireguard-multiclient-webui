@@ -27,7 +27,6 @@ class Client(db.Model):
 
     # Client-specific settings
     allowed_ips = db.Column(db.String(255), default='0.0.0.0/0, ::/0')  # What IPs client can route
-    can_address_peers = db.Column(db.Boolean, default=True)  # Can this client talk to other clients
 
     # Custom DNS (overrides group DNS)
     dns_override = db.Column(db.String(255))
@@ -58,7 +57,6 @@ class Client(db.Model):
             'assigned_ip': self.assigned_ip,
             'assigned_ip_v6': self.assigned_ip_v6,
             'allowed_ips': self.allowed_ips,
-            'can_address_peers': self.can_address_peers,
             'dns_override': self.dns_override,
             'is_active': self.is_active,
             'expires_at': self.expires_at.isoformat() if self.expires_at else None,
@@ -75,22 +73,8 @@ class Client(db.Model):
         group = self.group
         dns = self.dns_override or group.dns
 
-        # Determine allowed IPs - what traffic should go through the VPN tunnel
-        # Default behavior: use whatever is configured in client.allowed_ips
+        # Use the configured allowed IPs (what traffic should go through the VPN tunnel)
         allowed_ips = self.allowed_ips
-
-        # If client can't address peers and group doesn't allow client-to-client
-        # then restrict to only server IP (no peer-to-peer routing)
-        if not self.can_address_peers or not group.allow_client_to_client:
-            # Check if full tunnel is requested (0.0.0.0/0)
-            if self.allowed_ips and '0.0.0.0/0' in self.allowed_ips:
-                # Keep full tunnel routing
-                allowed_ips = '0.0.0.0/0, ::/0'
-            else:
-                # Only route to server IP and VPN subnet, not other clients
-                allowed_ips = f"{group.ip_range}"
-                if group.ip_range_v6:
-                    allowed_ips += f", {group.ip_range_v6}"
 
         # Build Address line with IPv4 and optional IPv6
         address = f"{self.assigned_ip}/{group.get_subnet_mask()}"

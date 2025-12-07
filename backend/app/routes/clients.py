@@ -125,7 +125,6 @@ def create_client(group_id):
         assigned_ip=assigned_ip,
         assigned_ip_v6=assigned_ip_v6,
         allowed_ips=data.get('allowed_ips', '0.0.0.0/0, ::/0'),
-        can_address_peers=data.get('can_address_peers', True),
         dns_override=data.get('dns_override'),
         is_active=True,
         expires_at=expires_at,
@@ -176,8 +175,6 @@ def update_client(client_id):
         client.description = data['description']
     if 'allowed_ips' in data:
         client.allowed_ips = data['allowed_ips']
-    if 'can_address_peers' in data:
-        client.can_address_peers = data['can_address_peers']
     if 'dns_override' in data:
         client.dns_override = data['dns_override']
     if 'is_active' in data:

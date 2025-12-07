@@ -9,7 +9,6 @@ interface ClientFormData {
   name: string;
   description: string;
   allowed_ips: string;
-  can_address_peers: boolean;
   dns_override: string;
   use_preshared_key: boolean;
   is_active: boolean;
@@ -26,7 +25,6 @@ const ClientForm: React.FC = () => {
     name: '',
     description: '',
     allowed_ips: '0.0.0.0/0, ::/0',
-    can_address_peers: true,
     dns_override: '',
     use_preshared_key: false,
     is_active: true,
@@ -51,7 +49,6 @@ const ClientForm: React.FC = () => {
         name: client.name,
         description: client.description || '',
         allowed_ips: client.allowed_ips,
-        can_address_peers: client.can_address_peers,
         dns_override: client.dns_override || '',
         use_preshared_key: false,
         is_active: client.is_active,
@@ -90,7 +87,6 @@ const ClientForm: React.FC = () => {
           name: formData.name,
           description: formData.description,
           allowed_ips: formData.allowed_ips,
-          can_address_peers: formData.can_address_peers,
           dns_override: formData.dns_override || undefined,
           is_active: formData.is_active,
           expires_at: formData.expires_at ? formData.expires_at : null,
@@ -100,7 +96,6 @@ const ClientForm: React.FC = () => {
           name: formData.name,
           description: formData.description,
           allowed_ips: formData.allowed_ips,
-          can_address_peers: formData.can_address_peers,
           dns_override: formData.dns_override || undefined,
           use_preshared_key: formData.use_preshared_key,
           expires_at: formData.expires_at || undefined,
@@ -206,21 +201,6 @@ const ClientForm: React.FC = () => {
         <div className="form-section">
           <h2>Options</h2>
           
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="can_address_peers"
-                checked={formData.can_address_peers}
-                onChange={handleChange}
-              />
-              <span>Can address other peers</span>
-            </label>
-            <small className="help-text">
-              Allow this client to communicate with other clients in the group
-            </small>
-          </div>
-
           {!isEdit && (
             <div className="form-group checkbox-group">
               <label>

@@ -63,12 +63,12 @@ def test_update_client(client, auth_headers):
     # Update client
     response = client.put(f'/api/clients/{client_id}', json={
         'name': 'Updated Name',
-        'can_address_peers': False
+        'description': 'Updated description'
     }, headers=auth_headers)
     assert response.status_code == 200
     data = response.get_json()
     assert data['name'] == 'Updated Name'
-    assert data['can_address_peers'] is False
+    assert data['description'] == 'Updated description'
 
 
 def test_delete_client(client, auth_headers):

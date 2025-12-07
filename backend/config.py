@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+import tempfile
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -36,6 +37,10 @@ class TestingConfig(Config):
     """Testing configuration."""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # Use environment variable for testing, set to temp dir if not already set
+    if 'WG_CONFIG_PATH' not in os.environ:
+        os.environ['WG_CONFIG_PATH'] = tempfile.mkdtemp(prefix='wg-test-')
+    WG_CONFIG_PATH = os.environ['WG_CONFIG_PATH']
 
 
 config_by_name = {

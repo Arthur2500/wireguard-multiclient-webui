@@ -24,7 +24,6 @@ export interface Group {
   endpoint: string | null;
   persistent_keepalive: number;
   mtu: number;
-  allow_client_to_client: boolean;
   is_running: boolean;
   owner_id: number;
   owner_username: string | null;
@@ -41,7 +40,6 @@ export interface Client {
   assigned_ip: string;
   assigned_ip_v6: string | null;
   allowed_ips: string;
-  can_address_peers: boolean;
   dns_override: string | null;
   is_active: boolean;
   expires_at: string | null;

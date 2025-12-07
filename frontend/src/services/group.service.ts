@@ -11,7 +11,6 @@ interface CreateGroupData {
   endpoint?: string;
   persistent_keepalive?: number;
   mtu?: number;
-  allow_client_to_client?: boolean;
 }
 
 interface UpdateGroupData {
@@ -22,7 +21,6 @@ interface UpdateGroupData {
   endpoint?: string;
   persistent_keepalive?: number;
   mtu?: number;
-  allow_client_to_client?: boolean;
   listen_port?: number;
 }
 

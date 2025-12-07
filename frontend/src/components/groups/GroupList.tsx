@@ -63,7 +63,7 @@ const GroupList: React.FC = () => {
                 <th>Server IP</th>
                 <th>Port</th>
                 <th>Clients</th>
-                <th>Client-to-Client</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -84,8 +84,8 @@ const GroupList: React.FC = () => {
                   <td>{group.listen_port}</td>
                   <td>{group.client_count}</td>
                   <td>
-                    <span className={`badge ${group.allow_client_to_client ? 'badge-success' : 'badge-warning'}`}>
-                      {group.allow_client_to_client ? 'Enabled' : 'Disabled'}
+                    <span className={`badge ${group.is_running ? 'badge-success' : 'badge-warning'}`}>
+                      {group.is_running ? 'Running' : 'Stopped'}
                     </span>
                   </td>
                   <td className="actions">

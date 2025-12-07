@@ -219,12 +219,6 @@ const GroupDetail: React.FC = () => {
             <dd>{group.owner_username || 'Unknown'}</dd>
             <dt>Keepalive</dt>
             <dd>{group.persistent_keepalive}s</dd>
-            <dt>Client-to-Client</dt>
-            <dd>
-              <span className={`badge ${group.allow_client_to_client ? 'badge-success' : 'badge-warning'}`}>
-                {group.allow_client_to_client ? 'Enabled' : 'Disabled'}
-              </span>
-            </dd>
           </dl>
         </div>
       </div>
@@ -249,7 +243,6 @@ const GroupDetail: React.FC = () => {
                   <th>Name</th>
                   <th>IP Address</th>
                   <th>Status</th>
-                  <th>Peer Access</th>
                   <th>Traffic</th>
                   <th>Last Handshake</th>
                   <th>Actions</th>
@@ -271,11 +264,6 @@ const GroupDetail: React.FC = () => {
                     <td>
                       <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
                         {client.is_active ? 'Active' : 'Disabled'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${client.can_address_peers ? 'badge-success' : 'badge-warning'}`}>
-                        {client.can_address_peers ? 'Yes' : 'No'}
                       </span>
                     </td>
                     <td>

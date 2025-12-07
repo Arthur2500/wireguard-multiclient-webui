@@ -14,7 +14,6 @@ interface GroupFormData {
   endpoint: string;
   persistent_keepalive: number;
   mtu: number;
-  allow_client_to_client: boolean;
 }
 
 const GroupForm: React.FC = () => {
@@ -32,7 +31,6 @@ const GroupForm: React.FC = () => {
     endpoint: '',
     persistent_keepalive: 25,
     mtu: 1420,
-    allow_client_to_client: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -73,7 +71,6 @@ const GroupForm: React.FC = () => {
         endpoint: group.endpoint || '',
         persistent_keepalive: group.persistent_keepalive,
         mtu: group.mtu,
-        allow_client_to_client: group.allow_client_to_client,
       });
     } catch (err) {
       setError('Failed to load group');
@@ -257,19 +254,6 @@ const GroupForm: React.FC = () => {
                 max={1500}
               />
             </div>
-          </div>
-
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="allow_client_to_client"
-                checked={formData.allow_client_to_client}
-                onChange={handleChange}
-              />
-              <span>Allow client-to-client communication</span>
-            </label>
-            <small className="help-text">Enable clients to communicate with each other through the VPN</small>
           </div>
         </div>
 

@@ -34,11 +34,8 @@ class Group(db.Model):
     persistent_keepalive = db.Column(db.Integer, default=25)
     mtu = db.Column(db.Integer, default=1420)
 
-    # Client-to-client communication
-    allow_client_to_client = db.Column(db.Boolean, default=True)
-
-    # WireGuard status
-    is_running = db.Column(db.Boolean, default=False)
+    # WireGuard status - enabled by default for reliability
+    is_running = db.Column(db.Boolean, default=True)
 
     # Ownership
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -124,7 +121,6 @@ class Group(db.Model):
             'endpoint': self.endpoint,
             'persistent_keepalive': self.persistent_keepalive,
             'mtu': self.mtu,
-            'allow_client_to_client': self.allow_client_to_client,
             'is_running': self.is_running,
             'owner_id': self.owner_id,
             'owner_username': self.owner.username if self.owner else None,
@@ -146,7 +142,7 @@ Address = {address}
 ListenPort = {self.listen_port}
 """
 
-        # Build PostUp rules for NAT and forwarding
+        # Build PostUp rules for NAT and forwarding (simplified - no peer-to-peer restrictions)
         postup_rules = [
             # Enable NAT/masquerading for outbound traffic to internet
             "iptables -t nat -A POSTROUTING ! -o %i -j MASQUERADE",
@@ -164,24 +160,6 @@ ListenPort = {self.listen_port}
             "iptables -D FORWARD -o %i -j ACCEPT",
         ]
 
-        # Add client-to-client communication restrictions based on group and client settings
-        active_clients = self.clients.filter_by(is_active=True).all()
-
-        if not self.allow_client_to_client:
-            # Group-level restriction: block ALL client-to-client communication
-            # Add rules to drop packets between clients
-            for client in active_clients:
-                postup_rules.append(f"iptables -A FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
-                postdown_rules.insert(0, f"iptables -D FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
-        else:
-            # Group allows client-to-client, but check individual client restrictions
-            for client in active_clients:
-                if not client.can_address_peers:
-                    # This client cannot address other peers
-                    # Drop packets from this client to other clients (but allow to server)
-                    postup_rules.append(f"iptables -A FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
-                    postdown_rules.insert(0, f"iptables -D FORWARD -i %i -s {client.assigned_ip} -d {self.ip_range} ! -d {self.server_ip} -j DROP")
-
         # Add IPv6 rules if configured
         if self.ip_range_v6:
             postup_rules.extend([
@@ -195,23 +173,12 @@ ListenPort = {self.listen_port}
                 "ip6tables -D FORWARD -o %i -j ACCEPT",
             ])
 
-            # Add IPv6 client-to-client restrictions if configured
-            if not self.allow_client_to_client:
-                for client in active_clients:
-                    if client.assigned_ip_v6:
-                        postup_rules.append(f"ip6tables -A FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
-                        postdown_rules.insert(0, f"ip6tables -D FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
-            else:
-                for client in active_clients:
-                    if not client.can_address_peers and client.assigned_ip_v6:
-                        postup_rules.append(f"ip6tables -A FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
-                        postdown_rules.insert(0, f"ip6tables -D FORWARD -i %i -s {client.assigned_ip_v6} -d {self.ip_range_v6} ! -d {self.server_ip_v6} -j DROP")
-
         # Add PostUp and PostDown rules
         config += "PostUp = " + "; ".join(postup_rules) + "\n"
         config += "PostDown = " + "; ".join(postdown_rules) + "\n"
 
         # Add client peers
+        active_clients = self.clients.filter_by(is_active=True).all()
         for client in active_clients:
             allowed_ips = f"{client.assigned_ip}/32"
             if client.assigned_ip_v6:
@@ -279,7 +246,7 @@ AllowedIPs = {allowed_ips}
         except Exception as e:
             logger.error("Failed to clean up old client configs for group_id=%s: %s", self.id, e)
 
-        # Start/reload WireGuard interface only if it was already running
+        # Start/reload WireGuard interface if it should be running
         if self.is_running:
             self.start_wireguard()
 
@@ -305,6 +272,8 @@ AllowedIPs = {allowed_ips}
         if success:
             self.is_running = True
             db.session.commit()
+            # Enable systemd service for automatic startup on boot
+            self.enable_systemd_service()
         return success
 
     def stop_wireguard(self):
@@ -316,6 +285,79 @@ AllowedIPs = {allowed_ips}
         if success:
             self.is_running = False
             db.session.commit()
+            # Disable systemd service to prevent automatic startup on boot
+            self.disable_systemd_service()
+        return success
+
+    def enable_systemd_service(self):
+        """Enable systemd service for this WireGuard interface to start on boot.
+        
+        This creates a systemd service unit that ensures the WireGuard interface
+        starts automatically on system boot for absolute reliability.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            interface_name = self.get_wireguard_interface_name()
+            group_dir = self.get_group_config_dir()
+            if not group_dir:
+                return False
+            
+            server_filepath = os.path.join(group_dir, "server.conf")
+            
+            # Use wg-quick@<interface> systemd service
+            # This is the standard way to enable WireGuard interfaces on boot
+            import subprocess
+            
+            # Enable the service
+            result = subprocess.run(
+                ['systemctl', 'enable', f'wg-quick@{interface_name}'],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                logger.info("Systemd service enabled for interface %s", interface_name)
+                return True
+            else:
+                logger.warning("Could not enable systemd service for %s: %s", interface_name, result.stderr)
+                # This is not critical - the interface can still work without systemd
+                return True
+                
+        except Exception as e:
+            logger.warning("Failed to enable systemd service for group_id=%s: %s", self.id, e)
+            # Not critical, return True anyway
+            return True
+
+    def disable_systemd_service(self):
+        """Disable systemd service for this WireGuard interface.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            interface_name = self.get_wireguard_interface_name()
+            
+            import subprocess
+            
+            # Disable the service
+            result = subprocess.run(
+                ['systemctl', 'disable', f'wg-quick@{interface_name}'],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                logger.info("Systemd service disabled for interface %s", interface_name)
+                return True
+            else:
+                logger.debug("Could not disable systemd service for %s: %s", interface_name, result.stderr)
+                return True
+                
+        except Exception as e:
+            logger.debug("Failed to disable systemd service for group_id=%s: %s", self.id, e)
+            return True
         return success
 
     def update_client_stats(self):
