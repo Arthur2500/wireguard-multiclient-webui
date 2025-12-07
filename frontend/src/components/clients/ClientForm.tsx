@@ -10,7 +10,6 @@ interface ClientFormData {
   description: string;
   allowed_ips: string;
   dns_override: string;
-  use_preshared_key: boolean;
   is_active: boolean;
   expires_at: string;
 }
@@ -26,7 +25,6 @@ const ClientForm: React.FC = () => {
     description: '',
     allowed_ips: '0.0.0.0/0, ::/0',
     dns_override: '',
-    use_preshared_key: false,
     is_active: true,
     expires_at: '',
   });
@@ -50,7 +48,6 @@ const ClientForm: React.FC = () => {
         description: client.description || '',
         allowed_ips: client.allowed_ips,
         dns_override: client.dns_override || '',
-        use_preshared_key: false,
         is_active: client.is_active,
         expires_at: client.expires_at ? client.expires_at.split('T')[0] : '',
       });
@@ -97,7 +94,6 @@ const ClientForm: React.FC = () => {
           description: formData.description,
           allowed_ips: formData.allowed_ips,
           dns_override: formData.dns_override || undefined,
-          use_preshared_key: formData.use_preshared_key,
           expires_at: formData.expires_at || undefined,
         });
       }
@@ -201,23 +197,6 @@ const ClientForm: React.FC = () => {
         <div className="form-section">
           <h2>Options</h2>
           
-          {!isEdit && (
-            <div className="form-group checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  name="use_preshared_key"
-                  checked={formData.use_preshared_key}
-                  onChange={handleChange}
-                />
-                <span>Use preshared key</span>
-              </label>
-              <small className="help-text">
-                Add an extra layer of symmetric-key crypto for post-quantum security
-              </small>
-            </div>
-          )}
-
           {isEdit && (
             <div className="form-group checkbox-group">
               <label>

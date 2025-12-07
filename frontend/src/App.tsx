@@ -18,6 +18,7 @@ import GroupForm from './components/groups/GroupForm';
 
 // Clients
 import ClientForm from './components/clients/ClientForm';
+import ClientList from './components/clients/ClientList';
 
 // Users
 import UserList from './components/users/UserList';
@@ -71,6 +72,7 @@ function App() {
                   <Route path="/groups/:id/edit" element={<GroupForm />} />
                   
                   {/* Clients */}
+                  <Route path="/clients" element={<ClientList />} />
                   <Route path="/groups/:groupId/clients/new" element={<ClientForm />} />
                   <Route path="/clients/:id/edit" element={<ClientForm />} />
                   

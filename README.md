@@ -51,7 +51,7 @@ A simple web-based management interface for WireGuard VPN as a wg-quick wrapper,
 - JWT token authentication
 - Role-based access control (RBAC)
 - Password hashing with bcrypt
-- Preshared key support for clients
+- Optional preshared key support (configured via environment variable)
 - Input validation
 
 ## Quick Start with Docker
@@ -99,6 +99,7 @@ docker-compose up -d
 | `WG_CONFIG_PATH` | WireGuard config directory | `/etc/wireguard` |
 | `WG_DEFAULT_DNS` | Default DNS servers | `1.1.1.1, 8.8.8.8` |
 | `WG_DEFAULT_PORT` | Default listen port | `51820` |
+| `WG_USE_PRESHARED_KEY` | Use preshared keys for all clients | `false` |
 | `JWT_ACCESS_TOKEN_EXPIRES_HOURS` | Token expiration | `24` |
 
 ### Docker Compose Ports

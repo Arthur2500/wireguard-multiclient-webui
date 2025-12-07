@@ -1,6 +1,6 @@
 import logging
 import os
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, Response, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 from app.models.user import User
@@ -96,9 +96,9 @@ def create_client(group_id):
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
 
-    # Generate preshared key if requested
+    # Generate preshared key based on config setting
     preshared_key = None
-    if data.get('use_preshared_key', False):
+    if current_app.config.get('WG_USE_PRESHARED_KEY', False):
         preshared_key = generate_preshared_key()
 
     # Parse expiration date if provided
@@ -321,8 +321,8 @@ def regenerate_keys(client_id):
     client.private_key = private_key
     client.public_key = public_key
 
-    data = request.get_json() or {}
-    if data.get('regenerate_preshared_key', False) or client.preshared_key:
+    # Regenerate preshared key if it exists or if config setting is enabled
+    if client.preshared_key or current_app.config.get('WG_USE_PRESHARED_KEY', False):
         client.preshared_key = generate_preshared_key()
 
     db.session.commit()

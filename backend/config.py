@@ -21,6 +21,7 @@ class Config:
     WG_CONFIG_PATH = os.environ.get('WG_CONFIG_PATH', '/etc/wireguard')
     WG_DEFAULT_MTU = int(os.environ.get('WG_DEFAULT_MTU', 1420))
     WG_DEFAULT_KEEPALIVE = int(os.environ.get('WG_DEFAULT_KEEPALIVE', 25))
+    WG_USE_PRESHARED_KEY = os.environ.get('WG_USE_PRESHARED_KEY', 'false').lower() in ('true', '1', 'yes')
 
 
 class DevelopmentConfig(Config):

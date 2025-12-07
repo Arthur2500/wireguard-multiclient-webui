@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import authService from '../../services/auth.service';
-import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut, Sun, Moon, Menu, X } from 'lucide-react';
+import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut, Sun, Moon, Menu, X, Monitor } from 'lucide-react';
 import './Layout.css';
 
 interface LayoutProps {
@@ -75,6 +75,11 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
           <li>
             <Link to="/groups" className={isActive('/groups') ? 'active' : ''}>
               <FolderOpen size={18} /> Groups
+            </Link>
+          </li>
+          <li>
+            <Link to="/clients" className={isActive('/clients') ? 'active' : ''}>
+              <Monitor size={18} /> Clients
             </Link>
           </li>
           {user?.role === 'admin' && (
