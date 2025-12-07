@@ -49,13 +49,15 @@ const Stats: React.FC = () => {
         // For non-admin users, use overview endpoint
         const data = await statsService.getOverview();
         // Transform overview data to match SystemStats structure
-        setStats({
+        // Non-admin users don't have access to detailed breakdowns
+        const transformedStats: SystemStats = {
           ...data,
           groups: [],
           users: [],
           clients: [],
           recent_connections_24h: 0,
-        } as any);
+        };
+        setStats(transformedStats);
       }
     } catch (err) {
       setError('Failed to load statistics');
@@ -65,7 +67,8 @@ const Stats: React.FC = () => {
   }, [isAdmin]);
 
   const loadTrafficData = useCallback(async () => {
-    if (!isAdmin) return; // Non-admin users can't load system-wide traffic graphs yet
+    // TODO: Add traffic graph support for non-admin users (show their own groups/clients)
+    if (!isAdmin) return;
     
     setTrafficLoading(true);
     setTrafficError('');

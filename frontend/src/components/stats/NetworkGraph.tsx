@@ -489,7 +489,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
           font: {
             size: 11,
           },
-          callback: (value) => formatBytes(value as number)/s,
+          callback: (value) => `${formatBytes(value as number)}/s`,
         },
         border: {
           color: themeColors.border,
