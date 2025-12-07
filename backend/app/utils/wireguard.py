@@ -86,12 +86,17 @@ def start_wireguard_interface(interface_name, config_path):
 
     Args:
         interface_name: Name of the interface (e.g., 'wg0')
-        config_path: Full path to the config file
+        config_path: Full path to the config file (used to verify it exists)
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
+        # Verify config file exists
+        if not os.path.exists(config_path):
+            logger.error("Config file not found: %s", config_path)
+            return False
+        
         # Check if interface already exists
         result = subprocess.run(
             ['wg', 'show', interface_name],
@@ -103,9 +108,10 @@ def start_wireguard_interface(interface_name, config_path):
             # Reload config by stopping and starting
             stop_wireguard_interface(interface_name)
 
-        # Start the interface with wg-quick
+        # Start the interface with wg-quick using just the interface name
+        # wg-quick will look for /etc/wireguard/{interface_name}.conf
         subprocess.run(
-            ['wg-quick', 'up', config_path],
+            ['wg-quick', 'up', interface_name],
             capture_output=True,
             text=True,
             check=True

@@ -195,56 +195,61 @@ AllowedIPs = {allowed_ips}
         return config
 
     def get_group_config_dir(self):
-        """Get the configuration directory path for this group."""
+        """Get the configuration directory path for this group.
+        
+        Returns the base WireGuard config directory, not a group-specific subdirectory.
+        This is required for wg-quick to work properly.
+        """
         from config import Config
 
         config_path = Config.WG_CONFIG_PATH
         if not config_path:
             return None
 
-        group_dirname = f"{self.name.lower().replace(' ', '-').replace('/', '-')}"
-        return os.path.join(config_path, group_dirname)
+        return config_path
+    
+    def get_server_config_path(self):
+        """Get the full path to the server config file.
+        
+        Returns a path like /etc/wireguard/wg1.conf which wg-quick expects.
+        """
+        config_dir = self.get_group_config_dir()
+        if not config_dir:
+            return None
+        
+        interface_name = self.get_wireguard_interface_name()
+        return os.path.join(config_dir, f"{interface_name}.conf")
 
     def save_server_config(self):
         """Save WireGuard server configuration to file."""
-        group_dir = self.get_group_config_dir()
-        if not group_dir:
+        server_filepath = self.get_server_config_path()
+        if not server_filepath:
             logger.warning("WG_CONFIG_PATH not set, cannot save server config for group_id=%s", self.id)
             return False
 
-        # Create group directory if it doesn't exist
-        os.makedirs(group_dir, exist_ok=True)
+        # Ensure directory exists
+        config_dir = os.path.dirname(server_filepath)
+        os.makedirs(config_dir, exist_ok=True)
 
-        # Save server config
-        server_filepath = os.path.join(group_dir, "server.conf")
+        # Save server config with secure permissions (0600)
         try:
             config_content = self.generate_server_config()
+            
+            # Write with secure permissions
             with open(server_filepath, 'w') as f:
                 f.write(config_content)
+            
+            # Set secure permissions (0600 - owner read/write only)
+            os.chmod(server_filepath, 0o600)
+            
             logger.info("Server config saved for group_id=%s to %s", self.id, server_filepath)
         except Exception as e:
             logger.error("Failed to save server config for group_id=%s: %s", self.id, e, exc_info=True)
             return False
 
-        # Get list of expected client config files
-        expected_client_files = set()
+        # Save all active client configs
         for client in self.clients.filter_by(is_active=True):
-            client_filename = f"{client.name.lower().replace(' ', '-').replace('/', '-')}.conf"
-            expected_client_files.add(client_filename)
             client.save_client_config()
-
-        # Remove client config files that are no longer needed
-        try:
-            existing_files = os.listdir(group_dir)
-            for filename in existing_files:
-                if filename == "server.conf":
-                    continue
-                if filename.endswith('.conf') and filename not in expected_client_files:
-                    old_filepath = os.path.join(group_dir, filename)
-                    os.remove(old_filepath)
-                    logger.info("Removed obsolete client config: %s", old_filepath)
-        except Exception as e:
-            logger.error("Failed to clean up old client configs for group_id=%s: %s", self.id, e)
 
         # Start/reload WireGuard interface if it should be running
         if self.is_running:
@@ -261,11 +266,10 @@ AllowedIPs = {allowed_ips}
         """Start or reload the WireGuard interface for this group."""
         from app.utils.wireguard import reload_wireguard_interface
 
-        group_dir = self.get_group_config_dir()
-        if not group_dir:
+        server_filepath = self.get_server_config_path()
+        if not server_filepath:
             return False
 
-        server_filepath = os.path.join(group_dir, "server.conf")
         interface_name = self.get_wireguard_interface_name()
 
         success = reload_wireguard_interface(interface_name, server_filepath)
@@ -316,19 +320,18 @@ AllowedIPs = {allowed_ips}
         return True
 
     def delete_server_config(self):
-        """Delete WireGuard server configuration directory and all its contents."""
+        """Delete WireGuard server configuration file."""
         # Stop WireGuard interface first
         self.stop_wireguard()
 
-        group_dir = self.get_group_config_dir()
-        if not group_dir:
+        server_filepath = self.get_server_config_path()
+        if not server_filepath:
             return
 
         try:
-            if os.path.exists(group_dir):
-                import shutil
-                shutil.rmtree(group_dir)
-                logger.info("Group config directory deleted for group_id=%s from %s", self.id, group_dir)
+            if os.path.exists(server_filepath):
+                os.remove(server_filepath)
+                logger.info("Server config deleted for group_id=%s from %s", self.id, server_filepath)
         except Exception as e:
-            logger.error("Failed to delete group config directory for group_id=%s: %s", self.id, e, exc_info=True)
+            logger.error("Failed to delete server config for group_id=%s: %s", self.id, e, exc_info=True)
 

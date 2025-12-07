@@ -123,14 +123,23 @@ AllowedIPs = {allowed_ips}
         # Ensure group directory exists
         os.makedirs(group_dir, exist_ok=True)
 
-        # Generate client filename
-        client_filename = f"{self.name.lower().replace(' ', '-').replace('/', '-')}.conf"
+        # Generate client filename using group interface name and client name
+        # Format: wg1-clientname.conf
+        interface_name = self.group.get_wireguard_interface_name()
+        client_suffix = self.name.lower().replace(' ', '-').replace('/', '-')
+        client_filename = f"{interface_name}-{client_suffix}.conf"
         client_filepath = os.path.join(group_dir, client_filename)
 
         try:
             config_content = self.generate_client_config()
+            
+            # Write with secure permissions
             with open(client_filepath, 'w') as f:
                 f.write(config_content)
+            
+            # Set secure permissions (0600 - owner read/write only)
+            os.chmod(client_filepath, 0o600)
+            
             logger.info("Client config saved for client_id=%s to %s", self.id, client_filepath)
             return True
         except Exception as e:
@@ -146,7 +155,10 @@ AllowedIPs = {allowed_ips}
         if not group_dir:
             return
 
-        client_filename = f"{self.name.lower().replace(' ', '-').replace('/', '-')}.conf"
+        # Use same naming convention as save_client_config
+        interface_name = self.group.get_wireguard_interface_name()
+        client_suffix = self.name.lower().replace(' ', '-').replace('/', '-')
+        client_filename = f"{interface_name}-{client_suffix}.conf"
         client_filepath = os.path.join(group_dir, client_filename)
 
         try:

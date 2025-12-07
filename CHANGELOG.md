@@ -21,8 +21,10 @@ All notable changes to this project will be documented in this file.
 - Groups are created with `is_running=True` by default for immediate availability
 - On application startup, all groups with `is_running=True` are automatically restarted
 - This works in Docker containers (no systemd required) and provides absolute reliability
-- Server configuration files are stored in `/etc/wireguard/{group-name}/server.conf`
-- Client configuration files are stored in `/etc/wireguard/{group-name}/{client-name}.conf`
+- Server configuration files are stored as `/etc/wireguard/wg{id}.conf` (e.g., `wg1.conf`, `wg2.conf`)
+- Client configuration files are stored as `/etc/wireguard/wg{id}-{client-name}.conf` (e.g., `wg1-laptop.conf`)
+- Config files are created with secure permissions (0600) to prevent "world accessible" warnings
+- Uses standard wg-quick interface naming for proper compatibility
 
 ### Migration Notes
 - **No database migration needed**: The database is always rebuilt from scratch
