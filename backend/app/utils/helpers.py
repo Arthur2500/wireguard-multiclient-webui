@@ -37,7 +37,12 @@ def validate_request_data(data, required_fields):
     if not data:
         return False, "No data provided"
     
-    missing_fields = [field for field in required_fields if field not in data or not data[field]]
+    missing_fields = []
+    for field in required_fields:
+        # Check if field exists and is not None or empty string
+        if field not in data or data[field] is None or data[field] == '':
+            missing_fields.append(field)
+    
     if missing_fields:
         return False, f"Missing required fields: {', '.join(missing_fields)}"
     
