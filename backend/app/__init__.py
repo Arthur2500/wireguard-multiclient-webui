@@ -12,7 +12,7 @@ from config import config_by_name
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["1000 per hour"])
 
 
 def create_app(config_name=None):
@@ -77,20 +77,20 @@ def create_app(config_name=None):
 
 def _restart_wireguard_interfaces(app):
     """Restart all WireGuard interfaces marked as running.
-    
+
     This function is called on application startup to ensure that all
     WireGuard interfaces that should be running are restarted. This provides
     automatic recovery after container/application restarts.
     """
     try:
         from app.models.group import Group
-        
+
         # Find all groups that should be running
         running_groups = Group.query.filter_by(is_running=True).all()
-        
+
         if running_groups:
             app.logger.info(f"Restarting {len(running_groups)} WireGuard interface(s) on startup...")
-            
+
             for group in running_groups:
                 try:
                     # Start the interface
@@ -103,7 +103,7 @@ def _restart_wireguard_interfaces(app):
                     app.logger.error(f"Error starting WireGuard interface for group '{group.name}': {e}")
         else:
             app.logger.debug("No WireGuard interfaces to restart on startup")
-            
+
     except Exception as e:
         # Don't fail startup if WireGuard restart fails
         app.logger.error(f"Error during WireGuard interface restart: {e}", exc_info=True)

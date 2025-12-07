@@ -296,46 +296,46 @@ const Stats: React.FC = () => {
             )}
           </tbody>
         </table>
+      </div>
 
-            <div className="clients-stats">
-              <h2>Clients Breakdown</h2>
-              <table className="stats-table">
-                <thead>
-                  <tr>
-                    <th>Client Name</th>
-                    <th>Group</th>
-                    <th>Status</th>
-                    <th>Data Received</th>
-                    <th>Data Sent</th>
-                    <th>Total Traffic</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
-                    <tr key={client.id}>
-                      <td className="group-name">{client.name}</td>
-                      <td>{client.group_name}</td>
-                      <td>
-                        <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
-                          {client.is_active ? 'Active' : 'Disabled'}
-                        </span>
-                      </td>
-                      <td>{formatBytes(client.received_bytes)}</td>
-                      <td>{formatBytes(client.sent_bytes)}</td>
-                      <td className="total-traffic">
-                        {formatBytes(client.received_bytes + client.sent_bytes)}
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={6} style={{ textAlign: 'center', padding: '30px' }}>
-                        No clients found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+      <div className="clients-stats">
+        <h2>Clients Breakdown</h2>
+        <table className="stats-table">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Group</th>
+              <th>Status</th>
+              <th>Data Received</th>
+              <th>Data Sent</th>
+              <th>Total Traffic</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
+              <tr key={client.id}>
+                <td className="group-name">{client.name}</td>
+                <td>{client.group_name}</td>
+                <td>
+                  <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
+                    {client.is_active ? 'Active' : 'Disabled'}
+                  </span>
+                </td>
+                <td>{formatBytes(client.received_bytes)}</td>
+                <td>{formatBytes(client.sent_bytes)}</td>
+                <td className="total-traffic">
+                  {formatBytes(client.received_bytes + client.sent_bytes)}
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '30px' }}>
+                  No clients found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       <div className="users-stats">

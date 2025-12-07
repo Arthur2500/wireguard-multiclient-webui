@@ -233,6 +233,7 @@
 }
 
 .groups-stats,
+.clients-stats,
 .users-stats {
   background: var(--bg-primary);
   border-radius: 10px;
@@ -243,6 +244,7 @@
 }
 
 .groups-stats h2,
+.clients-stats h2,
 .users-stats h2 {
   margin: 0 0 20px;
   color: var(--text-primary);
