@@ -314,25 +314,14 @@ def get_system_stats():
     }), 200
 
 
-def get_time_range(range_param):
-    """Get start time based on range parameter."""
-    now = datetime.utcnow()
-    if range_param == '1h':
-        return now - timedelta(hours=1)
-    elif range_param == '1d':
-        return now - timedelta(days=1)
-    elif range_param == '1w':
-        return now - timedelta(weeks=1)
-    else:
-        return now - timedelta(hours=1)  # Default to 1 hour
-
-
 @stats_bp.route('/traffic/total', methods=['GET'])
 @admin_required
 def get_total_traffic_history():
     """Get total system traffic history (admin only)."""
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
+    
+    logger.debug("Fetching total traffic history range=%s", range_param)
 
     # Get traffic history where both client_id and group_id are null (system-wide)
     history = TrafficHistory.query.filter(
@@ -494,10 +483,11 @@ def record_traffic():
     data = request.get_json()
 
     if not data:
-        return jsonify({'error': 'No data provided'}), 400
+        logger.debug("Traffic record called without data")
+        return create_error_response('No data provided', 400)
 
     records = data.get('records', [])
-
+    
     for record in records:
         history = TrafficHistory(
             client_id=record.get('client_id'),
@@ -509,14 +499,16 @@ def record_traffic():
         db.session.add(history)
 
     db.session.commit()
-
-    return jsonify({'message': f'Recorded {len(records)} traffic entries'}), 201
+    
+    logger.info("Recorded traffic entries count=%s", len(records))
+    return create_success_response(message=f'Recorded {len(records)} traffic entries', status_code=201)
 
 
 @stats_bp.route('/traffic/collect', methods=['POST'])
 @admin_required
 def collect_traffic():
     """Collect current traffic stats from all clients and record them."""
+    logger.debug("Collecting traffic statistics")
     now = datetime.utcnow()
 
     # Get all clients and their current traffic
@@ -567,6 +559,8 @@ def collect_traffic():
     db.session.add(total_history)
 
     db.session.commit()
+    
+    logger.info("Traffic collected clients=%s groups=%s", len(clients), len(groups_data))
 
     return jsonify({
         'message': 'Traffic collected successfully',
@@ -586,7 +580,6 @@ def cleanup_traffic_history():
     ).delete()
 
     db.session.commit()
-
-    return jsonify({
-        'message': f'Deleted {deleted} old traffic records'
-    }), 200
+    
+    logger.info("Traffic history cleaned up deleted=%s", deleted)
+    return create_success_response(message=f'Deleted {deleted} old traffic records')
