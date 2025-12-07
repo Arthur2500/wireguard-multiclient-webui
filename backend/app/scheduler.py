@@ -1,6 +1,7 @@
 """Background scheduler for periodic tasks."""
 import logging
 from datetime import datetime
+from functools import partial
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -84,7 +85,7 @@ def init_scheduler(app):
     
     # Add traffic collection job
     scheduler.add_job(
-        func=lambda: collect_traffic_stats(app),
+        func=partial(collect_traffic_stats, app),
         trigger=IntervalTrigger(seconds=interval),
         id='collect_traffic_stats',
         name='Collect traffic statistics',

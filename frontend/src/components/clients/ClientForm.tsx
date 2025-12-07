@@ -42,6 +42,14 @@ const ClientForm: React.FC = () => {
     }
   }, [groupId]);
 
+  const isSubnetMode = (allowedIps: string, groupData: Group | null): boolean => {
+    if (!groupData) return false;
+    
+    return allowedIps === groupData.ip_range || 
+           allowedIps === `${groupData.ip_range}, ${groupData.ip_range_v6}` ||
+           allowedIps === groupData.ip_range_v6;
+  };
+
   const loadClient = useCallback(async () => {
     try {
       const client = await clientService.getById(Number(id));
@@ -49,9 +57,7 @@ const ClientForm: React.FC = () => {
       let mode: 'all' | 'subnet' | 'custom' = 'custom';
       if (client.allowed_ips === '0.0.0.0/0, ::/0') {
         mode = 'all';
-      } else if (group && (client.allowed_ips === group.ip_range || 
-                          client.allowed_ips === `${group.ip_range}, ${group.ip_range_v6}` ||
-                          client.allowed_ips === group.ip_range_v6)) {
+      } else if (isSubnetMode(client.allowed_ips, group)) {
         mode = 'subnet';
       }
       
