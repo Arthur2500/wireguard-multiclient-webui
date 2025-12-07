@@ -1,19 +1,20 @@
 .group-form-container {
-  padding: 20px;
+  padding: var(--spacing-lg);
   max-width: 800px;
   margin: 0 auto;
 }
 
 .group-form {
   background: var(--bg-primary);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   padding: 25px;
-  box-shadow: 0 2px 10px var(--shadow);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
 }
 
 .form-section {
-  margin-bottom: 30px;
-  padding-bottom: 30px;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
   border-bottom: 1px solid var(--border);
 }
 
@@ -23,7 +24,7 @@
 }
 
 .form-section h2 {
-  margin: 0 0 20px;
+  margin: 0 0 var(--spacing-lg);
   color: var(--text-primary);
   font-size: 18px;
 }
@@ -31,11 +32,11 @@
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: var(--spacing-lg);
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
@@ -51,7 +52,7 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   transition: border-color 0.3s;
   box-sizing: border-box;
@@ -72,7 +73,7 @@
 
 .help-text {
   display: block;
-  margin-top: 5px;
+  margin-top: var(--spacing-xs);
   font-size: 12px;
   color: var(--text-muted);
 }
@@ -80,7 +81,7 @@
 .checkbox-group label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   cursor: pointer;
 }
 
@@ -88,6 +89,7 @@
   width: 18px;
   height: 18px;
   accent-color: var(--primary);
+  cursor: pointer;
 }
 
 .checkbox-group span {
@@ -97,20 +99,20 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
-  padding-top: 20px;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .group-form-container {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
   
   .group-form {
-    padding: 20px;
+    padding: var(--spacing-lg);
   }
   
   .form-actions {
@@ -121,6 +123,7 @@
   .form-actions .btn-primary {
     width: 100%;
     text-align: center;
+    min-height: 48px;
   }
 }
 

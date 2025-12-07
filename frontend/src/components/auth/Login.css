@@ -4,14 +4,14 @@
   align-items: center;
   min-height: 100vh;
   background: var(--bg-secondary);
-  padding: 20px;
+  padding: var(--spacing-lg);
 }
 
 .login-box {
   background: var(--bg-primary);
   padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 400px;
 }
@@ -19,14 +19,14 @@
 .login-box h1 {
   text-align: center;
   color: var(--primary);
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-sm);
   font-size: 24px;
 }
 
 .login-box h2 {
   text-align: center;
   color: var(--text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
   font-weight: normal;
   font-size: 18px;
 }
@@ -34,7 +34,7 @@
 .login-theme-toggle {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: var(--spacing-lg);
 }
 
 .theme-toggle-btn {
@@ -43,7 +43,7 @@
   color: var(--text-secondary) !important;
   cursor: pointer;
   padding: 8px !important;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   transition: all 0.3s;
   display: flex;
   align-items: center;
@@ -59,7 +59,7 @@
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
@@ -73,7 +73,7 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   transition: border-color 0.3s;
   box-sizing: border-box;
@@ -98,10 +98,11 @@
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s;
+  min-height: 48px;
 }
 
 .login-box form button:hover {
@@ -117,14 +118,18 @@
   background: rgba(239, 68, 68, 0.1);
   color: var(--danger);
   padding: 12px;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
   text-align: center;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 @media (max-width: 480px) {
   .login-box {
-    padding: 30px 20px;
+    padding: var(--spacing-xl) var(--spacing-lg);
+  }
+  
+  .login-container {
+    padding: var(--spacing-md);
   }
 }

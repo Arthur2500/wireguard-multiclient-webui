@@ -1,18 +1,19 @@
 .group-traffic-stats {
   background: var(--bg-primary);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px var(--shadow);
-  margin-top: 30px;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  margin-top: var(--spacing-xl);
+  border: 1px solid var(--border);
 }
 
 .traffic-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
   flex-wrap: wrap;
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .traffic-section-header h3 {
@@ -24,7 +25,7 @@
 .traffic-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
 }
 
@@ -54,7 +55,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .group-traffic-stats {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
   
   .traffic-section-header {
@@ -75,5 +76,6 @@
   .traffic-controls .collect-btn {
     width: 100%;
     justify-content: center;
+    min-height: 44px;
   }
 }

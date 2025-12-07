@@ -52,9 +52,6 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
         <h1><Shield size={20} /> WireGuard</h1>
-        <button onClick={toggleDarkMode} className="theme-toggle" aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
       </header>
 
       {/* Overlay for mobile */}
