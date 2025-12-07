@@ -15,6 +15,7 @@ const ClientDetail: React.FC = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Traffic graph state
   const [timeRange, setTimeRange] = useState<TimeRange>('1h');
@@ -44,6 +45,10 @@ const ClientDetail: React.FC = () => {
       setTrafficData(data.data || []);
     } catch (err) {
       console.error('Failed to load traffic data:', err);
+      // Only set error for initial load, not for background refreshes
+      if (!isBackground) {
+        setError('Failed to load traffic data');
+      }
     } finally {
       if (!isBackground) {
         setTrafficLoading(false);
@@ -63,14 +68,19 @@ const ClientDetail: React.FC = () => {
     loadTrafficData();
   }, [loadTrafficData]);
 
-  // Auto-refresh every 5 seconds
+  // Auto-refresh every 5 seconds, preventing overlapping requests
   useEffect(() => {
     const interval = setInterval(() => {
-      loadTrafficData(true);
-      loadClient(); // Also refresh client stats
+      if (!isRefreshing) {
+        setIsRefreshing(true);
+        Promise.all([
+          loadTrafficData(true),
+          loadClient()
+        ]).finally(() => setIsRefreshing(false));
+      }
     }, 5000);
     return () => clearInterval(interval);
-  }, [loadTrafficData, loadClient]);
+  }, [loadTrafficData, loadClient, isRefreshing]);
 
   const handleToggleActive = async () => {
     if (!client) return;

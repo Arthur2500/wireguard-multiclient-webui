@@ -426,11 +426,11 @@ def get_client_traffic_history(client_id):
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
 
-    # Get client traffic history
+    # Get client traffic history (limited to last 1000 records)
     history = TrafficHistory.query.filter(
         TrafficHistory.recorded_at >= start_time,
         TrafficHistory.client_id == client_id
-    ).order_by(TrafficHistory.recorded_at.asc()).all()
+    ).order_by(TrafficHistory.recorded_at.asc()).limit(1000).all()
 
     return jsonify({
         'range': range_param,
