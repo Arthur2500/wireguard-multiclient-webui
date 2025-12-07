@@ -71,6 +71,13 @@ def create_app(config_name=None):
         # Restart all WireGuard interfaces that should be running
         # This ensures interfaces come back up when the container/application restarts
         _restart_wireguard_interfaces(app)
+        
+        # Initialize background scheduler for statistics collection
+        from app.scheduler import init_scheduler
+        scheduler = init_scheduler(app)
+        if scheduler:
+            # Store scheduler instance for potential shutdown
+            app.scheduler = scheduler
 
     return app
 

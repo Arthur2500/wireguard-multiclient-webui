@@ -9,6 +9,7 @@ interface ClientFormData {
   name: string;
   description: string;
   allowed_ips: string;
+  allowed_ips_mode: 'all' | 'subnet' | 'custom';
   dns_override: string;
   is_active: boolean;
   expires_at: string;
@@ -24,6 +25,7 @@ const ClientForm: React.FC = () => {
     name: '',
     description: '',
     allowed_ips: '0.0.0.0/0, ::/0',
+    allowed_ips_mode: 'all',
     dns_override: '',
     is_active: true,
     expires_at: '',
@@ -43,10 +45,21 @@ const ClientForm: React.FC = () => {
   const loadClient = useCallback(async () => {
     try {
       const client = await clientService.getById(Number(id));
+      // Determine the mode based on the allowed_ips value
+      let mode: 'all' | 'subnet' | 'custom' = 'custom';
+      if (client.allowed_ips === '0.0.0.0/0, ::/0') {
+        mode = 'all';
+      } else if (group && (client.allowed_ips === group.ip_range || 
+                          client.allowed_ips === `${group.ip_range}, ${group.ip_range_v6}` ||
+                          client.allowed_ips === group.ip_range_v6)) {
+        mode = 'subnet';
+      }
+      
       setFormData({
         name: client.name,
         description: client.description || '',
         allowed_ips: client.allowed_ips,
+        allowed_ips_mode: mode,
         dns_override: client.dns_override || '',
         is_active: client.is_active,
         expires_at: client.expires_at ? client.expires_at.split('T')[0] : '',
@@ -54,7 +67,7 @@ const ClientForm: React.FC = () => {
     } catch (err) {
       setError('Failed to load client');
     }
-  }, [id]);
+  }, [id, group]);
 
   useEffect(() => {
     if (groupId) {
@@ -65,11 +78,34 @@ const ClientForm: React.FC = () => {
     }
   }, [groupId, id, isEdit, loadGroup, loadClient]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  const handleAllowedIpsModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const mode = e.target.value as 'all' | 'subnet' | 'custom';
+    let newAllowedIps = formData.allowed_ips;
+    
+    if (mode === 'all') {
+      newAllowedIps = '0.0.0.0/0, ::/0';
+    } else if (mode === 'subnet' && group) {
+      // Use the group's IP range
+      if (group.ip_range_v6) {
+        newAllowedIps = `${group.ip_range}, ${group.ip_range_v6}`;
+      } else {
+        newAllowedIps = group.ip_range;
+      }
+    }
+    // For 'custom', keep the current value
+    
+    setFormData(prev => ({
+      ...prev,
+      allowed_ips_mode: mode,
+      allowed_ips: newAllowedIps,
     }));
   };
 
@@ -151,19 +187,55 @@ const ClientForm: React.FC = () => {
           <h2>Network Settings</h2>
           
           <div className="form-group">
-            <label htmlFor="allowed_ips">Allowed IPs</label>
-            <input
-              type="text"
-              id="allowed_ips"
-              name="allowed_ips"
-              value={formData.allowed_ips}
-              onChange={handleChange}
-              placeholder="e.g., 0.0.0.0/0, ::/0"
-            />
+            <label htmlFor="allowed_ips_mode">Traffic Routing</label>
+            <select
+              id="allowed_ips_mode"
+              name="allowed_ips_mode"
+              value={formData.allowed_ips_mode}
+              onChange={handleAllowedIpsModeChange}
+            >
+              <option value="all">Route all traffic through VPN</option>
+              <option value="subnet">Route only VPN subnet traffic</option>
+              <option value="custom">Custom allowed IPs</option>
+            </select>
             <small className="help-text">
-              IPs this client can route traffic to. Use 0.0.0.0/0 for all traffic.
+              Choose how traffic should be routed for this client
             </small>
           </div>
+
+          {formData.allowed_ips_mode === 'custom' && (
+            <div className="form-group">
+              <label htmlFor="allowed_ips">Allowed IPs</label>
+              <input
+                type="text"
+                id="allowed_ips"
+                name="allowed_ips"
+                value={formData.allowed_ips}
+                onChange={handleChange}
+                placeholder="e.g., 0.0.0.0/0, ::/0"
+              />
+              <small className="help-text">
+                IPs this client can route traffic to. Use 0.0.0.0/0 for all traffic.
+              </small>
+            </div>
+          )}
+
+          {formData.allowed_ips_mode !== 'custom' && (
+            <div className="form-group">
+              <label>Allowed IPs (auto-configured)</label>
+              <input
+                type="text"
+                value={formData.allowed_ips}
+                disabled
+                style={{ backgroundColor: 'var(--bg-secondary)', cursor: 'not-allowed' }}
+              />
+              <small className="help-text">
+                {formData.allowed_ips_mode === 'all' 
+                  ? 'All traffic will be routed through the VPN' 
+                  : 'Only traffic to the VPN subnet will be routed through the VPN'}
+              </small>
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="dns_override">DNS Override</label>
