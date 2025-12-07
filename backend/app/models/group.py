@@ -197,8 +197,7 @@ AllowedIPs = {allowed_ips}
     def get_group_config_dir(self):
         """Get the configuration directory path for this group.
         
-        Returns the base WireGuard config directory, not a group-specific subdirectory.
-        This is required for wg-quick to work properly.
+        Returns a group-specific subdirectory for storing client configs.
         """
         from config import Config
 
@@ -206,19 +205,25 @@ AllowedIPs = {allowed_ips}
         if not config_path:
             return None
 
-        return config_path
+        # Create group-specific subdirectory using sanitized group name
+        interface_name = self.get_wireguard_interface_name()
+        group_dir = os.path.join(config_path, interface_name)
+        return group_dir
     
     def get_server_config_path(self):
         """Get the full path to the server config file.
         
-        Returns a path like /etc/wireguard/wg1.conf which wg-quick expects.
+        Returns a path like /etc/wireguard/wg-groupname.conf which wg-quick expects.
+        Server config is stored in the base WireGuard directory for wg-quick compatibility.
         """
-        config_dir = self.get_group_config_dir()
-        if not config_dir:
+        from config import Config
+
+        config_path = Config.WG_CONFIG_PATH
+        if not config_path:
             return None
         
         interface_name = self.get_wireguard_interface_name()
-        return os.path.join(config_dir, f"{interface_name}.conf")
+        return os.path.join(config_path, f"{interface_name}.conf")
 
     def save_server_config(self):
         """Save WireGuard server configuration to file."""
@@ -258,9 +263,25 @@ AllowedIPs = {allowed_ips}
         return True
 
     def get_wireguard_interface_name(self):
-        """Get the WireGuard interface name for this group."""
-        # Use group ID to create unique interface names (wg0, wg1, etc.)
-        return f"wg{self.id}"
+        """Get the WireGuard interface name for this group.
+        
+        Uses sanitized group name for the interface name (e.g., 'wg-groupname').
+        """
+        # Sanitize group name: lowercase, replace spaces and special chars with hyphens
+        sanitized = self.name.lower()
+        # Replace spaces and special characters with hyphens
+        sanitized = ''.join(c if c.isalnum() else '-' for c in sanitized)
+        # Remove consecutive hyphens
+        while '--' in sanitized:
+            sanitized = sanitized.replace('--', '-')
+        # Remove leading/trailing hyphens
+        sanitized = sanitized.strip('-')
+        # Limit length to avoid filesystem issues (max 15 chars for interface name in Linux)
+        if len(sanitized) > 12:  # Leave room for 'wg-' prefix
+            sanitized = sanitized[:12]
+        sanitized = sanitized.rstrip('-')
+        
+        return f"wg-{sanitized}"
 
     def start_wireguard(self):
         """Start or reload the WireGuard interface for this group."""
@@ -320,18 +341,27 @@ AllowedIPs = {allowed_ips}
         return True
 
     def delete_server_config(self):
-        """Delete WireGuard server configuration file."""
+        """Delete WireGuard server configuration file and group directory."""
         # Stop WireGuard interface first
         self.stop_wireguard()
 
         server_filepath = self.get_server_config_path()
-        if not server_filepath:
-            return
-
-        try:
-            if os.path.exists(server_filepath):
-                os.remove(server_filepath)
-                logger.info("Server config deleted for group_id=%s from %s", self.id, server_filepath)
-        except Exception as e:
-            logger.error("Failed to delete server config for group_id=%s: %s", self.id, e, exc_info=True)
+        if server_filepath:
+            try:
+                if os.path.exists(server_filepath):
+                    os.remove(server_filepath)
+                    logger.info("Server config deleted for group_id=%s from %s", self.id, server_filepath)
+            except Exception as e:
+                logger.error("Failed to delete server config for group_id=%s: %s", self.id, e, exc_info=True)
+        
+        # Delete group directory with all client configs
+        group_dir = self.get_group_config_dir()
+        if group_dir:
+            try:
+                if os.path.exists(group_dir):
+                    import shutil
+                    shutil.rmtree(group_dir)
+                    logger.info("Group directory deleted for group_id=%s from %s", self.id, group_dir)
+            except Exception as e:
+                logger.error("Failed to delete group directory for group_id=%s: %s", self.id, e, exc_info=True)
 

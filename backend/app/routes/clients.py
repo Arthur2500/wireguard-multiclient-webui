@@ -227,7 +227,8 @@ def delete_client(client_id):
 
     # Store group reference and client name before deleting
     group = client.group
-    client_name = client.name.lower().replace(' ', '-').replace('/', '-')
+    interface_name = group.get_wireguard_interface_name()
+    client_suffix = client.name.lower().replace(' ', '-').replace('/', '-')
 
     db.session.delete(client)
     db.session.commit()
@@ -235,7 +236,8 @@ def delete_client(client_id):
     # Delete client configuration file after DB deletion
     group_dir = group.get_group_config_dir()
     if group_dir:
-        client_filepath = os.path.join(group_dir, f"{client_name}.conf")
+        client_filename = f"{interface_name}-{client_suffix}.conf"
+        client_filepath = os.path.join(group_dir, client_filename)
         try:
             if os.path.exists(client_filepath):
                 os.remove(client_filepath)
