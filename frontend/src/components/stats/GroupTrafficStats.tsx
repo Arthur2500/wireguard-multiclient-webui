@@ -116,13 +116,7 @@ const GroupTrafficStats: React.FC<GroupTrafficStatsProps> = ({ groupId }) => {
 
       {loading && <div className="traffic-loading">Loading traffic data...</div>}
 
-      {!loading && !hasData && (
-        <div className="no-traffic-data">
-          No traffic data available.
-        </div>
-      )}
-
-      {!loading && hasData && trafficData && (
+      {!loading && trafficData && (
         <div
           className="traffic-graph-section"
           style={{

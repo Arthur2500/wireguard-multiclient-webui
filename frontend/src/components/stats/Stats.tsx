@@ -81,11 +81,11 @@ const Stats: React.FC = () => {
     loadTrafficData();
   }, [loadTrafficData]);
 
-  // Auto-refresh traffic data every 30 seconds
+  // Auto-refresh traffic data every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       loadTrafficData();
-    }, 30000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [loadTrafficData]);
 
@@ -102,22 +102,22 @@ const Stats: React.FC = () => {
       return <div className="graph-error">{trafficError}</div>;
     }
 
-    if (graphView === 'total' && totalTraffic) {
+    if (graphView === 'total') {
       return (
         <NetworkGraph
           title="Total Network Traffic"
-          data={totalTraffic.data}
+          data={totalTraffic?.data || []}
           height={350}
         />
       );
     }
 
-    if (graphView === 'groups' && groupsTraffic) {
-      const series = groupsTraffic.groups.map((g) => ({
+    if (graphView === 'groups') {
+      const series = groupsTraffic?.groups.map((g) => ({
         name: g.group_name,
         data: g.data,
         color: '',
-      }));
+      })) || [];
       return (
         <NetworkGraphMulti
           title="Traffic by Group"
@@ -127,18 +127,18 @@ const Stats: React.FC = () => {
       );
     }
 
-    if (graphView === 'clients' && clientsTraffic) {
-      const series = clientsTraffic.clients.map((c) => ({
+    if (graphView === 'clients') {
+      const series = clientsTraffic?.clients.map((c) => ({
         name: c.client_name,
         data: c.data,
         color: '',
-      }));
+      })) || [];
       return (
         <NetworkGraphMulti
           title="Traffic by Client"
           series={series}
           height={350}
-          showLegend={clientsTraffic.clients.length <= 10}
+          showLegend={clientsTraffic ? clientsTraffic.clients.length <= 10 : true}
         />
       );
     }

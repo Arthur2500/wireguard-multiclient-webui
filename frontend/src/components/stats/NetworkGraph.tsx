@@ -123,6 +123,22 @@ const formatTime = (dateString: string | null): string => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
+// Generate time labels even when data is empty
+const generateTimeLabels = (data: TrafficDataPoint[], count: number = 12): string[] => {
+  if (data.length > 0) {
+    return data.map(d => formatTime(d.recorded_at));
+  }
+  
+  // Generate empty time labels for the past period
+  const now = new Date();
+  const labels: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * 5 * 60 * 1000); // 5 minute intervals
+    labels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  }
+  return labels;
+};
+
 // Single series graph (upload/download)
 export const NetworkGraph: React.FC<NetworkGraphProps> = ({
   title,
@@ -134,7 +150,8 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
   const themeColors = useThemeColors();
 
   const chartData: ChartData<'line'> = useMemo(() => {
-    const labels = data.map(d => formatTime(d.recorded_at));
+    const labels = generateTimeLabels(data);
+    const dataPoints = data.length > 0 ? data : Array(labels.length).fill({ received_bytes: 0, sent_bytes: 0 });
 
     const datasets = [];
 
@@ -144,7 +161,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
       datasets.push({
         label: 'Download',
-        data: data.map(d => d.received_bytes),
+        data: data.length > 0 ? data.map(d => d.received_bytes) : dataPoints.map(() => 0),
         borderColor: themeColors.success,
         backgroundColor: downloadColorRgba,
         fill: true,
@@ -160,7 +177,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
       datasets.push({
         label: 'Upload',
-        data: data.map(d => d.sent_bytes),
+        data: data.length > 0 ? data.map(d => d.sent_bytes) : dataPoints.map(() => 0),
         borderColor: themeColors.info,
         backgroundColor: uploadColorRgba,
         fill: true,
@@ -301,8 +318,20 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
       });
     });
 
-    const sortedTimestamps = Array.from(allTimestamps).sort();
-    const labels = sortedTimestamps.map(t => formatTime(t));
+    let sortedTimestamps = Array.from(allTimestamps).sort();
+    let labels = sortedTimestamps.map(t => formatTime(t));
+    
+    // If no data, generate empty time labels
+    if (sortedTimestamps.length === 0) {
+      const now = new Date();
+      const tempLabels: string[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const time = new Date(now.getTime() - i * 5 * 60 * 1000); // 5 minute intervals
+        tempLabels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      }
+      labels = tempLabels;
+      sortedTimestamps = Array(12).fill(null);
+    }
 
     const datasets = series.map((s, index) => {
       const color = s.color || getColor(index);
@@ -311,6 +340,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
       return {
         label: s.name,
         data: sortedTimestamps.map(t => {
+          if (t === null) return 0; // For empty data
           const point = dataMap.get(t);
           return point ? point.received_bytes + point.sent_bytes : 0;
         }),
