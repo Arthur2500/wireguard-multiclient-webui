@@ -24,6 +24,8 @@ class Config:
     WG_USE_PRESHARED_KEY = os.environ.get('WG_USE_PRESHARED_KEY', 'false').lower() in ('true', '1', 'yes')
     
     # Statistics collection (in seconds)
+    # Note: 10-second interval provides near real-time stats but increases database I/O.
+    # For systems with many clients, consider increasing this value via environment variable.
     STATS_COLLECTION_INTERVAL = int(os.environ.get('STATS_COLLECTION_INTERVAL', 10))
 
 

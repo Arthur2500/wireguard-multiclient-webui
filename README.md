@@ -100,7 +100,7 @@ docker-compose up -d
 | `WG_DEFAULT_DNS` | Default DNS servers | `1.1.1.1, 8.8.8.8` |
 | `WG_DEFAULT_PORT` | Default listen port | `51820` |
 | `WG_USE_PRESHARED_KEY` | Use preshared keys for all clients | `false` |
-| `STATS_COLLECTION_INTERVAL` | Automatic stats collection interval (seconds) | `10` |
+| `STATS_COLLECTION_INTERVAL` | Automatic stats collection interval (seconds). Set to 10 for real-time stats. Increase (e.g., 60 or 300) for systems with many clients to reduce database I/O. | `10` |
 | `JWT_ACCESS_TOKEN_EXPIRES_HOURS` | Token expiration | `24` |
 
 ### Docker Compose Ports
