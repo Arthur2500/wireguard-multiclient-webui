@@ -132,7 +132,7 @@ export interface UserStats {
 }
 
 export interface SystemStats {
-  total_users: number;
+  total_users: number | null;
   total_groups: number;
   total_clients: number;
   active_clients: number;
