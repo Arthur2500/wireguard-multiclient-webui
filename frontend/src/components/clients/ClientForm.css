@@ -1,19 +1,20 @@
 .client-form-container {
-  padding: 20px;
+  padding: var(--spacing-lg);
   max-width: 700px;
   margin: 0 auto;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  margin-top: 5px;
+  margin-top: var(--spacing-xs);
 }
 
 .client-form {
   background: var(--bg-primary);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   padding: 25px;
-  box-shadow: 0 2px 10px var(--shadow);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
 }
 
 .form-section {
@@ -28,13 +29,13 @@
 }
 
 .form-section h2 {
-  margin: 0 0 20px;
+  margin: 0 0 var(--spacing-lg);
   color: var(--text-primary);
   font-size: 18px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
@@ -50,7 +51,7 @@
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   transition: border-color 0.3s;
   box-sizing: border-box;
@@ -66,7 +67,7 @@
 
 .help-text {
   display: block;
-  margin-top: 5px;
+  margin-top: var(--spacing-xs);
   font-size: 12px;
   color: var(--text-muted);
 }
@@ -74,7 +75,7 @@
 .checkbox-group label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--spacing-sm);
   cursor: pointer;
 }
 
@@ -82,6 +83,7 @@
   width: 18px;
   height: 18px;
   accent-color: var(--primary);
+  cursor: pointer;
 }
 
 .checkbox-group span {
@@ -91,20 +93,20 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 15px;
+  gap: var(--spacing-md);
   margin-top: 25px;
-  padding-top: 20px;
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .client-form-container {
-    padding: 15px;
+    padding: var(--spacing-md);
   }
   
   .client-form {
-    padding: 20px;
+    padding: var(--spacing-lg);
   }
   
   .form-actions {
@@ -115,5 +117,6 @@
   .form-actions .btn-primary {
     width: 100%;
     text-align: center;
+    min-height: 48px;
   }
 }
