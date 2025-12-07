@@ -129,7 +129,6 @@ const GroupDetail: React.FC = () => {
       }
       // Reload group data to ensure consistency
       await loadData();
-      alert(`WireGuard interface ${action}ed successfully`);
     } catch (err: any) {
       setError(err.response?.data?.error || `Failed to ${action} WireGuard`);
     } finally {
