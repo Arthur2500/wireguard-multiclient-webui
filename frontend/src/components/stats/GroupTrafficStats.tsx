@@ -45,11 +45,11 @@ const GroupTrafficStats: React.FC<GroupTrafficStatsProps> = ({ groupId }) => {
     loadTrafficData();
   }, [loadTrafficData]);
 
-  // Auto-refresh every 5 seconds
+  // Auto-refresh every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       loadTrafficData(true);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [loadTrafficData]);
 

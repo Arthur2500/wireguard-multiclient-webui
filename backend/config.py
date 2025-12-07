@@ -24,7 +24,7 @@ class Config:
     WG_USE_PRESHARED_KEY = os.environ.get('WG_USE_PRESHARED_KEY', 'false').lower() in ('true', '1', 'yes')
     
     # Statistics collection (in seconds)
-    STATS_COLLECTION_INTERVAL = int(os.environ.get('STATS_COLLECTION_INTERVAL', 300))
+    STATS_COLLECTION_INTERVAL = int(os.environ.get('STATS_COLLECTION_INTERVAL', 10))
 
 
 class DevelopmentConfig(Config):

@@ -71,11 +71,11 @@ const Stats: React.FC = () => {
     loadTrafficData();
   }, [loadTrafficData]);
 
-  // Auto-refresh traffic data every 5 seconds
+  // Auto-refresh traffic data every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       loadTrafficData();
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [loadTrafficData]);
 

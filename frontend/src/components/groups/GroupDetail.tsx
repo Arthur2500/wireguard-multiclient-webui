@@ -48,7 +48,7 @@ const GroupDetail: React.FC = () => {
     }
   }, [id, loadData]);
 
-  // Auto-update stats every 5 seconds when WireGuard is running
+  // Auto-update stats every 10 seconds when WireGuard is running
   useEffect(() => {
     if (!group?.is_running) return;
 
@@ -62,7 +62,7 @@ const GroupDetail: React.FC = () => {
         // Silently fail - don't show error for background updates
         console.debug('Failed to auto-update stats', err);
       }
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [group?.is_running, id]);

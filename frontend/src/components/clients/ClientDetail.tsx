@@ -68,7 +68,7 @@ const ClientDetail: React.FC = () => {
     loadTrafficData();
   }, [loadTrafficData]);
 
-  // Auto-refresh every 5 seconds, preventing overlapping requests
+  // Auto-refresh every 10 seconds, preventing overlapping requests
   useEffect(() => {
     const interval = setInterval(() => {
       if (!isRefreshing) {
@@ -78,7 +78,7 @@ const ClientDetail: React.FC = () => {
           loadClient()
         ]).finally(() => setIsRefreshing(false));
       }
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [loadTrafficData, loadClient, isRefreshing]);
 
