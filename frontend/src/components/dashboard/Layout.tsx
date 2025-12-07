@@ -82,16 +82,16 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
               <Monitor size={18} /> Clients
             </Link>
           </li>
+          <li>
+            <Link to="/stats" className={isActive('/stats') ? 'active' : ''}>
+              <BarChart3 size={18} /> Statistics
+            </Link>
+          </li>
           {user?.role === 'admin' && (
             <>
               <li>
                 <Link to="/users" className={isActive('/users') ? 'active' : ''}>
                   <Users size={18} /> Users
-                </Link>
-              </li>
-              <li>
-                <Link to="/stats" className={isActive('/stats') ? 'active' : ''}>
-                  <BarChart3 size={18} /> Statistics
                 </Link>
               </li>
             </>

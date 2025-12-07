@@ -20,6 +20,7 @@ const Stats: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Traffic graph state
   const [timeRange, setTimeRange] = useState<TimeRange>('1h');
@@ -30,18 +31,42 @@ const Stats: React.FC = () => {
   const [trafficLoading, setTrafficLoading] = useState(false);
   const [trafficError, setTrafficError] = useState('');
 
+  // Check if user is admin
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setIsAdmin(user.role === 'admin');
+    }
+  }, []);
+
   const loadStats = useCallback(async () => {
     try {
-      const data = await statsService.getSystemStats();
-      setStats(data);
+      if (isAdmin) {
+        const data = await statsService.getSystemStats();
+        setStats(data);
+      } else {
+        // For non-admin users, use overview endpoint
+        const data = await statsService.getOverview();
+        // Transform overview data to match SystemStats structure
+        setStats({
+          ...data,
+          groups: [],
+          users: [],
+          clients: [],
+          recent_connections_24h: 0,
+        } as any);
+      }
     } catch (err) {
       setError('Failed to load statistics');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   const loadTrafficData = useCallback(async () => {
+    if (!isAdmin) return; // Non-admin users can't load system-wide traffic graphs yet
+    
     setTrafficLoading(true);
     setTrafficError('');
     try {
@@ -61,7 +86,7 @@ const Stats: React.FC = () => {
     } finally {
       setTrafficLoading(false);
     }
-  }, [timeRange, graphView]);
+  }, [timeRange, graphView, isAdmin]);
 
   useEffect(() => {
     loadStats();
@@ -143,19 +168,21 @@ const Stats: React.FC = () => {
       </div>
 
       <div className="stats-overview">
-        <div className="stat-card">
-          <div className="stat-icon"><Users size={32} /></div>
-          <div className="stat-content">
-            <h3>{stats.total_users}</h3>
-            <p>Total Users</p>
+        {isAdmin && stats.total_users !== null && (
+          <div className="stat-card">
+            <div className="stat-icon"><Users size={32} /></div>
+            <div className="stat-content">
+              <h3>{stats.total_users}</h3>
+              <p>Total Users</p>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="stat-card">
           <div className="stat-icon"><FolderOpen size={32} /></div>
           <div className="stat-content">
             <h3>{stats.total_groups}</h3>
-            <p>Total Groups</p>
+            <p>{isAdmin ? 'Total Groups' : 'My Groups'}</p>
           </div>
         </div>
 
@@ -163,7 +190,7 @@ const Stats: React.FC = () => {
           <div className="stat-icon"><Monitor size={32} /></div>
           <div className="stat-content">
             <h3>{stats.total_clients}</h3>
-            <p>Total Clients</p>
+            <p>{isAdmin ? 'Total Clients' : 'My Clients'}</p>
           </div>
         </div>
 
@@ -200,46 +227,49 @@ const Stats: React.FC = () => {
         <div className="traffic-card connections">
           <h3>Recent Activity</h3>
           <div className="connections-count">
-            <span className="number">{stats.recent_connections_24h}</span>
+            <span className="number">{stats.recent_connections_24h || 0}</span>
             <span className="label">Connections in last 24h</span>
           </div>
         </div>
       </div>
 
-      {/* Network Traffic Graphs Section */}
-      <div className="traffic-graphs-section">
-        <div className="section-header">
-          <h2>Network Traffic Graphs</h2>
-          <div className="graph-controls">
-            <div className="graph-view-selector">
-              <button
-                className={`view-btn ${graphView === 'total' ? 'active' : ''}`}
-                onClick={() => setGraphView('total')}
-              >
-                Total
-              </button>
-              <button
-                className={`view-btn ${graphView === 'groups' ? 'active' : ''}`}
-                onClick={() => setGraphView('groups')}
-              >
-                Groups
-              </button>
-              <button
-                className={`view-btn ${graphView === 'clients' ? 'active' : ''}`}
-                onClick={() => setGraphView('clients')}
-              >
-                Clients
-              </button>
+      {/* Network Traffic Graphs Section - Admin Only */}
+      {isAdmin && (
+        <div className="traffic-graphs-section">
+          <div className="section-header">
+            <h2>Network Traffic Graphs</h2>
+            <div className="graph-controls">
+              <div className="graph-view-selector">
+                <button
+                  className={`view-btn ${graphView === 'total' ? 'active' : ''}`}
+                  onClick={() => setGraphView('total')}
+                >
+                  Total
+                </button>
+                <button
+                  className={`view-btn ${graphView === 'groups' ? 'active' : ''}`}
+                  onClick={() => setGraphView('groups')}
+                >
+                  Groups
+                </button>
+                <button
+                  className={`view-btn ${graphView === 'clients' ? 'active' : ''}`}
+                  onClick={() => setGraphView('clients')}
+                >
+                  Clients
+                </button>
+              </div>
+              <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
             </div>
-            <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+          </div>
+          <div className="graph-container">
+            {renderGraph()}
           </div>
         </div>
-        <div className="graph-container">
-          {renderGraph()}
-        </div>
-      </div>
+      )}
 
-      <div className="groups-stats">
+      {isAdmin && (
+        <div className="groups-stats">
         <h2>Groups Breakdown</h2>
         <table className="stats-table">
           <thead>
@@ -284,8 +314,10 @@ const Stats: React.FC = () => {
           </tbody>
         </table>
       </div>
+      )}
 
-      <div className="clients-stats">
+      {isAdmin && (
+        <div className="clients-stats">
         <h2>Clients Breakdown</h2>
         <table className="stats-table">
           <thead>
@@ -328,8 +360,10 @@ const Stats: React.FC = () => {
           </tbody>
         </table>
       </div>
+      )}
 
-      <div className="users-stats">
+      {isAdmin && (
+        <div className="users-stats">
         <h2>Users Breakdown</h2>
         <table className="stats-table">
           <thead>
@@ -374,6 +408,7 @@ const Stats: React.FC = () => {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 };

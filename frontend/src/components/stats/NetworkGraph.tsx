@@ -120,7 +120,7 @@ const getColor = (index: number): string => {
 const formatTime = (dateString: string | null): string => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 };
 
 // Constants for graph configuration
@@ -139,9 +139,48 @@ const generateTimeLabels = (data: TrafficDataPoint[], count: number = EMPTY_GRAP
   const labels: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
     const time = new Date(now.getTime() - i * TIME_INTERVAL_MINUTES * 60 * 1000);
-    labels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    labels.push(time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
   }
   return labels;
+};
+
+// Calculate data rate (bytes/second) from cumulative data points
+const calculateRates = (data: TrafficDataPoint[]): { received_rate: number; sent_rate: number }[] => {
+  if (data.length < 2) {
+    return data.map(() => ({ received_rate: 0, sent_rate: 0 }));
+  }
+  
+  const rates = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      // First point - no previous data, assume 0 rate
+      rates.push({ received_rate: 0, sent_rate: 0 });
+    } else {
+      const current = data[i];
+      const previous = data[i - 1];
+      
+      // Calculate time difference in seconds
+      const currentTime = new Date(current.recorded_at || '').getTime();
+      const previousTime = new Date(previous.recorded_at || '').getTime();
+      const timeDiffSeconds = (currentTime - previousTime) / 1000;
+      
+      if (timeDiffSeconds > 0) {
+        // Calculate byte differences
+        const receivedDiff = Math.max(0, current.received_bytes - previous.received_bytes);
+        const sentDiff = Math.max(0, current.sent_bytes - previous.sent_bytes);
+        
+        // Calculate rates (bytes per second)
+        rates.push({
+          received_rate: receivedDiff / timeDiffSeconds,
+          sent_rate: sentDiff / timeDiffSeconds,
+        });
+      } else {
+        rates.push({ received_rate: 0, sent_rate: 0 });
+      }
+    }
+  }
+  
+  return rates;
 };
 
 // Single series graph (upload/download)
@@ -157,6 +196,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
   const chartData: ChartData<'line'> = useMemo(() => {
     const labels = generateTimeLabels(data);
     const dataPoints = data.length > 0 ? data : Array(labels.length).fill(DEFAULT_DATA_POINT);
+    const rates = calculateRates(data);
 
     const datasets = [];
 
@@ -165,8 +205,8 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
       const downloadColorRgba = hexToRgba(themeColors.success, 0.1);
 
       datasets.push({
-        label: 'Download',
-        data: data.length > 0 ? data.map(d => d.received_bytes) : dataPoints.map(() => 0),
+        label: 'Download Rate',
+        data: data.length > 0 ? rates.map(r => r.received_rate) : dataPoints.map(() => 0),
         borderColor: themeColors.success,
         backgroundColor: downloadColorRgba,
         fill: true,
@@ -181,8 +221,8 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
       const uploadColorRgba = hexToRgba(themeColors.info, 0.1);
 
       datasets.push({
-        label: 'Upload',
-        data: data.length > 0 ? data.map(d => d.sent_bytes) : dataPoints.map(() => 0),
+        label: 'Upload Rate',
+        data: data.length > 0 ? rates.map(r => r.sent_rate) : dataPoints.map(() => 0),
         borderColor: themeColors.info,
         backgroundColor: uploadColorRgba,
         fill: true,
@@ -241,7 +281,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
         callbacks: {
           label: (context) => {
             const value = context.raw as number;
-            return `${context.dataset.label}: ${formatBytes(value)}`;
+            return `${context.dataset.label}: ${formatBytes(value)}/s`;
           },
         },
       },
@@ -276,7 +316,7 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
           font: {
             size: 11,
           },
-          callback: (value) => formatBytes(value as number),
+          callback: (value) => `${formatBytes(value as number)}/s`,
         },
         border: {
           color: themeColors.border,
@@ -339,13 +379,21 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
     const datasets = series.map((s, index) => {
       const color = s.color || getColor(index);
       const dataMap = new Map(s.data.map(d => [d.recorded_at, d]));
+      const rates = calculateRates(s.data);
 
       return {
         label: s.name,
-        data: sortedTimestamps.map(t => {
+        data: sortedTimestamps.map((t, idx) => {
           if (t === null) return 0; // For empty data
           const point = dataMap.get(t);
-          return point ? point.received_bytes + point.sent_bytes : 0;
+          if (!point) return 0;
+          
+          // Find the index in the original data
+          const dataIndex = s.data.findIndex(d => d.recorded_at === t);
+          if (dataIndex >= 0 && dataIndex < rates.length) {
+            return rates[dataIndex].received_rate + rates[dataIndex].sent_rate;
+          }
+          return 0;
         }),
         borderColor: color,
         backgroundColor: hexToRgba(color, 0.1),
@@ -406,7 +454,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
         callbacks: {
           label: (context) => {
             const value = context.raw as number;
-            return `${context.dataset.label}: ${formatBytes(value)}`;
+            return `${context.dataset.label}: ${formatBytes(value)}/s`;
           },
         },
       },
@@ -441,7 +489,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
           font: {
             size: 11,
           },
-          callback: (value) => formatBytes(value as number),
+          callback: (value) => formatBytes(value as number)/s,
         },
         border: {
           color: themeColors.border,
