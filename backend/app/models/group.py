@@ -3,6 +3,7 @@ from app import db
 import ipaddress
 import os
 import logging
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -266,6 +267,7 @@ AllowedIPs = {allowed_ips}
         """Get the WireGuard interface name for this group.
         
         Uses sanitized group name for the interface name (e.g., 'wg-groupname').
+        Falls back to group ID if sanitization results in empty string.
         """
         # Sanitize group name: lowercase, replace spaces and special chars with hyphens
         sanitized = self.name.lower()
@@ -276,10 +278,19 @@ AllowedIPs = {allowed_ips}
             sanitized = sanitized.replace('--', '-')
         # Remove leading/trailing hyphens
         sanitized = sanitized.strip('-')
+        
+        # Fallback to group ID if name is empty after sanitization
+        if not sanitized:
+            sanitized = f"group{self.id}"
+        
         # Limit length to avoid filesystem issues (max 15 chars for interface name in Linux)
         if len(sanitized) > 12:  # Leave room for 'wg-' prefix
             sanitized = sanitized[:12]
         sanitized = sanitized.rstrip('-')
+        
+        # Final check: ensure we have a valid name
+        if not sanitized:
+            sanitized = f"group{self.id}"
         
         return f"wg-{sanitized}"
 
@@ -359,7 +370,6 @@ AllowedIPs = {allowed_ips}
         if group_dir:
             try:
                 if os.path.exists(group_dir):
-                    import shutil
                     shutil.rmtree(group_dir)
                     logger.info("Group directory deleted for group_id=%s from %s", self.id, group_dir)
             except Exception as e:
