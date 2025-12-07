@@ -238,20 +238,29 @@ const ClientList: React.FC = () => {
             </div>
             <div className="modal-body">
               <p>Select a group to create a new client:</p>
-              <div className="groups-selection">
-                {groups.map(group => (
-                  <Link
-                    key={group.id}
-                    to={`/groups/${group.id}/clients/new`}
-                    className="group-option"
-                    onClick={() => setShowCreateModal(false)}
-                  >
-                    <h3>{group.name}</h3>
-                    <p className="ip-range mono">{group.ip_range}</p>
-                    <span className="client-count">{group.client_count} clients</span>
+              {groups.length === 0 ? (
+                <div className="empty-state">
+                  <p>No groups available. Create a group first to add clients.</p>
+                  <Link to="/groups/new" className="btn-primary" onClick={() => setShowCreateModal(false)}>
+                    + Create New Group
                   </Link>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="groups-selection">
+                  {groups.map(group => (
+                    <Link
+                      key={group.id}
+                      to={`/groups/${group.id}/clients/new`}
+                      className="group-option"
+                      onClick={() => setShowCreateModal(false)}
+                    >
+                      <h3>{group.name}</h3>
+                      <p className="ip-range mono">{group.ip_range}</p>
+                      <span className="client-count">{group.client_count} clients</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button onClick={() => setShowCreateModal(false)} className="btn-secondary">Cancel</button>

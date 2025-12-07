@@ -376,10 +376,23 @@
   .stats-table {
     font-size: 14px;
   }
+
+  .stats-table th,
+  .stats-table td {
+    padding: var(--spacing-sm);
+  }
 }
 
 @media (max-width: 480px) {
   .stats-overview {
     grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: var(--spacing-sm);
+  }
+
+  .connections-count .number {
+    font-size: 36px;
   }
 }
