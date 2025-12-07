@@ -165,6 +165,16 @@
   margin-bottom: 2px;
 }
 
+.client-name-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.client-name-link:hover .client-name {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .client-desc {
   display: block;
   font-size: 12px;

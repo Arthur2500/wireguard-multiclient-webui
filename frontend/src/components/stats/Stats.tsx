@@ -8,7 +8,7 @@ import {
   ClientsTrafficHistory
 } from '../../types';
 import { formatBytes } from '../../utils/helpers';
-import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3, RefreshCw } from 'lucide-react';
+import { Users, FolderOpen, Monitor, CheckCircle, Download, Upload, BarChart3 } from 'lucide-react';
 import { NetworkGraph, NetworkGraphMulti } from './NetworkGraph';
 import TimeRangeSelector from './TimeRangeSelector';
 import './Stats.css';
@@ -61,17 +61,6 @@ const Stats: React.FC = () => {
       setTrafficLoading(false);
     }
   }, [timeRange, graphView]);
-
-  const handleCollectTraffic = async () => {
-    setTrafficError('');
-    try {
-      await statsService.collectTraffic();
-      await loadTrafficData();
-    } catch (err) {
-      console.error('Failed to collect traffic:', err);
-      setTrafficError('Failed to collect traffic data');
-    }
-  };
 
   useEffect(() => {
     loadStats();
@@ -242,13 +231,6 @@ const Stats: React.FC = () => {
               </button>
             </div>
             <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
-            <button
-              className="btn-secondary collect-btn"
-              onClick={handleCollectTraffic}
-              title="Collect traffic data now"
-            >
-              <RefreshCw size={16} /> Collect Now
-            </button>
           </div>
         </div>
         <div className="graph-container">

@@ -13,8 +13,17 @@ def collect_traffic_stats(app):
     with app.app_context():
         try:
             from app.models.client import Client
+            from app.models.group import Group
             from app.models.stats import TrafficHistory
             from app import db
+            
+            # First, update client stats from WireGuard for all running groups
+            running_groups = Group.query.filter_by(is_running=True).all()
+            for group in running_groups:
+                try:
+                    group.update_client_stats()
+                except Exception as e:
+                    logger.error(f"Error updating stats for group {group.name}: {e}")
             
             now = datetime.utcnow()
             

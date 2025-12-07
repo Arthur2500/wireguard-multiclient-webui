@@ -59,6 +59,11 @@ export const statsService = {
     return response.data;
   },
 
+  getClientTrafficHistory: async (clientId: number, range: TimeRange = '1h') => {
+    const response = await api.get(`/stats/traffic/client/${clientId}?range=${range}`);
+    return response.data;
+  },
+
   collectTraffic: async (): Promise<void> => {
     await api.post('/stats/traffic/collect');
   },

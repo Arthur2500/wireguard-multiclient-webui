@@ -409,6 +409,38 @@ def get_group_traffic_history(group_id):
     }), 200
 
 
+@stats_bp.route('/traffic/client/<int:client_id>', methods=['GET'])
+@jwt_required()
+def get_client_traffic_history(client_id):
+    """Get traffic history for a specific client."""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+
+    client = Client.query.get(client_id)
+    if not client:
+        return jsonify({'error': 'Client not found'}), 404
+
+    if not user.can_access_group(client.group):
+        return jsonify({'error': 'Access denied'}), 403
+
+    range_param = request.args.get('range', '1h')
+    start_time = get_time_range(range_param)
+
+    # Get client traffic history
+    history = TrafficHistory.query.filter(
+        TrafficHistory.recorded_at >= start_time,
+        TrafficHistory.client_id == client_id
+    ).order_by(TrafficHistory.recorded_at.asc()).all()
+
+    return jsonify({
+        'range': range_param,
+        'client_id': client_id,
+        'client_name': client.name,
+        'group_id': client.group_id,
+        'data': [h.to_dict() for h in history]
+    }), 200
+
+
 @stats_bp.route('/traffic/record', methods=['POST'])
 @admin_required
 def record_traffic():
