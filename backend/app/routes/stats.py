@@ -1,3 +1,5 @@
+"""Statistics and monitoring routes for WireGuard traffic and usage."""
+import logging
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
@@ -7,17 +9,49 @@ from app.models.group import Group
 from app.models.client import Client
 from app.models.stats import ConnectionLog, TrafficHistory
 from app.utils.decorators import admin_required
+from app.utils.helpers import (
+    get_current_user,
+    check_group_access,
+    check_client_access,
+    create_error_response,
+    create_success_response
+)
 from app import db
 
+logger = logging.getLogger(__name__)
+
 stats_bp = Blueprint('stats', __name__)
+
+
+def get_time_range(range_param):
+    """Get start time based on range parameter.
+    
+    Args:
+        range_param: Time range string ('1h', '1d', '1w')
+        
+    Returns:
+        datetime: Start time for the range
+    """
+    now = datetime.utcnow()
+    range_map = {
+        '1h': timedelta(hours=1),
+        '1d': timedelta(days=1),
+        '1w': timedelta(weeks=1)
+    }
+    delta = range_map.get(range_param, timedelta(hours=1))
+    return now - delta
 
 
 @stats_bp.route('/overview', methods=['GET'])
 @jwt_required()
 def get_overview():
     """Get system overview statistics."""
-    user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = get_current_user()
+    
+    if not user:
+        return create_error_response('User not found', 404)
+
+    logger.debug("Fetching overview stats for user_id=%s", user.id)
 
     if user.is_admin():
         total_groups = Group.query.count()
@@ -30,7 +64,7 @@ def get_overview():
         total_sent = db.session.query(func.sum(Client.total_sent)).scalar() or 0
     else:
         # Filter by accessible groups
-        groups = Group.query.filter_by(owner_id=user_id).all()
+        groups = Group.query.filter_by(owner_id=user.id).all()
         group_ids = [g.id for g in groups] + [g.id for g in user.managed_groups]
 
         total_groups = len(set(group_ids))
@@ -62,15 +96,17 @@ def get_overview():
 @jwt_required()
 def get_group_stats(group_id):
     """Get statistics for a specific group."""
-    user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = get_current_user()
+    
+    if not user:
+        return create_error_response('User not found', 404)
 
     group = Group.query.get(group_id)
-    if not group:
-        return jsonify({'error': 'Group not found'}), 404
+    has_access, error_response = check_group_access(user, group)
+    if not has_access:
+        return error_response
 
-    if not user.can_access_group(group):
-        return jsonify({'error': 'Access denied'}), 403
+    logger.debug("Fetching stats for group_id=%s by user_id=%s", group_id, user.id)
 
     clients = Client.query.filter_by(group_id=group_id).all()
 
@@ -106,15 +142,17 @@ def get_group_stats(group_id):
 @jwt_required()
 def get_client_stats(client_id):
     """Get statistics for a specific client."""
-    user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = get_current_user()
+    
+    if not user:
+        return create_error_response('User not found', 404)
 
     client = Client.query.get(client_id)
-    if not client:
-        return jsonify({'error': 'Client not found'}), 404
+    has_access, error_response = check_client_access(user, client)
+    if not has_access:
+        return error_response
 
-    if not user.can_access_group(client.group):
-        return jsonify({'error': 'Access denied'}), 403
+    logger.debug("Fetching stats for client_id=%s by user_id=%s", client_id, user.id)
 
     # Get recent connection logs
     recent_logs = ConnectionLog.query.filter_by(client_id=client_id).order_by(
@@ -136,16 +174,22 @@ def get_client_stats(client_id):
 @jwt_required()
 def get_user_stats(user_id):
     """Get statistics for a specific user."""
-    current_user_id = int(get_jwt_identity())
-    current_user = User.query.get(current_user_id)
+    current_user = get_current_user()
+    
+    if not current_user:
+        return create_error_response('User not found', 404)
 
     # Users can only view their own stats unless admin
-    if not current_user.is_admin() and current_user_id != user_id:
-        return jsonify({'error': 'Access denied'}), 403
+    if not current_user.is_admin() and current_user.id != user_id:
+        logger.warning("Access denied to user stats user_id=%s by user_id=%s", user_id, current_user.id)
+        return create_error_response('Access denied', 403)
 
     target_user = User.query.get(user_id)
     if not target_user:
-        return jsonify({'error': 'User not found'}), 404
+        logger.info("User stats requested for non-existent user_id=%s", user_id)
+        return create_error_response('User not found', 404)
+
+    logger.debug("Fetching stats for user_id=%s by user_id=%s", user_id, current_user.id)
 
     # Get all groups owned by or accessible to this user
     owned_groups = Group.query.filter_by(owner_id=user_id).all()
@@ -193,6 +237,8 @@ def get_user_stats(user_id):
 @admin_required
 def get_system_stats():
     """Get system-wide statistics (admin only)."""
+    logger.debug("Fetching system-wide statistics")
+    
     # Total counts
     total_users = User.query.count()
     total_groups = Group.query.count()
