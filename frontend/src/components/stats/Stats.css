@@ -335,10 +335,6 @@
     justify-content: center;
     min-height: 44px;
   }
-
-  .stats-table {
-    font-size: 13px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -366,17 +362,9 @@
     font-size: 24px;
   }
 
-  .stat-content p {
-    font-size: 13px;
-  }
-
   .traffic-details {
     flex-direction: column;
     gap: var(--spacing-md);
-  }
-
-  .traffic-item .value {
-    font-size: 20px;
   }
 
   .groups-stats,
@@ -390,6 +378,7 @@
 
   .stats-table {
     font-size: 14px;
+    min-width: 600px;
   }
 
   .stats-table th,
@@ -397,22 +386,9 @@
     padding: var(--spacing-sm);
     white-space: nowrap;
   }
-
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .page-header h1 {
-    font-size: 24px;
-  }
 }
 
 @media (max-width: 480px) {
-  .stats-container {
-    padding: var(--spacing-sm);
-  }
-
   .stats-overview {
     grid-template-columns: 1fr;
   }
@@ -421,36 +397,7 @@
     padding: var(--spacing-sm);
   }
 
-  .stat-content h3 {
-    font-size: 20px;
-  }
-
   .connections-count .number {
     font-size: 36px;
-  }
-
-  .traffic-card h3 {
-    font-size: 16px;
-  }
-
-  .groups-stats,
-  .clients-stats,
-  .users-stats,
-  .traffic-graphs-section {
-    padding: var(--spacing-sm);
-  }
-
-  .stats-table {
-    font-size: 12px;
-  }
-
-  .stats-table th,
-  .stats-table td {
-    padding: 8px;
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 3px 8px;
   }
 }

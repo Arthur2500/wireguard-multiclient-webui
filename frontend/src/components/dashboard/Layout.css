@@ -215,6 +215,7 @@
     width: 280px;
     top: 60px;
     height: calc(100vh - 60px);
+    overflow-y: auto;
   }
 
   .sidebar.open {
@@ -233,9 +234,7 @@
   }
 
   .sidebar-footer {
-    padding: var(--spacing-lg);
-    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 20px));
-    border-top: 1px solid var(--border);
+    padding-bottom: calc(var(--spacing-lg) + 60px);
   }
 
   .main-content {

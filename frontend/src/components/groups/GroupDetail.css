@@ -268,7 +268,6 @@
 
   .header-actions {
     width: 100%;
-    justify-content: stretch;
   }
 
   .header-actions .btn-secondary,
@@ -282,10 +281,6 @@
 @media (max-width: 768px) {
   .group-detail {
     padding: var(--spacing-md);
-  }
-
-  .page-header h1 {
-    font-size: 24px;
   }
 
   .clients-section {
@@ -310,6 +305,7 @@
 
   .clients-table {
     font-size: 14px;
+    min-width: 700px;
   }
 
   .clients-table th,
@@ -318,14 +314,10 @@
     white-space: nowrap;
   }
 
-  .clients-table td.actions {
-    white-space: normal;
-  }
-
   .actions {
     flex-direction: column;
     gap: var(--spacing-xs);
-    min-width: 100px;
+    white-space: normal;
   }
 
   .actions .btn-action {
@@ -333,23 +325,8 @@
     min-height: 44px;
   }
 
-  .info-card {
-    padding: var(--spacing-md);
-  }
-
   .modal {
     max-width: calc(100vw - var(--spacing-md) * 2);
-    max-height: calc(100vh - var(--spacing-md) * 2);
-  }
-
-  .modal-footer {
-    flex-direction: column;
-  }
-
-  .modal-footer .btn-secondary,
-  .modal-footer .btn-primary {
-    width: 100%;
-    min-height: 48px;
   }
 }
 
@@ -358,29 +335,7 @@
     padding: var(--spacing-sm);
   }
 
-  .page-header h1 {
-    font-size: 20px;
-  }
-
   .clients-section {
-    padding: var(--spacing-sm);
-  }
-
-  .info-card {
-    padding: var(--spacing-sm);
-  }
-
-  .clients-table {
-    font-size: 13px;
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-
-  .config-content {
-    font-size: 12px;
     padding: var(--spacing-sm);
   }
 }

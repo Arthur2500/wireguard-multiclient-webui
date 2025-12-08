@@ -190,6 +190,10 @@
     -webkit-overflow-scrolling: touch;
   }
   
+  .groups-table {
+    min-width: 700px;
+  }
+
   .groups-table th,
   .groups-table td {
     padding: var(--spacing-sm);
@@ -197,47 +201,14 @@
     white-space: nowrap;
   }
 
-  .groups-table td.actions {
-    white-space: normal;
-  }
-
   .actions {
     flex-direction: column;
     gap: var(--spacing-xs);
-    min-width: 100px;
+    white-space: normal;
   }
 
   .btn-action {
     width: 100%;
     min-height: 44px;
-  }
-
-  .empty-state {
-    padding: 40px var(--spacing-md);
-  }
-
-  .empty-state h2 {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .group-list-container {
-    padding: var(--spacing-sm);
-  }
-
-  .groups-table th,
-  .groups-table td {
-    padding: 8px;
-    font-size: 13px;
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-
-  .mono {
-    font-size: 12px;
   }
 }

@@ -199,10 +199,6 @@
   .dashboard {
     padding: var(--spacing-md);
   }
-
-  .dashboard-header h1 {
-    font-size: 24px;
-  }
   
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
@@ -223,25 +219,9 @@
   .stat-content h3 {
     font-size: 24px;
   }
-
-  .stat-content p {
-    font-size: 13px;
-  }
   
   .traffic-stats {
     grid-template-columns: 1fr;
-  }
-
-  .traffic-card {
-    padding: var(--spacing-md);
-  }
-
-  .traffic-card h3 {
-    font-size: 14px;
-  }
-
-  .traffic-card p {
-    font-size: 20px;
   }
   
   .groups-grid {
@@ -258,10 +238,6 @@
     text-align: center;
     min-height: 48px;
   }
-
-  .group-card {
-    padding: var(--spacing-md);
-  }
 }
 
 @media (max-width: 480px) {
@@ -269,31 +245,7 @@
     padding: var(--spacing-sm);
   }
 
-  .dashboard-header h1 {
-    font-size: 20px;
-  }
-
   .stats-cards {
     grid-template-columns: 1fr;
-  }
-
-  .stat-card {
-    padding: var(--spacing-sm);
-  }
-
-  .stat-content h3 {
-    font-size: 20px;
-  }
-
-  .traffic-card {
-    padding: var(--spacing-sm);
-  }
-
-  .group-card {
-    padding: var(--spacing-sm);
-  }
-
-  .group-card h3 {
-    font-size: 18px;
   }
 }
