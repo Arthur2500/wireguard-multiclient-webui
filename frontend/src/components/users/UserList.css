@@ -15,7 +15,6 @@
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
 }
 
 .users-table th,

@@ -29,7 +29,6 @@
 .groups-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
 }
 
 .groups-table th,
@@ -188,10 +187,6 @@
   .groups-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-  }
-  
-  .groups-table {
-    min-width: 700px;
   }
 
   .groups-table th,

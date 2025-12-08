@@ -68,6 +68,17 @@
 .form-group {
   position: relative;
   overflow: visible;
+  max-width: 100%;
+}
+
+.form-group input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
 }
 
 .form-group input:focus,

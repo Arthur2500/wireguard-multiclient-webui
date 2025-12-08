@@ -253,7 +253,6 @@
 .stats-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
 }
 
 .stats-table th,
@@ -378,7 +377,6 @@
 
   .stats-table {
     font-size: 14px;
-    min-width: 600px;
   }
 
   .stats-table th,
