@@ -108,6 +108,35 @@ docker-compose up -d
 - **8080**: Web interface (HTTP)
 - WireGuard ports are configured per-group
 
+### File Organization
+
+WireGuard configurations are organized by group name for easy management:
+
+**Interface Names:**
+- Each group gets a unique WireGuard interface named after the group
+- Format: `wg-{sanitized-group-name}` (e.g., "Office VPN" → `wg-office-vpn`)
+- Names are automatically sanitized (lowercase, special characters removed, max 15 chars)
+
+**File Structure:**
+```
+/etc/wireguard/
+├── wg-office-vpn.conf              # Server config for "Office VPN" group
+├── wg-office-vpn/                  # Client configs for "Office VPN" group
+│   ├── wg-office-vpn-laptop.conf
+│   ├── wg-office-vpn-phone.conf
+│   └── wg-office-vpn-tablet.conf
+├── wg-marketing.conf               # Server config for "Marketing" group
+└── wg-marketing/                   # Client configs for "Marketing" group
+    ├── wg-marketing-john.conf
+    └── wg-marketing-jane.conf
+```
+
+This organization:
+- Makes it easy to identify which interface belongs to which group
+- Keeps related client configurations together in group-specific directories
+- Allows easy backup/restore of group configurations
+- Simplifies troubleshooting and manual configuration management
+
 ## Development Setup
 
 ### Backend (Flask)
