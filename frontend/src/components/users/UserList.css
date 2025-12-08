@@ -94,6 +94,20 @@
   color: var(--text-primary);
 }
 
+.user-form select {
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .user-form select {
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%23c2c2c2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
 .user-form input:focus,
 .user-form select:focus {
   outline: none;
@@ -140,12 +154,25 @@
     padding: var(--spacing-md);
   }
   
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  .page-header .btn-primary {
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
+  }
+  
   .users-table-container {
     overflow-x: auto;
   }
 
   .users-table {
     font-size: 14px;
+    min-width: 800px;
   }
 
   .users-table th,
@@ -162,6 +189,7 @@
 
   .actions .btn-action {
     width: 100%;
+    min-height: 40px;
   }
   
   .user-form .form-actions {
@@ -171,6 +199,11 @@
   .user-form .form-actions button {
     width: 100%;
     min-height: 48px;
+  }
+  
+  .modal {
+    max-width: calc(100vw - var(--spacing-lg) * 2);
+    max-height: calc(100vh - var(--spacing-lg) * 2);
   }
 }
 

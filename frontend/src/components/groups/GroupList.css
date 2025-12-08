@@ -66,6 +66,17 @@
   margin-top: 3px;
 }
 
+.owner-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.owner-link:hover {
+  text-decoration: underline;
+}
+
 .mono {
   font-family: 'Monaco', 'Consolas', monospace;
   font-size: 13px;
@@ -166,12 +177,21 @@
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: var(--spacing-sm);
   }
   
   .page-header .btn-primary {
     width: 100%;
     text-align: center;
     min-height: 44px;
+  }
+  
+  .groups-table-container {
+    overflow-x: auto;
+  }
+  
+  .groups-table {
+    min-width: 900px;
   }
   
   .groups-table th,
@@ -187,5 +207,14 @@
 
   .btn-action {
     width: 100%;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .groups-table th,
+  .groups-table td {
+    padding: 8px;
+    font-size: 13px;
   }
 }

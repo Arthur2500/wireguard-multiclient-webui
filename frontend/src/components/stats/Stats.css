@@ -335,6 +335,16 @@
     justify-content: center;
     min-height: 44px;
   }
+  
+  .groups-stats,
+  .clients-stats,
+  .users-stats {
+    overflow-x: auto;
+  }
+  
+  .stats-table {
+    min-width: 700px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -369,12 +379,14 @@
 
   .groups-stats,
   .users-stats,
+  .clients-stats,
   .traffic-graphs-section {
     padding: var(--spacing-md);
   }
 
   .stats-table {
     font-size: 14px;
+    min-width: 750px;
   }
 
   .stats-table th,

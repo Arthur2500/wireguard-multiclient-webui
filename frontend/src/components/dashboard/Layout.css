@@ -215,6 +215,9 @@
     width: 280px;
     top: 60px;
     height: calc(100vh - 60px);
+    bottom: auto;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    overflow-y: auto;
   }
 
   .sidebar.open {
@@ -230,6 +233,12 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
+  }
+  
+  .sidebar-footer {
+    padding: var(--spacing-lg);
+    padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 20px));
+    border-top: 1px solid var(--border);
   }
 
   .main-content {

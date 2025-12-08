@@ -78,7 +78,11 @@ const GroupList: React.FC = () => {
                       <span className="group-desc">{group.description}</span>
                     )}
                   </td>
-                  <td>{group.owner_username || 'Unknown'}</td>
+                  <td>
+                    <Link to="/users" className="owner-link">
+                      {group.owner_username || 'Unknown'}
+                    </Link>
+                  </td>
                   <td className="mono">{group.ip_range}</td>
                   <td className="mono">{group.server_ip}</td>
                   <td>{group.listen_port}</td>
