@@ -94,6 +94,20 @@
   color: var(--text-primary);
 }
 
+.user-form select {
+  padding-right: 32px;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .user-form select {
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%23c2c2c2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
 .user-form input:focus,
 .user-form select:focus {
   outline: none;
@@ -142,6 +156,7 @@
   
   .users-table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .users-table {
@@ -152,16 +167,23 @@
   .users-table td {
     padding: var(--spacing-sm);
     font-size: 14px;
+    white-space: nowrap;
+  }
+  
+  .users-table td.actions {
+    white-space: normal;
   }
   
   .actions {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    min-width: 100px;
   }
 
   .actions .btn-action {
     width: 100%;
+    min-height: 44px;
   }
   
   .user-form .form-actions {
@@ -172,9 +194,32 @@
     width: 100%;
     min-height: 48px;
   }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header .btn-primary {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .modal {
+    max-width: calc(100vw - var(--spacing-md) * 2);
+    max-height: calc(100vh - var(--spacing-md) * 2);
+  }
+
+  .user-form {
+    max-height: calc(100vh - 200px);
+  }
 }
 
 @media (max-width: 480px) {
+  .user-list-container {
+    padding: var(--spacing-sm);
+  }
+
   .users-table th,
   .users-table td {
     padding: 8px;
@@ -184,5 +229,10 @@
   .permissions-badges {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 3px 8px;
   }
 }

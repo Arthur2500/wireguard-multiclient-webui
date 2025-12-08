@@ -59,6 +59,17 @@
   text-decoration: underline;
 }
 
+.owner-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.owner-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .group-desc {
   display: block;
   font-size: 12px;
@@ -165,27 +176,68 @@
   
   .page-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
   
   .page-header .btn-primary {
     width: 100%;
     text-align: center;
-    min-height: 44px;
+    min-height: 48px;
+  }
+
+  .groups-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .groups-table th,
   .groups-table td {
     padding: var(--spacing-sm);
     font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .groups-table td.actions {
+    white-space: normal;
   }
 
   .actions {
     flex-direction: column;
     gap: var(--spacing-xs);
+    min-width: 100px;
   }
 
   .btn-action {
     width: 100%;
+    min-height: 44px;
+  }
+
+  .empty-state {
+    padding: 40px var(--spacing-md);
+  }
+
+  .empty-state h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .group-list-container {
+    padding: var(--spacing-sm);
+  }
+
+  .groups-table th,
+  .groups-table td {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .mono {
+    font-size: 12px;
   }
 }
