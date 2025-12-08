@@ -20,33 +20,45 @@
 
 .groups-table-container {
   background: var(--bg-primary);
-  border-radius: var(--radius-xl);
-  overflow-x: auto;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .groups-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
 }
 
-.groups-table th,
-.groups-table td {
-  padding: var(--spacing-md);
-  text-align: left;
-  border-bottom: 1px solid var(--border);
+.groups-table thead {
+  background: var(--bg-secondary);
 }
 
 .groups-table th {
-  background: var(--bg-secondary);
+  padding: 12px 16px;
+  text-align: left;
   font-weight: 600;
-  color: var(--text-primary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .groups-table td {
-  color: var(--text-secondary);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.groups-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.groups-table tbody tr:hover {
+  background: var(--bg-hover);
 }
 
 .group-name {
@@ -192,12 +204,6 @@
   
   .groups-table {
     min-width: 900px;
-  }
-  
-  .groups-table th,
-  .groups-table td {
-    padding: var(--spacing-sm);
-    font-size: 14px;
   }
 
   .actions {

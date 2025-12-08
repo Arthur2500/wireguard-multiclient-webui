@@ -274,141 +274,149 @@ const Stats: React.FC = () => {
       {isAdmin && (
         <div className="groups-stats">
         <h2>Groups Breakdown</h2>
-        <table className="stats-table">
-          <thead>
-            <tr>
-              <th>Group Name</th>
-              <th>Owner</th>
-              <th>Total Clients</th>
-              <th>Active Clients</th>
-              <th>Data Received</th>
-              <th>Data Sent</th>
-              <th>Total Traffic</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.groups.length > 0 ? stats.groups.map((group) => (
-              <tr key={group.id}>
-                <td className="group-name">
-                  <Link to={`/groups/${group.id}`} className="stats-link">
-                    {group.name}
-                  </Link>
-                </td>
-                <td>{group.owner}</td>
-                <td>{group.client_count}</td>
-                <td>
-                  <span className={`badge ${group.active_clients > 0 ? 'badge-success' : 'badge-muted'}`}>
-                    {group.active_clients}
-                  </span>
-                </td>
-                <td>{formatBytes(group.received_bytes)}</td>
-                <td>{formatBytes(group.sent_bytes)}</td>
-                <td className="total-traffic">
-                  {formatBytes(group.received_bytes + group.sent_bytes)}
-                </td>
-              </tr>
-            )) : (
+        <div className="stats-table-container">
+          <table className="stats-table">
+            <thead>
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
-                  No groups found
-                </td>
+                <th>Group Name</th>
+                <th>Owner</th>
+                <th>Total Clients</th>
+                <th>Active Clients</th>
+                <th>Data Received</th>
+                <th>Data Sent</th>
+                <th>Total Traffic</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {stats.groups.length > 0 ? stats.groups.map((group) => (
+                <tr key={group.id}>
+                  <td className="group-name">
+                    <Link to={`/groups/${group.id}`} className="stats-link">
+                      {group.name}
+                    </Link>
+                  </td>
+                  <td>{group.owner}</td>
+                  <td>{group.client_count}</td>
+                  <td>
+                    <span className={`badge ${group.active_clients > 0 ? 'badge-success' : 'badge-muted'}`}>
+                      {group.active_clients}
+                    </span>
+                  </td>
+                  <td>{formatBytes(group.received_bytes)}</td>
+                  <td>{formatBytes(group.sent_bytes)}</td>
+                  <td className="total-traffic">
+                    {formatBytes(group.received_bytes + group.sent_bytes)}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
+                    No groups found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       )}
 
       {isAdmin && (
         <div className="clients-stats">
         <h2>Clients Breakdown</h2>
-        <table className="stats-table">
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Group</th>
-              <th>Status</th>
-              <th>Data Received</th>
-              <th>Data Sent</th>
-              <th>Total Traffic</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
-              <tr key={client.id}>
-                <td className="group-name">
-                  <Link to={`/clients/${client.id}`} className="stats-link">
-                    {client.name}
-                  </Link>
-                </td>
-                <td>{client.group_name}</td>
-                <td>
-                  <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
-                    {client.is_active ? 'Active' : 'Disabled'}
-                  </span>
-                </td>
-                <td>{formatBytes(client.received_bytes)}</td>
-                <td>{formatBytes(client.sent_bytes)}</td>
-                <td className="total-traffic">
-                  {formatBytes(client.received_bytes + client.sent_bytes)}
-                </td>
-              </tr>
-            )) : (
+        <div className="stats-table-container">
+          <table className="stats-table">
+            <thead>
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '30px' }}>
-                  No clients found
-                </td>
+                <th>Client Name</th>
+                <th>Group</th>
+                <th>Status</th>
+                <th>Data Received</th>
+                <th>Data Sent</th>
+                <th>Total Traffic</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {stats.clients && stats.clients.length > 0 ? stats.clients.map((client) => (
+                <tr key={client.id}>
+                  <td className="group-name">
+                    <Link to={`/clients/${client.id}`} className="stats-link">
+                      {client.name}
+                    </Link>
+                  </td>
+                  <td>{client.group_name}</td>
+                  <td>
+                    <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
+                      {client.is_active ? 'Active' : 'Disabled'}
+                    </span>
+                  </td>
+                  <td>{formatBytes(client.received_bytes)}</td>
+                  <td>{formatBytes(client.sent_bytes)}</td>
+                  <td className="total-traffic">
+                    {formatBytes(client.received_bytes + client.sent_bytes)}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '30px' }}>
+                    No clients found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       )}
 
       {isAdmin && (
         <div className="users-stats">
         <h2>Users Breakdown</h2>
-        <table className="stats-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Groups</th>
-              <th>Clients</th>
-              <th>Data Received</th>
-              <th>Data Sent</th>
-              <th>Total Traffic</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.users && stats.users.length > 0 ? stats.users.map((user) => (
-              <tr key={user.id}>
-                <td className="group-name">
-                  <Link to="/users" className="stats-link">
-                    {user.username}
-                  </Link>
-                </td>
-                <td>
-                  <span className={`badge ${user.role === 'admin' ? 'badge-warning' : 'badge-muted'}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td>{user.group_count}</td>
-                <td>{user.client_count}</td>
-                <td>{formatBytes(user.received_bytes)}</td>
-                <td>{formatBytes(user.sent_bytes)}</td>
-                <td className="total-traffic">
-                  {formatBytes(user.received_bytes + user.sent_bytes)}
-                </td>
-              </tr>
-            )) : (
+        <div className="stats-table-container">
+          <table className="stats-table">
+            <thead>
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
-                  No users found
-                </td>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Groups</th>
+                <th>Clients</th>
+                <th>Data Received</th>
+                <th>Data Sent</th>
+                <th>Total Traffic</th>
               </tr>
-            )}
-          </tbody>
+            </thead>
+            <tbody>
+              {stats.users && stats.users.length > 0 ? stats.users.map((user) => (
+                <tr key={user.id}>
+                  <td className="group-name">
+                    <Link to="/users" className="stats-link">
+                      {user.username}
+                    </Link>
+                  </td>
+                  <td>
+                    <span className={`badge ${user.role === 'admin' ? 'badge-warning' : 'badge-muted'}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td>{user.group_count}</td>
+                  <td>{user.client_count}</td>
+                  <td>{formatBytes(user.received_bytes)}</td>
+                  <td>{formatBytes(user.sent_bytes)}</td>
+                  <td className="total-traffic">
+                    {formatBytes(user.received_bytes + user.sent_bytes)}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '30px' }}>
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
         </table>
       </div>
       )}
