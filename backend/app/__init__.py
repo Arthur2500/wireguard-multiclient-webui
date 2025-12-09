@@ -98,11 +98,12 @@ def _migrate_groups_table(app):
         # Column doesn't exist, add it
         app.logger.info("Adding is_active column to groups table...")
         try:
+            from sqlalchemy.exc import SQLAlchemyError
             with db.engine.connect() as conn:
-                conn.execute(db.text("ALTER TABLE groups ADD COLUMN is_active BOOLEAN DEFAULT 1"))
+                conn.execute(db.text("ALTER TABLE groups ADD COLUMN is_active BOOLEAN DEFAULT TRUE"))
                 conn.commit()
             app.logger.info("Successfully added is_active column to groups table")
-        except Exception as e:
+        except SQLAlchemyError as e:
             app.logger.error(f"Failed to add is_active column to groups table: {e}")
 
 

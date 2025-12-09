@@ -107,7 +107,11 @@ const GroupList: React.FC = () => {
                     </div>
                   </td>
                   <td className="actions">
-                    <button onClick={() => handleToggleActive(group)} className="btn-action">
+                    <button 
+                      onClick={() => handleToggleActive(group)} 
+                      className="btn-action"
+                      aria-label={`${group.is_active ? 'Disable' : 'Enable'} group ${group.name}`}
+                    >
                       {group.is_active ? 'Disable' : 'Enable'}
                     </button>
                     <Link to={`/groups/${group.id}/edit`} className="btn-action">Edit</Link>
