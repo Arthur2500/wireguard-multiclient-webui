@@ -65,7 +65,13 @@ const UserForm: React.FC = () => {
 
     try {
       if (isEdit && id) {
-        const updateData: any = {
+        const updateData: {
+          email: string;
+          role: 'admin' | 'user';
+          can_create_groups: boolean;
+          can_create_clients: boolean;
+          password?: string;
+        } = {
           email: formData.email,
           role: formData.role,
           can_create_groups: formData.can_create_groups,
