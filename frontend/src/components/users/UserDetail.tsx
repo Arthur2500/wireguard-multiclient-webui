@@ -92,7 +92,7 @@ const UserDetail: React.FC = () => {
             >
               {user.is_active ? <><Lock size={16} /> Disable</> : <><Unlock size={16} /> Enable</>}
             </button>
-            <Link to="/users" className="btn-secondary">
+            <Link to={`/users/${id}/edit`} className="btn-secondary">
               <Pencil size={16} /> Edit User
             </Link>
             <button
