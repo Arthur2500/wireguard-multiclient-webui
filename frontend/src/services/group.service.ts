@@ -22,6 +22,7 @@ interface UpdateGroupData {
   persistent_keepalive?: number;
   mtu?: number;
   listen_port?: number;
+  is_active?: boolean;
 }
 
 interface GroupConfig {

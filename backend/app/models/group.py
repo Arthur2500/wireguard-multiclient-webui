@@ -37,6 +37,7 @@ class Group(db.Model):
 
     # WireGuard status - enabled by default for reliability
     is_running = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=True)
 
     # Ownership
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -123,6 +124,7 @@ class Group(db.Model):
             'persistent_keepalive': self.persistent_keepalive,
             'mtu': self.mtu,
             'is_running': self.is_running,
+            'is_active': self.is_active,
             'owner_id': self.owner_id,
             'owner_username': self.owner.username if self.owner else None,
             'client_count': self.clients.count(),

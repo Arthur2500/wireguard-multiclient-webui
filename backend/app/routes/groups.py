@@ -223,6 +223,10 @@ def update_group(group_id):
     if 'listen_port' in data and user.is_admin():
         group.listen_port = data['listen_port']
 
+    # Handle is_active field
+    if 'is_active' in data:
+        group.is_active = data['is_active']
+
     db.session.commit()
 
     # Update WireGuard server configuration file

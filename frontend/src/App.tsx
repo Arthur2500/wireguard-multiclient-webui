@@ -23,6 +23,7 @@ import ClientDetail from './components/clients/ClientDetail';
 
 // Users
 import UserList from './components/users/UserList';
+import UserDetail from './components/users/UserDetail';
 
 // Stats
 import Stats from './components/stats/Stats';
@@ -82,6 +83,7 @@ function App() {
                   {user?.role === 'admin' && (
                     <>
                       <Route path="/users" element={<UserList />} />
+                      <Route path="/users/:id" element={<UserDetail />} />
                       <Route path="/stats" element={<Stats />} />
                     </>
                   )}

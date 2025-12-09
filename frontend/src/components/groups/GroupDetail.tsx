@@ -215,7 +215,11 @@ const GroupDetail: React.FC = () => {
           <h3>Options</h3>
           <dl>
             <dt>Owner</dt>
-            <dd>{group.owner_username || 'Unknown'}</dd>
+            <dd>
+              <Link to={`/users/${group.owner_id}`} className="owner-link">
+                {group.owner_username || 'Unknown'}
+              </Link>
+            </dd>
             <dt>Keepalive</dt>
             <dd>{group.persistent_keepalive}s</dd>
           </dl>

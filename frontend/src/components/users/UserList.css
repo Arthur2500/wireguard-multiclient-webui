@@ -44,6 +44,16 @@
   color: var(--text-primary);
 }
 
+.user-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.user-link:hover {
+  text-decoration: underline;
+}
+
 .permissions-badges {
   display: flex;
   gap: var(--spacing-xs);

@@ -124,7 +124,11 @@ const UserList: React.FC = () => {
           <tbody>
             {users.map((user) => (
               <tr key={user.id} className={!user.is_active ? 'disabled' : ''}>
-                <td className="user-name">{user.username}</td>
+                <td className="user-name">
+                  <Link to={`/users/${user.id}`} className="user-link">
+                    {user.username}
+                  </Link>
+                </td>
                 <td>{user.email}</td>
                 <td>
                   <span className={`badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>

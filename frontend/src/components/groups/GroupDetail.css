@@ -90,6 +90,15 @@
   color: var(--text-primary);
 }
 
+.owner-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.owner-link:hover {
+  text-decoration: underline;
+}
+
 .clients-section {
   background: var(--bg-primary);
   border-radius: var(--radius-xl);

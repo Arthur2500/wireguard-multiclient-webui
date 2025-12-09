@@ -1,0 +1,128 @@
+.user-detail-container {
+  padding: 20px;
+}
+
+.user-detail-container .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.user-detail-container .back-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.user-detail-container .back-link:hover {
+  text-decoration: underline;
+}
+
+.user-detail-container h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #333;
+}
+
+.user-info-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.info-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.info-card dl {
+  margin: 0;
+}
+
+.info-card dt {
+  font-weight: 600;
+  color: #666;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.info-card dt:first-of-type {
+  margin-top: 0;
+}
+
+.info-card dd {
+  margin: 4px 0 0 0;
+  color: #333;
+  font-size: 15px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-admin {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge-user {
+  background-color: #6c757d;
+  color: white;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 18px;
+  color: #dc3545;
+}
