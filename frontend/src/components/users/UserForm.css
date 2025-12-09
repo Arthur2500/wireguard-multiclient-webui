@@ -109,9 +109,6 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--border);
 }
 
 /* Responsive */
@@ -119,15 +116,15 @@
   .user-form-container {
     padding: var(--spacing-md);
   }
-  
+
   .user-form {
     padding: var(--spacing-lg);
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .form-actions .btn-secondary,
   .form-actions .btn-primary {
     width: 100%;
