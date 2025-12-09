@@ -4,6 +4,20 @@
   margin: 0 auto;
 }
 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.page-header h1 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
 .users-table-container {
   background: var(--bg-primary);
   border-radius: var(--radius-xl);
@@ -15,7 +29,7 @@
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
+  min-width: 800px;
 }
 
 .users-table th,
@@ -32,7 +46,7 @@
 }
 
 .users-table td {
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 .users-table tr.disabled {
@@ -40,8 +54,13 @@
 }
 
 .user-name {
+  color: var(--primary);
+  text-decoration: none;
   font-weight: 500;
-  color: var(--text-primary);
+}
+
+.user-name:hover {
+  text-decoration: underline;
 }
 
 .permissions-badges {
@@ -65,73 +84,73 @@
   color: var(--text-muted);
 }
 
-.user-form {
-  padding: var(--spacing-lg);
-  max-height: 60vh;
-  overflow-y: auto;
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.user-form .form-group {
+.btn-action {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: background 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.btn-action:hover {
+  background: var(--border);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px var(--spacing-lg);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.empty-state h2 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
 
-.user-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.user-form input,
-.user-form select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border);
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  padding: var(--spacing-md);
   border-radius: var(--radius-md);
-  font-size: 16px;
-  box-sizing: border-box;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.user-form input:focus,
-.user-form select:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-.user-form input:disabled {
-  background: var(--bg-tertiary);
-  color: var(--text-muted);
-}
-
-.user-form .checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.user-form .checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.user-form .checkbox-label input[type="checkbox"] {
-  width: auto;
-  cursor: pointer;
-  accent-color: var(--primary);
-}
-
-.user-form .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-md);
-  margin-top: 25px;
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--border);
+.loading {
+  text-align: center;
+  padding: 60px;
+  font-size: 18px;
+  color: var(--text-secondary);
 }
 
 /* Responsive */
@@ -140,37 +159,30 @@
     padding: var(--spacing-md);
   }
   
-  .users-table-container {
-    overflow-x: auto;
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-
-  .users-table {
-    font-size: 14px;
+  
+  .page-header .btn-primary {
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
   }
-
+  
   .users-table th,
   .users-table td {
     padding: var(--spacing-sm);
     font-size: 14px;
   }
-  
+
   .actions {
-    display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
   }
 
-  .actions .btn-action {
+  .btn-action {
     width: 100%;
-  }
-  
-  .user-form .form-actions {
-    flex-direction: column;
-  }
-  
-  .user-form .form-actions button {
-    width: 100%;
-    min-height: 48px;
   }
 }
 
