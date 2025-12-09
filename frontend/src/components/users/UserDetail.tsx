@@ -12,6 +12,7 @@ const UserDetail: React.FC = () => {
 
   useEffect(() => {
     loadUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadUser = async () => {

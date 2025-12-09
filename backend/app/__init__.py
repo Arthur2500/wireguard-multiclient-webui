@@ -49,6 +49,9 @@ def create_app(config_name=None):
     # Create database tables
     with app.app_context():
         db.create_all()
+        
+        # Add is_active column to groups table if it doesn't exist (for existing databases)
+        _migrate_groups_table(app)
 
         # Create default admin user if not exists
         from app.models.user import User
@@ -79,6 +82,28 @@ def create_app(config_name=None):
             app.scheduler = scheduler
 
     return app
+
+
+def _migrate_groups_table(app):
+    """Add is_active column to groups table if it doesn't exist.
+    
+    This is a helper for existing databases that don't have the is_active column.
+    """
+    try:
+        # Try to query with is_active to check if column exists
+        from app.models.group import Group
+        db.session.query(Group.is_active).first()
+        app.logger.debug("groups.is_active column already exists")
+    except Exception:
+        # Column doesn't exist, add it
+        app.logger.info("Adding is_active column to groups table...")
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text("ALTER TABLE groups ADD COLUMN is_active BOOLEAN DEFAULT 1"))
+                conn.commit()
+            app.logger.info("Successfully added is_active column to groups table")
+        except Exception as e:
+            app.logger.error(f"Failed to add is_active column to groups table: {e}")
 
 
 def _restart_wireguard_interfaces(app):
