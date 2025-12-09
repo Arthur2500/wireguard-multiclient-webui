@@ -14,7 +14,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { TrafficDataPoint } from '../../types';
-import { formatBytes } from '../../utils/helpers';
+import { formatBytes, aggregateTrafficData } from '../../utils/helpers';
 
 // Register Chart.js components
 ChartJS.register(
@@ -133,7 +133,7 @@ const generateTimeLabels = (data: TrafficDataPoint[], count: number = EMPTY_GRAP
   if (data.length > 0) {
     return data.map(d => formatTime(d.recorded_at));
   }
-  
+
   // Generate empty time labels for the past period
   const now = new Date();
   const labels: string[] = [];
@@ -149,7 +149,7 @@ const calculateRates = (data: TrafficDataPoint[]): { received_rate: number; sent
   if (data.length < 2) {
     return data.map(() => ({ received_rate: 0, sent_rate: 0 }));
   }
-  
+
   const rates = [];
   for (let i = 0; i < data.length; i++) {
     if (i === 0) {
@@ -158,17 +158,17 @@ const calculateRates = (data: TrafficDataPoint[]): { received_rate: number; sent
     } else {
       const current = data[i];
       const previous = data[i - 1];
-      
+
       // Calculate time difference in seconds
       const currentTime = new Date(current.recorded_at || '').getTime();
       const previousTime = new Date(previous.recorded_at || '').getTime();
       const timeDiffSeconds = (currentTime - previousTime) / 1000;
-      
+
       if (timeDiffSeconds > 0) {
         // Calculate byte differences
         const receivedDiff = Math.max(0, current.received_bytes - previous.received_bytes);
         const sentDiff = Math.max(0, current.sent_bytes - previous.sent_bytes);
-        
+
         // Calculate rates (bytes per second)
         rates.push({
           received_rate: receivedDiff / timeDiffSeconds,
@@ -179,7 +179,7 @@ const calculateRates = (data: TrafficDataPoint[]): { received_rate: number; sent
       }
     }
   }
-  
+
   return rates;
 };
 
@@ -194,9 +194,11 @@ export const NetworkGraph: React.FC<NetworkGraphProps> = ({
   const themeColors = useThemeColors();
 
   const chartData: ChartData<'line'> = useMemo(() => {
-    const labels = generateTimeLabels(data);
-    const dataPoints = data.length > 0 ? data : Array(labels.length).fill(DEFAULT_DATA_POINT);
-    const rates = calculateRates(data);
+    // Aggregate data to max 100 points
+    const aggregatedData = aggregateTrafficData(data, 100);
+    const labels = generateTimeLabels(aggregatedData);
+    const dataPoints = aggregatedData.length > 0 ? aggregatedData : Array(labels.length).fill(DEFAULT_DATA_POINT);
+    const rates = calculateRates(aggregatedData);
 
     const datasets = [];
 
@@ -355,9 +357,15 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
   const themeColors = useThemeColors();
 
   const chartData: ChartData<'line'> = useMemo(() => {
-    // Get all unique timestamps across all series
+    // Aggregate each series to max 100 points
+    const aggregatedSeries = series.map(s => ({
+      ...s,
+      data: aggregateTrafficData(s.data, 100),
+    }));
+
+    // Get all unique timestamps across all aggregated series
     const allTimestamps = new Set<string>();
-    series.forEach(s => {
+    aggregatedSeries.forEach(s => {
       s.data.forEach(d => {
         if (d.recorded_at) allTimestamps.add(d.recorded_at);
       });
@@ -365,7 +373,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
 
     let sortedTimestamps = Array.from(allTimestamps).sort();
     let labels: string[];
-    
+
     // If no data, generate empty time labels using the shared function
     if (sortedTimestamps.length === 0) {
       // Create dummy data points for label generation
@@ -376,7 +384,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
       labels = sortedTimestamps.map(t => formatTime(t));
     }
 
-    const datasets = series.map((s, index) => {
+    const datasets = aggregatedSeries.map((s, index) => {
       const color = s.color || getColor(index);
       const dataMap = new Map(s.data.map(d => [d.recorded_at, d]));
       const rates = calculateRates(s.data);
@@ -387,7 +395,7 @@ export const NetworkGraphMulti: React.FC<NetworkGraphMultiProps> = ({
           if (t === null) return 0; // For empty data
           const point = dataMap.get(t);
           if (!point) return 0;
-          
+
           // Find the index in the original data
           const dataIndex = s.data.findIndex(d => d.recorded_at === t);
           if (dataIndex >= 0 && dataIndex < rates.length) {

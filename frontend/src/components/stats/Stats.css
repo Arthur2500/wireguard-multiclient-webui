@@ -273,7 +273,7 @@
   color: var(--text-primary);
 }
 
-.stats-table .group-name {
+.stats-table .group-name, .stats-table .group-owner {
   font-weight: 500;
   color: var(--primary);
 }

@@ -25,10 +25,10 @@ stats_bp = Blueprint('stats', __name__)
 
 def get_time_range(range_param):
     """Get start time based on range parameter.
-    
+
     Args:
         range_param: Time range string ('1h', '1d', '1w')
-        
+
     Returns:
         datetime: Start time for the range
     """
@@ -47,7 +47,7 @@ def get_time_range(range_param):
 def get_overview():
     """Get system overview statistics."""
     user = get_current_user()
-    
+
     if not user:
         return create_error_response('User not found', 404)
 
@@ -97,7 +97,7 @@ def get_overview():
 def get_group_stats(group_id):
     """Get statistics for a specific group."""
     user = get_current_user()
-    
+
     if not user:
         return create_error_response('User not found', 404)
 
@@ -143,7 +143,7 @@ def get_group_stats(group_id):
 def get_client_stats(client_id):
     """Get statistics for a specific client."""
     user = get_current_user()
-    
+
     if not user:
         return create_error_response('User not found', 404)
 
@@ -175,7 +175,7 @@ def get_client_stats(client_id):
 def get_user_stats(user_id):
     """Get statistics for a specific user."""
     current_user = get_current_user()
-    
+
     if not current_user:
         return create_error_response('User not found', 404)
 
@@ -238,7 +238,7 @@ def get_user_stats(user_id):
 def get_system_stats():
     """Get system-wide statistics (admin only)."""
     logger.debug("Fetching system-wide statistics")
-    
+
     # Total counts
     total_users = User.query.count()
     total_groups = Group.query.count()
@@ -258,6 +258,7 @@ def get_system_stats():
             'id': group.id,
             'name': group.name,
             'owner': group.owner.username,
+            'owner_id': group.owner_id,
             'client_count': len(clients),
             'active_clients': sum(1 for c in clients if c.is_active),
             'received_bytes': sum(c.total_received for c in clients),
@@ -288,6 +289,7 @@ def get_system_stats():
         clients_stats.append({
             'id': client.id,
             'name': client.name,
+            'group_id': client.group_id,
             'group_name': client.group.name,
             'is_active': client.is_active,
             'received_bytes': client.total_received,
@@ -320,7 +322,7 @@ def get_total_traffic_history():
     """Get total system traffic history (admin only)."""
     range_param = request.args.get('range', '1h')
     start_time = get_time_range(range_param)
-    
+
     logger.debug("Fetching total traffic history range=%s", range_param)
 
     # Get traffic history where both client_id and group_id are null (system-wide)
@@ -487,7 +489,7 @@ def record_traffic():
         return create_error_response('No data provided', 400)
 
     records = data.get('records', [])
-    
+
     for record in records:
         history = TrafficHistory(
             client_id=record.get('client_id'),
@@ -499,7 +501,7 @@ def record_traffic():
         db.session.add(history)
 
     db.session.commit()
-    
+
     logger.info("Recorded traffic entries count=%s", len(records))
     return create_success_response(message=f'Recorded {len(records)} traffic entries', status_code=201)
 
@@ -559,7 +561,7 @@ def collect_traffic():
     db.session.add(total_history)
 
     db.session.commit()
-    
+
     logger.info("Traffic collected clients=%s groups=%s", len(clients), len(groups_data))
 
     return jsonify({
@@ -580,6 +582,6 @@ def cleanup_traffic_history():
     ).delete()
 
     db.session.commit()
-    
+
     logger.info("Traffic history cleaned up deleted=%s", deleted)
     return create_success_response(message=f'Deleted {deleted} old traffic records')

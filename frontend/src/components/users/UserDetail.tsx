@@ -22,7 +22,7 @@ const UserDetail: React.FC = () => {
 
       // Fetch all groups to determine owned and member groups
       const allGroups = await groupService.getAll();
-      
+
       // Filter owned groups (where user is the owner)
       const owned = allGroups.filter(group => group.owner_id === userData.id);
       setOwnedGroups(owned);
@@ -60,7 +60,7 @@ const UserDetail: React.FC = () => {
 
   const handleToggleActive = async () => {
     if (!user) return;
-    
+
     const action = user.is_active ? 'disable' : 'enable';
     if (!window.confirm(`Are you sure you want to ${action} this user?`)) return;
 
@@ -152,56 +152,22 @@ const UserDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="info-section">
-        <div className="section-header">
-          <h2>User Overview</h2>
-        </div>
-        <div className="info-content">
-          <div className="info-item">
-            <UserIcon size={20} className="info-icon" />
-            <div>
-              <strong>Account Type:</strong>
-              <p>
-                This user has {user.role === 'admin' ? 'administrative' : 'standard'} privileges
-                {user.role === 'admin' && ' and can access all system features'}
-              </p>
-            </div>
-          </div>
-          <div className="info-item">
-            <Mail size={20} className="info-icon" />
-            <div>
-              <strong>Contact:</strong>
-              <p>Email notifications will be sent to {user.email}</p>
-            </div>
-          </div>
-          {!user.is_active && (
-            <div className="info-item warning">
-              <Lock size={20} className="info-icon" />
-              <div>
-                <strong>Account Disabled:</strong>
-                <p>This user account is currently inactive and cannot access the system</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
       <div className="groups-section">
         <div className="section-header">
           <h2>Groups</h2>
         </div>
-        
+
         <div className="groups-container">
           <div className="group-category">
-            <h3><FolderOpen size={18} /> Owner of ({ownedGroups.length})</h3>
+            <h3>Owner ({ownedGroups.length})</h3>
             {ownedGroups.length === 0 ? (
-              <p className="empty-message">Not an owner of any groups</p>
+              <p className="empty-state">Not an owner of any groups</p>
             ) : (
               <div className="groups-list">
                 {ownedGroups.map(group => (
-                  <Link 
-                    key={group.id} 
-                    to={`/groups/${group.id}`} 
+                  <Link
+                    key={group.id}
+                    to={`/groups/${group.id}`}
                     className="group-item"
                   >
                     <div className="group-item-header">
@@ -225,15 +191,15 @@ const UserDetail: React.FC = () => {
           </div>
 
           <div className="group-category">
-            <h3><FolderOpen size={18} /> Member of ({memberGroups.length})</h3>
+            <h3>Member ({memberGroups.length})</h3>
             {memberGroups.length === 0 ? (
-              <p className="empty-message">Not a member of any groups</p>
+              <p className="empty-state">Not a member of any groups</p>
             ) : (
               <div className="groups-list">
                 {memberGroups.map(group => (
-                  <Link 
-                    key={group.id} 
-                    to={`/groups/${group.id}`} 
+                  <Link
+                    key={group.id}
+                    to={`/groups/${group.id}`}
                     className="group-item"
                   >
                     <div className="group-item-header">

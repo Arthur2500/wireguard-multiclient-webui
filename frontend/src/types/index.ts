@@ -142,6 +142,7 @@ export interface SystemStats {
     id: number;
     name: string;
     owner: string;
+    owner_id: number;
     client_count: number;
     active_clients: number;
     received_bytes: number;
@@ -159,6 +160,7 @@ export interface SystemStats {
   clients: Array<{
     id: number;
     name: string;
+    group_id: number;
     group_name: string;
     is_active: boolean;
     received_bytes: number;

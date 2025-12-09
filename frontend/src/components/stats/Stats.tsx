@@ -69,7 +69,7 @@ const Stats: React.FC = () => {
   const loadTrafficData = useCallback(async () => {
     // TODO: Add traffic graph support for non-admin users (show their own groups/clients)
     if (!isAdmin) return;
-    
+
     setTrafficLoading(true);
     setTrafficError('');
     try {
@@ -294,7 +294,11 @@ const Stats: React.FC = () => {
                     {group.name}
                   </Link>
                 </td>
-                <td>{group.owner}</td>
+                <td className="group-owner">
+                  <Link to={`/users/${group.owner_id}`} className="stats-link">
+                    {group.owner}
+                  </Link>
+                </td>
                 <td>{group.client_count}</td>
                 <td>
                   <span className={`badge ${group.active_clients > 0 ? 'badge-success' : 'badge-muted'}`}>
@@ -341,7 +345,11 @@ const Stats: React.FC = () => {
                     {client.name}
                   </Link>
                 </td>
-                <td>{client.group_name}</td>
+                <td className="group-owner">
+                  <Link to={`/groups/${client.group_id}`} className="stats-link">
+                    {client.group_name}
+                  </Link>
+                </td>
                 <td>
                   <span className={`badge ${client.is_active ? 'badge-success' : 'badge-danger'}`}>
                     {client.is_active ? 'Active' : 'Disabled'}
