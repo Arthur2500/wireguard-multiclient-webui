@@ -2,12 +2,9 @@
 import logging
 import re
 from datetime import datetime
-from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import get_jwt_identity
 from app.models.user import User
-from app.models.group import Group
-from app.models.client import Client
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import userService from '../../services/user.service';
 import groupService from '../../services/group.service';
 import { User, Group } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { Pencil, Lock, Unlock, Mail, User as UserIcon, FolderOpen } from 'lucide-react';
+import { Pencil, Lock, Unlock } from 'lucide-react';
 import './UserDetail.css';
 
 const UserDetail: React.FC = () => {

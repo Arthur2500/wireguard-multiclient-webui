@@ -308,9 +308,7 @@ const GroupDetail: React.FC = () => {
       </div>
 
       {/* Group Traffic Statistics Section */}
-      {group && (
-        <GroupTrafficStats groupId={Number(id)} />
-      )}
+      <GroupTrafficStats groupId={Number(id)} />
 
       {/* Group Members Section */}
       {currentUser && group && (

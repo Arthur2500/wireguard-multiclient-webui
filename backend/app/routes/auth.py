@@ -1,7 +1,7 @@
 """Authentication routes for user login and password management."""
 import logging
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from app.models.user import User

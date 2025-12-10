@@ -57,8 +57,6 @@ const GroupTrafficStats: React.FC<GroupTrafficStatsProps> = ({ groupId }) => {
     return <div className="group-traffic-error">{error}</div>;
   }
 
-  const hasData = trafficData && (trafficData.group_data.length > 0 || trafficData.clients.some(c => c.data.length > 0));
-
   const renderGraph = () => {
     if (!trafficData) return null;
 
