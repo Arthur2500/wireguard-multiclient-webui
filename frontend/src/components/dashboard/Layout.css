@@ -119,6 +119,16 @@
   align-items: center;
   margin-bottom: var(--spacing-md);
   gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  padding: 8px;
+  transition: background 0.2s;
+}
+
+.user-info:hover {
+  background: var(--bg-hover);
 }
 
 .user-avatar {

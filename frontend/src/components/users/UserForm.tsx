@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import userService from '../../services/user.service';
 import './UserForm.css';
 
@@ -15,7 +15,9 @@ interface UserFormData {
 const UserForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const isEdit = Boolean(id);
+  const location = useLocation();
+  const isEdit = Boolean(id) && !location.pathname.includes('edit-profile');
+  const isSelfService = location.pathname.includes('edit-profile');
 
   const [formData, setFormData] = useState<UserFormData>({
     username: '',
@@ -45,10 +47,10 @@ const UserForm: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    if (isEdit && id) {
+    if ((isEdit || isSelfService) && id) {
       loadUser();
     }
-  }, [id, isEdit, loadUser]);
+  }, [id, isEdit, isSelfService, loadUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -81,10 +83,23 @@ const UserForm: React.FC = () => {
           updateData.password = formData.password;
         }
         await userService.update(Number(id), updateData);
+        navigate('/users');
+      } else if (isSelfService && id) {
+        const updateData: {
+          email: string;
+          password?: string;
+        } = {
+          email: formData.email,
+        };
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
+        await userService.update(Number(id), updateData);
+        navigate(`/users/${id}`);
       } else {
         await userService.create(formData);
+        navigate('/users');
       }
-      navigate('/users');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to save user');
     } finally {
@@ -95,15 +110,19 @@ const UserForm: React.FC = () => {
   return (
     <div className="user-form-container">
       <div className="page-header">
-        <Link to="/users" className="back-link">← Back to Users</Link>
-        <h1>{isEdit ? 'Edit User' : 'Create New User'}</h1>
+        <Link to={isSelfService ? `/users/${id}` : '/users'} className="back-link">
+          ← Back {isSelfService ? 'to Profile' : 'to Users'}
+        </Link>
+        <h1>
+          {isSelfService ? 'Edit Profile' : (isEdit ? 'Edit User' : 'Create New User')}
+        </h1>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="user-form">
         <div className="form-section">
-          <h2>Basic Information</h2>
+          <h2>{isSelfService ? 'Account Information' : 'Basic Information'}</h2>
 
           <div className="form-group">
             <label htmlFor="username">Username *</label>
@@ -114,10 +133,10 @@ const UserForm: React.FC = () => {
               value={formData.username}
               onChange={handleChange}
               required
-              disabled={isEdit}
+              disabled={isEdit || isSelfService}
               placeholder="e.g., john.doe"
             />
-            {isEdit && <small className="help-text">Username cannot be changed after creation</small>}
+            {(isEdit || isSelfService) && <small className="help-text">Username cannot be changed</small>}
           </div>
 
           <div className="form-group">
@@ -135,7 +154,7 @@ const UserForm: React.FC = () => {
 
           <div className="form-group">
             <label htmlFor="password">
-              Password {isEdit && '(leave empty to keep current)'}
+              Password {(isEdit || isSelfService) && '(leave empty to keep current)'}
             </label>
             <input
               type="password"
@@ -143,16 +162,17 @@ const UserForm: React.FC = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              required={!isEdit}
+              required={!isEdit && !isSelfService}
               minLength={8}
-              placeholder={isEdit ? 'Enter new password to change' : 'Minimum 8 characters'}
+              placeholder={(isEdit || isSelfService) ? 'Enter new password to change' : 'Minimum 8 characters'}
             />
             <small className="help-text">Minimum 8 characters required</small>
           </div>
         </div>
 
-        <div className="form-section">
-          <h2>Role & Permissions</h2>
+        {!isSelfService && (
+          <div className="form-section">
+            <h2>Role & Permissions</h2>
 
           <div className="form-group">
             <label htmlFor="role">Role</label>
@@ -195,11 +215,14 @@ const UserForm: React.FC = () => {
             <small className="help-text">Control what this user can create</small>
           </div>
         </div>
+        )}
 
         <div className="form-actions">
-          <Link to="/users" className="btn-secondary">Cancel</Link>
+          <Link to={isSelfService ? `/users/${id}` : '/users'} className="btn-secondary">
+            Cancel
+          </Link>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Saving...' : (isEdit ? 'Update User' : 'Create User')}
+            {loading ? 'Saving...' : (isSelfService ? 'Update Profile' : (isEdit ? 'Update User' : 'Create User'))}
           </button>
         </div>
       </form>

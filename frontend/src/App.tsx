@@ -53,33 +53,36 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
-          } 
+          }
         />
-        
+
         {isAuthenticated ? (
-          <Route 
-            path="/*" 
+          <Route
+            path="/*"
             element={
               <Layout user={user} onLogout={handleLogout}>
                 <Routes>
                   <Route path="/dashboard" element={<Dashboard user={user} />} />
-                  
+
                   {/* Groups */}
                   <Route path="/groups" element={<GroupList />} />
                   <Route path="/groups/new" element={<GroupForm />} />
                   <Route path="/groups/:id" element={<GroupDetail />} />
                   <Route path="/groups/:id/edit" element={<GroupForm />} />
-                  
+
                   {/* Clients */}
                   <Route path="/clients" element={<ClientList />} />
                   <Route path="/clients/:id" element={<ClientDetail />} />
                   <Route path="/groups/:groupId/clients/new" element={<ClientForm />} />
                   <Route path="/clients/:id/edit" element={<ClientForm />} />
-                  
+
+                  {/* User profile self-service */}
+                  <Route path="/users/:id/edit-profile" element={<UserForm />} />
+
                   {/* Admin routes */}
                   {user?.role === 'admin' && (
                     <>
@@ -90,7 +93,7 @@ function App() {
                       <Route path="/stats" element={<Stats />} />
                     </>
                   )}
-                  
+
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>

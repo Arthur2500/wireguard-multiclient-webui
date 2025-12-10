@@ -85,6 +85,9 @@ const UserDetail: React.FC = () => {
           <p className="description">{user.email}</p>
         </div>
         <div className="header-actions">
+          <Link to={`/users/${id}/edit-profile`} className="btn-secondary">
+            <Pencil size={16} /> Edit Profile
+          </Link>
           <button
             onClick={handleToggleActive}
             className={user.is_active ? 'btn-danger' : 'btn-success'}
