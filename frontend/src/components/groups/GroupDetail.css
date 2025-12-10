@@ -176,15 +176,10 @@
 }
 
 .clients-table td.actions {
-  padding: 0;
-}
-
-.clients-table .actions {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   align-items: center;
-  height: 100%;
   padding: 12px;
 }
 
