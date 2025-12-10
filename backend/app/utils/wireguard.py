@@ -1,6 +1,7 @@
 import subprocess
 import base64
 import os
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,11 @@ def start_wireguard_interface(interface_name, config_path):
         bool: True if successful, False otherwise
     """
     try:
+        # Validate interface name to prevent command injection
+        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+            logger.error("Invalid interface name: %s", interface_name)
+            return False
+        
         # Verify config file exists
         if not os.path.exists(config_path):
             logger.error("Config file not found: %s", config_path)
@@ -137,6 +143,11 @@ def stop_wireguard_interface(interface_name):
         bool: True if successful, False otherwise
     """
     try:
+        # Validate interface name to prevent command injection
+        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+            logger.error("Invalid interface name: %s", interface_name)
+            return False
+        
         result = subprocess.run(
             ['wg-quick', 'down', interface_name],
             capture_output=True,
@@ -182,6 +193,11 @@ def get_wireguard_stats(interface_name):
         dict: Dictionary with peer statistics or None if failed
     """
     try:
+        # Validate interface name to prevent command injection
+        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+            logger.error("Invalid interface name: %s", interface_name)
+            return None
+        
         result = subprocess.run(
             ['wg', 'show', interface_name, 'dump'],
             capture_output=True,

@@ -27,6 +27,32 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     jwt.init_app(app)
     CORS(app)
+    
+    # Add security headers
+    @app.after_request
+    def add_security_headers(response):
+        """Add security headers to all responses."""
+        # Prevent clickjacking
+        response.headers['X-Frame-Options'] = 'DENY'
+        
+        # Prevent MIME type sniffing
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        
+        # Enable XSS protection
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        
+        # Content Security Policy - adjust based on your needs
+        # This is a restrictive policy; you may need to adjust for your frontend
+        response.headers['Content-Security-Policy'] = "default-src 'self'"
+        
+        # Referrer Policy
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # Strict Transport Security (HSTS) - only enable if using HTTPS
+        if app.config.get('FLASK_ENV') == 'production':
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        
+        return response
 
     # Register blueprints
     from app.routes.auth import auth_bp, limiter as auth_limiter
@@ -35,6 +61,7 @@ def create_app(config_name=None):
     from app.routes.clients import clients_bp
     from app.routes.stats import stats_bp
     from app.routes.settings import settings_bp
+    from app.routes.health import health_bp
 
     # Initialize limiter for auth routes
     auth_limiter.init_app(app)
@@ -45,6 +72,7 @@ def create_app(config_name=None):
     app.register_blueprint(clients_bp, url_prefix='/api/clients')
     app.register_blueprint(stats_bp, url_prefix='/api/stats')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
+    app.register_blueprint(health_bp, url_prefix='/api')
 
     # Create database tables
     with app.app_context():

@@ -1,5 +1,7 @@
 """Helper functions for common patterns across the application."""
 import logging
+import re
+from datetime import datetime
 from functools import wraps
 from flask import jsonify
 from flask_jwt_extended import get_jwt_identity
@@ -165,3 +167,90 @@ def check_group_ownership(user, group):
         return False, create_error_response("Only owner can perform this action", 403)
     
     return True, None
+
+
+def parse_expiration_date(date_string):
+    """Parse expiration date from various formats.
+    
+    Args:
+        date_string: Date string in ISO format or YYYY-MM-DD format
+        
+    Returns:
+        datetime: Parsed datetime object
+        
+    Raises:
+        ValueError: If date format is invalid
+    """
+    if not date_string:
+        return None
+    
+    try:
+        if 'T' in date_string:
+            # ISO format with time
+            return datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+        else:
+            # Date only format (YYYY-MM-DD) - set to end of day
+            return datetime.strptime(date_string, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+    except (ValueError, TypeError) as e:
+        raise ValueError('Invalid expiration date format. Expected YYYY-MM-DD or ISO format')
+
+
+def sanitize_filename(filename):
+    """Sanitize a filename to prevent path traversal and other security issues.
+    
+    Args:
+        filename: Original filename
+        
+    Returns:
+        str: Sanitized filename safe for filesystem use
+    """
+    # Remove any path components
+    filename = filename.split('/')[-1].split('\\')[-1]
+    
+    # Replace unsafe characters with hyphens
+    filename = re.sub(r'[^\w\s\-.]', '-', filename)
+    
+    # Replace spaces with hyphens
+    filename = filename.replace(' ', '-')
+    
+    # Remove multiple consecutive hyphens
+    filename = re.sub(r'-+', '-', filename)
+    
+    # Lowercase and strip
+    filename = filename.lower().strip('-')
+    
+    # Ensure it's not empty and doesn't start with a dot
+    if not filename or filename.startswith('.'):
+        filename = 'config' + filename
+    
+    return filename
+
+
+def sanitize_interface_name(name, max_length=15):
+    """Sanitize a name for use as a WireGuard interface name.
+    
+    Args:
+        name: Original name
+        max_length: Maximum length for interface name (default: 15 for Linux)
+        
+    Returns:
+        str: Sanitized interface name
+    """
+    # Convert to lowercase and replace spaces/special chars with hyphens
+    sanitized = re.sub(r'[^\w\-]', '-', name.lower())
+    
+    # Remove multiple consecutive hyphens
+    sanitized = re.sub(r'-+', '-', sanitized)
+    
+    # Remove leading/trailing hyphens
+    sanitized = sanitized.strip('-')
+    
+    # Truncate to max_length
+    if len(sanitized) > max_length:
+        sanitized = sanitized[:max_length].rstrip('-')
+    
+    # Ensure it's not empty
+    if not sanitized:
+        sanitized = 'wg0'
+    
+    return sanitized

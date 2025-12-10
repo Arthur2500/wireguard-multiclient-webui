@@ -26,6 +26,12 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     image: ghcr.io/arthur2500/wireguard-multiclient-webui-frontend:latest
@@ -34,9 +40,16 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - wg-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 networks:
   wg-network:
