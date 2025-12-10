@@ -99,11 +99,13 @@ const GroupList: React.FC<GroupListProps> = ({ user }) => {
                     </span>
                   </td>
                   <td className="actions">
-                    <Link to={`/groups/${group.id}`} className="btn-action">View</Link>
-                    <Link to={`/groups/${group.id}/edit`} className="btn-action">Edit</Link>
-                    <button onClick={() => handleDelete(group.id)} className="btn-action btn-danger">
-                      Delete
-                    </button>
+                    <div className="actions-wrapper">
+                      <Link to={`/groups/${group.id}`} className="btn-action">View</Link>
+                      <Link to={`/groups/${group.id}/edit`} className="btn-action">Edit</Link>
+                      <button onClick={() => handleDelete(group.id)} className="btn-action btn-danger">
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

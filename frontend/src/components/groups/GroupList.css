@@ -90,11 +90,17 @@
 }
 
 .groups-table td.actions {
+  padding: 0;
+}
+
+.groups-table td.actions .actions-wrapper {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
   padding: var(--spacing-md);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .btn-action {

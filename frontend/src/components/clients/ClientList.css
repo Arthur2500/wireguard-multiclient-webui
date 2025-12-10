@@ -153,6 +153,20 @@
   vertical-align: middle;
 }
 
+.clients-table td.actions {
+  padding: 0;
+}
+
+.clients-table td.actions .actions-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .clients-table tbody tr {
   transition: background-color 0.2s;
 }
@@ -232,13 +246,7 @@
   color: var(--text-secondary);
 }
 
-.clients-table td.actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 14px 16px;
-}
+
 
 .btn-action {
   display: inline-flex;

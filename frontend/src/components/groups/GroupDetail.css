@@ -176,11 +176,17 @@
 }
 
 .clients-table td.actions {
+  padding: 0;
+}
+
+.clients-table td.actions .actions-wrapper {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
   align-items: center;
   padding: 12px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .modal-overlay {
