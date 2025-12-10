@@ -126,6 +126,7 @@
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .clients-table th {
@@ -174,10 +175,12 @@
   color: var(--danger);
 }
 
-.actions {
+.clients-table .actions {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
+  align-items: center;
+  height: 100%;
 }
 
 .modal-overlay {

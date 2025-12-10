@@ -150,6 +150,7 @@
   border-bottom: 1px solid var(--border);
   font-size: 14px;
   color: var(--text-primary);
+  vertical-align: middle;
 }
 
 .clients-table tbody tr {
@@ -231,11 +232,12 @@
   color: var(--text-secondary);
 }
 
-.actions {
+.clients-table .actions {
   display: flex;
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  height: 100%;
 }
 
 .btn-action {
