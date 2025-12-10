@@ -89,12 +89,17 @@
   color: #d97706;
 }
 
+.groups-table td.actions {
+  padding: 0;
+}
+
 .groups-table .actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
   height: 100%;
+  padding: var(--spacing-md);
 }
 
 .btn-action {

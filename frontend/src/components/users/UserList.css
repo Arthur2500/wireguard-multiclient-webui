@@ -85,12 +85,17 @@
   color: var(--text-muted);
 }
 
+.users-table td.actions {
+  padding: 0;
+}
+
 .users-table .actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
   height: 100%;
+  padding: var(--spacing-md);
 }
 
 .btn-action {
