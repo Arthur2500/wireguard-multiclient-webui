@@ -6,7 +6,7 @@ A production-ready web-based management interface for WireGuard VPN, featuring m
 ![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
 ![Security](https://img.shields.io/badge/security-hardened-green.svg)
 
-## 📸 Screenshots
+## Screenshots
 
 > **Note**: Screenshots showing the application interface will be added here. The application features:
 > - Modern, responsive web interface
@@ -15,7 +15,7 @@ A production-ready web-based management interface for WireGuard VPN, featuring m
 > - Client management with configuration download
 > - Real-time traffic statistics and monitoring
 
-## ✨ Features
+## Features
 
 ### 1. Account Management System
 - **Admin Role**: Full system access, user management, global settings
@@ -69,7 +69,7 @@ A production-ready web-based management interface for WireGuard VPN, featuring m
 - Rate limiting on authentication endpoints
 - Health check endpoints for monitoring
 
-## 🚀 Quick Start with Docker
+## Quick Start with Docker
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -99,8 +99,8 @@ docker-compose up -d
 5. Login with default credentials:
    - Username: `admin`
    - Password: `admin`
-   
-   **⚠️ Change the admin password immediately after first login!**
+
+   **Change the admin password immediately after first login!**
 
 ## Configuration
 
@@ -179,7 +179,7 @@ cd backend
 python -m pytest tests/ -v
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Production Deployment Guide](DEPLOYMENT.md)** - Complete guide for production deployment
 - **[Security Best Practices](SECURITY.md)** - Security hardening and best practices
@@ -187,7 +187,7 @@ python -m pytest tests/ -v
 - **[FAQ](FAQ.md)** - Frequently Asked Questions
 - **[API Documentation](#api-endpoints)** - API endpoint reference below
 
-## 🔒 Security
+## Security
 
 This application implements multiple security layers:
 
@@ -198,7 +198,7 @@ This application implements multiple security layers:
 - **Rate Limiting**: Protection against brute force attacks
 - **Command Injection Prevention**: Validated interface names and commands
 
-**⚠️ Important**: Before deploying to production, read [SECURITY.md](SECURITY.md) and follow all recommendations.
+**Important**: Before deploying to production, read [SECURITY.md](SECURITY.md) and follow all recommendations.
 
 ### Quick Security Checklist
 
@@ -209,7 +209,7 @@ This application implements multiple security layers:
 - [ ] Set up regular backups
 - [ ] Review [SECURITY.md](SECURITY.md) completely
 
-## 📊 Health Checks
+## Health Checks
 
 The application provides health check endpoints for monitoring:
 
@@ -279,7 +279,7 @@ Use these endpoints with Docker health checks, load balancers, or monitoring sys
            └─────────────────┘      └─────────────────┘
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Container Issues
 
@@ -320,12 +320,12 @@ cp data/app.db data/app.db.backup
 
 For more troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## 📈 Performance
+## Performance
 
 ### Recommended Resources
 
 - **Small Deployment** (< 50 users): 1 CPU, 1GB RAM
-- **Medium Deployment** (50-500 users): 2 CPU, 2GB RAM  
+- **Medium Deployment** (50-500 users): 2 CPU, 2GB RAM
 - **Large Deployment** (500+ users): 4 CPU, 4GB RAM, PostgreSQL
 
 ### Optimization Tips
@@ -337,7 +337,7 @@ For more troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for scaling details.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -347,11 +347,11 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for scaling details.
 
 Please ensure your code follows the existing style and includes appropriate tests.
 
-## 📝 License
+## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## 🔐 Security
+## Security
 
 If you discover a security vulnerability, please report it responsibly:
 
@@ -359,13 +359,13 @@ If you discover a security vulnerability, please report it responsibly:
 2. Create an issue with **[SECURITY]** in the title
 3. See [SECURITY.md](SECURITY.md) for full security policy
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [WireGuard](https://www.wireguard.com/) - Fast, modern, secure VPN tunnel
 - Built with Flask, React, and Docker
 - Inspired by the need for secure, multi-tenant VPN management
 
-## 📞 Support
+## Support
 
 - **Documentation**: [README.md](README.md), [SECURITY.md](SECURITY.md), [DEPLOYMENT.md](DEPLOYMENT.md), [FAQ.md](FAQ.md)
 - **Issues**: [GitHub Issues](https://github.com/Arthur2500/wireguard-multiclient-webui/issues)
@@ -374,4 +374,4 @@ If you discover a security vulnerability, please report it responsibly:
 
 ---
 
-**Made with ❤️ for the WireGuard community**
+**Made for the WireGuard community**

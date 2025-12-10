@@ -114,10 +114,17 @@
   border-top: 1px solid var(--border);
 }
 
-.user-info {
+.user-info-wrapper {
   display: flex;
   align-items: center;
   margin-bottom: var(--spacing-md);
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
   gap: 12px;
   text-decoration: none;
   color: inherit;

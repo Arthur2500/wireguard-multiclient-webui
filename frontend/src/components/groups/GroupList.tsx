@@ -59,7 +59,8 @@ const GroupList: React.FC = () => {
               <tr>
                 <th>Name</th>
                 <th>Owner</th>
-                <th>IP Range</th>
+                <th>IP Range (IPv4)</th>
+                <th>IPv6 Range</th>
                 <th>Server IP</th>
                 <th>Port</th>
                 <th>Clients</th>
@@ -80,6 +81,7 @@ const GroupList: React.FC = () => {
                   </td>
                   <td>{group.owner_username || 'Unknown'}</td>
                   <td className="mono">{group.ip_range}</td>
+                  <td className="mono">{group.ip_range_v6 || '-'}</td>
                   <td className="mono">{group.server_ip}</td>
                   <td>{group.listen_port}</td>
                   <td>{group.client_count}</td>

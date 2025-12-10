@@ -294,7 +294,7 @@ const Stats: React.FC = () => {
                     {group.name}
                   </Link>
                 </td>
-                <td className="group-owner">
+                <td>
                   <Link to={`/users/${group.owner_id}`} className="stats-link">
                     {group.owner}
                   </Link>
@@ -345,7 +345,7 @@ const Stats: React.FC = () => {
                     {client.name}
                   </Link>
                 </td>
-                <td className="group-owner">
+                <td>
                   <Link to={`/groups/${client.group_id}`} className="stats-link">
                     {client.group_name}
                   </Link>

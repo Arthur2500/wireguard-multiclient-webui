@@ -5,14 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-this-jwt-secret}
-      - DATABASE_URL=sqlite:////data/app.db
-      - WG_CONFIG_PATH=/etc/wireguard
     ports:
-      - "51820:51820/udp"
+      - "${WG_DEFAULT_PORT:-51820}:${WG_DEFAULT_PORT:-51820}/udp"
     volumes:
       - ./data:/data
       - ./wireguard:/etc/wireguard
@@ -55,6 +49,3 @@ networks:
   wg-network:
     driver: bridge
     enable_ipv6: true
-    ipam:
-      config:
-        - subnet: fd00::/64

@@ -97,16 +97,18 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
         </ul>
 
         <div className="sidebar-footer">
-          <Link to={user ? `/users/${user.id}/edit-profile` : '#'} className="user-info">
-            <div className="user-avatar">{user?.username.charAt(0).toUpperCase()}</div>
-            <div className="user-details">
-              <span className="user-name">{user?.username}</span>
-              <span className="user-role">{user?.role}</span>
-            </div>
+          <div className="user-info-wrapper">
+            <Link to={user ? `/users/${user.id}/edit-profile` : '#'} className="user-info">
+              <div className="user-avatar">{user?.username.charAt(0).toUpperCase()}</div>
+              <div className="user-details">
+                <span className="user-name">{user?.username}</span>
+                <span className="user-role">{user?.role}</span>
+              </div>
+            </Link>
             <button onClick={toggleDarkMode} className="theme-toggle" aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-          </Link>
+          </div>
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={16} /> Logout
           </button>

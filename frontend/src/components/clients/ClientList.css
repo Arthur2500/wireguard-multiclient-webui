@@ -167,16 +167,17 @@
 .client-name {
   display: block;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--primary);
   margin-bottom: 2px;
 }
 
-.client-name-link {
+.group-link {
   text-decoration: none;
   color: inherit;
 }
 
-.client-name-link:hover .client-name {
+.group-link:hover
+{
   color: var(--primary);
   text-decoration: underline;
 }
@@ -187,13 +188,12 @@
   color: var(--text-secondary);
 }
 
-.group-link {
-  color: var(--primary);
+.client-name-link {
   text-decoration: none;
   font-weight: 500;
 }
 
-.group-link:hover {
+.client-name-link:hover .client-name{
   text-decoration: underline;
 }
 

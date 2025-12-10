@@ -7,14 +7,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-this-jwt-secret}
-      - DATABASE_URL=sqlite:////data/app.db
-      - WG_CONFIG_PATH=/etc/wireguard
     ports:
-      - "51820:51820/udp"
+      - "${WG_DEFAULT_PORT:-51820}:${WG_DEFAULT_PORT:-51820}/udp"
     volumes:
       - ./data:/data
       - ./wireguard:/etc/wireguard
@@ -28,6 +22,12 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.forwarding=1
       - net.ipv6.conf.default.forwarding=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:
@@ -38,14 +38,18 @@ services:
     ports:
       - "8088:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - wg-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 networks:
   wg-network:
     driver: bridge
     enable_ipv6: true
-    ipam:
-      config:
-        - subnet: fd00::/64
