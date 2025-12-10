@@ -141,17 +141,10 @@
   color: var(--text-primary);
 }
 
-.group-card .ip-range {
+.group-card .ip-range, .group-card .ip-range-v6{
   color: var(--primary);
   font-family: monospace;
   margin-bottom: var(--spacing-xs);
-}
-
-.group-card .ip-range-v6 {
-  color: var(--primary-dark);
-  font-family: monospace;
-  margin-bottom: var(--spacing-md);
-  font-size: 13px;
 }
 
 .group-meta {
@@ -199,40 +192,40 @@
   .dashboard {
     padding: var(--spacing-md);
   }
-  
+
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);
   }
-  
+
   .stat-card {
     padding: var(--spacing-md);
     flex-direction: column;
     text-align: center;
   }
-  
+
   .stat-icon {
     margin-right: 0;
     margin-bottom: var(--spacing-sm);
   }
-  
+
   .stat-content h3 {
     font-size: 24px;
   }
-  
+
   .traffic-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .groups-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .section-header .btn-primary {
     width: 100%;
     text-align: center;
