@@ -49,7 +49,7 @@ const GroupList: React.FC = () => {
       {groups.length === 0 ? (
         <div className="empty-state">
           <h2>No groups yet</h2>
-          <p>Create your first WireGuard group to get started.</p>
+          <p style={{ marginBottom: '15px' }}>Create your first WireGuard group to get started.</p>
           <Link to="/groups/new" className="btn-primary">Create Group</Link>
         </div>
       ) : (

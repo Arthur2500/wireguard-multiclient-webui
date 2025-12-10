@@ -113,6 +113,13 @@ def create_group():
             logger.info("Duplicate IPv6 range %s attempted by user_id=%s", str(network_v6), user_id)
             return jsonify({'error': f'IPv6 range {str(network_v6)} is already in use'}), 400
 
+    # Validate listen_port is unique
+    listen_port = data.get('listen_port', 51820)
+    existing_port = Group.query.filter_by(listen_port=listen_port).first()
+    if existing_port:
+        logger.info("Duplicate listen_port %s attempted by user_id=%s", listen_port, user_id)
+        return jsonify({'error': f'Listen port {listen_port} is already in use'}), 400
+
     # Generate WireGuard keys
     private_key, public_key = generate_keypair()
 
@@ -125,7 +132,7 @@ def create_group():
         server_ip=server_ip,
         ip_range_v6=ip_range_v6,
         server_ip_v6=server_ip_v6,
-        listen_port=data.get('listen_port', 51820),
+        listen_port=listen_port,
         dns=data.get('dns', '1.1.1.1, 8.8.8.8'),
         endpoint=data.get('endpoint', ''),
         persistent_keepalive=data.get('persistent_keepalive', 25),
@@ -221,7 +228,22 @@ def update_group(group_id):
 
     # Only admin can change listen_port
     if 'listen_port' in data and user.is_admin():
-        group.listen_port = data['listen_port']
+        new_listen_port = data['listen_port']
+
+        # Check if new listen_port is unique (if it's different from current)
+        if new_listen_port != group.listen_port:
+            existing_port = Group.query.filter(
+                Group.listen_port == new_listen_port,
+                Group.id != group_id
+            ).first()
+            if existing_port:
+                logger.info(
+                    "Listen port %s already in use; update blocked for group_id=%s user_id=%s",
+                    new_listen_port, group_id, user_id
+                )
+                return jsonify({'error': f'Listen port {new_listen_port} is already in use'}), 400
+
+        group.listen_port = new_listen_port
 
     db.session.commit()
 

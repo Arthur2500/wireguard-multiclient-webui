@@ -1,8 +1,8 @@
 /* CSS Variables for Theme */
 :root {
-  --primary: #dc2626;
-  --primary-dark: #b91c1c;
-  --primary-light: #ef4444;
+  --primary: #88171a;
+  --primary-dark: #580006;
+  --primary-light: #b0403c;
 
   /* neutralere, graue Töne */
   --bg-primary: #ffffff;
@@ -47,9 +47,9 @@
 }
 
 [data-theme="dark"] {
-  --primary: #dc2626;
-  --primary-dark: #b91c1c;
-  --primary-light: #ef4444;
+  --primary: #88171a;
+  --primary-dark: #580006;
+  --primary-light: #b0403c;
 
   /* dunkler, neutraler */
   --bg-primary: #121212;     /* vorher 1a1a1a */

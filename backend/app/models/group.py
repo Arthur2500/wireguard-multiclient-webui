@@ -29,7 +29,7 @@ class Group(db.Model):
     server_ip_v6 = db.Column(db.String(39))  # Server's IPv6 in the range
 
     # WireGuard configuration
-    listen_port = db.Column(db.Integer, default=51820)
+    listen_port = db.Column(db.Integer, nullable=True)  # Auto-assigned if not provided
     dns = db.Column(db.String(255), default='1.1.1.1, 8.8.8.8')
     endpoint = db.Column(db.String(255))
     persistent_keepalive = db.Column(db.Integer, default=25)
@@ -106,6 +106,22 @@ class Group(db.Model):
         network = ipaddress.ip_network(self.ip_range_v6, strict=False)
         return str(network.prefixlen)
 
+    def get_auto_listen_port(self):
+        """Get or assign an auto-generated unique listen port based on group ID.
+
+        Returns:
+            int: A unique port number for this group's WireGuard interface
+        """
+        # If port is explicitly set, use it
+        if self.listen_port and self.listen_port > 0:
+            return self.listen_port
+
+        # Generate unique port: base_port (51820) + group_id
+        # This ensures each group gets a unique port
+        # e.g., group 1 -> 51821, group 2 -> 51822, etc.
+        base_port = 51820
+        return base_port + self.id
+
     def to_dict(self):
         """Convert to dictionary."""
         return {
@@ -137,10 +153,13 @@ class Group(db.Model):
         if self.server_ip_v6 and self.ip_range_v6:
             address += f", {self.server_ip_v6}/{self.get_subnet_mask_v6()}"
 
+        # Get unique listen port
+        listen_port = self.get_auto_listen_port()
+
         config = f"""[Interface]
 PrivateKey = {self.server_private_key}
 Address = {address}
-ListenPort = {self.listen_port}
+ListenPort = {listen_port}
 """
 
         # Build PostUp rules for NAT and forwarding (simplified - no peer-to-peer restrictions)
@@ -197,7 +216,7 @@ AllowedIPs = {allowed_ips}
 
     def get_group_config_dir(self):
         """Get the configuration directory path for this group.
-        
+
         Returns a group-specific subdirectory for storing client configs.
         """
         from config import Config
@@ -210,10 +229,10 @@ AllowedIPs = {allowed_ips}
         interface_name = self.get_wireguard_interface_name()
         group_dir = os.path.join(config_path, interface_name)
         return group_dir
-    
+
     def get_server_config_path(self):
         """Get the full path to the server config file.
-        
+
         Returns a path like /etc/wireguard/wg-groupname.conf which wg-quick expects.
         Server config is stored in the base WireGuard directory for wg-quick compatibility.
         """
@@ -222,7 +241,7 @@ AllowedIPs = {allowed_ips}
         config_path = Config.WG_CONFIG_PATH
         if not config_path:
             return None
-        
+
         interface_name = self.get_wireguard_interface_name()
         return os.path.join(config_path, f"{interface_name}.conf")
 
@@ -240,14 +259,14 @@ AllowedIPs = {allowed_ips}
         # Save server config with secure permissions (0600)
         try:
             config_content = self.generate_server_config()
-            
+
             # Write with secure permissions
             with open(server_filepath, 'w') as f:
                 f.write(config_content)
-            
+
             # Set secure permissions (0600 - owner read/write only)
             os.chmod(server_filepath, 0o600)
-            
+
             logger.info("Server config saved for group_id=%s to %s", self.id, server_filepath)
         except Exception as e:
             logger.error("Failed to save server config for group_id=%s: %s", self.id, e, exc_info=True)
@@ -265,7 +284,7 @@ AllowedIPs = {allowed_ips}
 
     def get_wireguard_interface_name(self):
         """Get the WireGuard interface name for this group.
-        
+
         Uses sanitized group name for the interface name (e.g., 'wg-groupname').
         Falls back to group ID if sanitization results in empty string.
         """
@@ -278,20 +297,20 @@ AllowedIPs = {allowed_ips}
             sanitized = sanitized.replace('--', '-')
         # Remove leading/trailing hyphens
         sanitized = sanitized.strip('-')
-        
+
         # Fallback to group ID if name is empty after sanitization
         if not sanitized:
             sanitized = f"group{self.id}"
-        
+
         # Limit length to avoid filesystem issues (max 15 chars for interface name in Linux)
         if len(sanitized) > 12:  # Leave room for 'wg-' prefix
             sanitized = sanitized[:12]
         sanitized = sanitized.rstrip('-')
-        
+
         # Final check: ensure we have a valid name
         if not sanitized:
             sanitized = f"group{self.id}"
-        
+
         return f"wg-{sanitized}"
 
     def start_wireguard(self):
@@ -364,7 +383,7 @@ AllowedIPs = {allowed_ips}
                     logger.info("Server config deleted for group_id=%s from %s", self.id, server_filepath)
             except Exception as e:
                 logger.error("Failed to delete server config for group_id=%s: %s", self.id, e, exc_info=True)
-        
+
         # Delete group directory with all client configs
         group_dir = self.get_group_config_dir()
         if group_dir:
