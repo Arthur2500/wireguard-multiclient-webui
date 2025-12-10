@@ -8,7 +8,6 @@ if 'WG_CONFIG_PATH' not in os.environ:
 
 from app import create_app, db
 from app.routes.auth import limiter
-from app.models.user import User
 
 
 @pytest.fixture

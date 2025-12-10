@@ -2,7 +2,6 @@
 import logging
 from flask import Blueprint, jsonify
 from app import db
-from app.models.group import Group
 
 logger = logging.getLogger(__name__)
 

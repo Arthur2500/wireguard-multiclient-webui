@@ -34,12 +34,10 @@ const GroupForm: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [defaults, setDefaults] = useState<any>(null);
 
   const loadDefaults = useCallback(async () => {
     try {
       const settingsDefaults = await settingsService.getDefaults();
-      setDefaults(settingsDefaults);
 
       // Set initial form data with defaults from backend
       if (!isEdit) {

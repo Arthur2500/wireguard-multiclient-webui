@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import statsService from '../../services/stats.service';
 import groupService from '../../services/group.service';
 import { StatsOverview, Group, User } from '../../types';
-import { formatBytes } from '../../utils/helpers';
 import { FolderOpen, Monitor, CheckCircle, Users, Plug } from 'lucide-react';
 import './Dashboard.css';
 

@@ -4,12 +4,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
 from app.models.group import Group
 from app.utils.wireguard import generate_keypair
-from app.utils.decorators import admin_required
 from app import db
 import ipaddress
 import zipfile
 import io
-import os
 
 logger = logging.getLogger(__name__)
 
