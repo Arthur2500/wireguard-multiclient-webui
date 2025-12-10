@@ -69,13 +69,13 @@ function App() {
                   <Route path="/dashboard" element={<Dashboard user={user} />} />
 
                   {/* Groups */}
-                  <Route path="/groups" element={<GroupList />} />
+                  <Route path="/groups" element={<GroupList user={user} />} />
                   <Route path="/groups/new" element={<GroupForm />} />
                   <Route path="/groups/:id" element={<GroupDetail />} />
                   <Route path="/groups/:id/edit" element={<GroupForm />} />
 
                   {/* Clients */}
-                  <Route path="/clients" element={<ClientList />} />
+                  <Route path="/clients" element={<ClientList user={user} />} />
                   <Route path="/clients/:id" element={<ClientDetail />} />
                   <Route path="/groups/:groupId/clients/new" element={<ClientForm />} />
                   <Route path="/clients/:id/edit" element={<ClientForm />} />

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import groupService from '../../services/group.service';
-import { Group } from '../../types';
+import { Group, User } from '../../types';
 import './GroupList.css';
 
-const GroupList: React.FC = () => {
+interface GroupListProps {
+  user: User | null;
+}
+
+const GroupList: React.FC<GroupListProps> = ({ user }) => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -41,7 +45,9 @@ const GroupList: React.FC = () => {
     <div className="group-list-container">
       <div className="page-header">
         <h1>WireGuard Groups</h1>
-        <Link to="/groups/new" className="btn-primary">+ New Group</Link>
+        {user?.can_create_groups && (
+          <Link to="/groups/new" className="btn-primary">+ New Group</Link>
+        )}
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -50,7 +56,9 @@ const GroupList: React.FC = () => {
         <div className="empty-state">
           <h2>No groups yet</h2>
           <p style={{ marginBottom: '15px' }}>Create your first WireGuard group to get started.</p>
-          <Link to="/groups/new" className="btn-primary">Create Group</Link>
+          {user?.can_create_groups && (
+            <Link to="/groups/new" className="btn-primary">Create Group</Link>
+          )}
         </div>
       ) : (
         <div className="groups-table-container">

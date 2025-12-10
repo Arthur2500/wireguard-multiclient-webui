@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import clientService from '../../services/client.service';
 import groupService from '../../services/group.service';
-import { Client, Group } from '../../types';
+import { Client, Group, User } from '../../types';
 import { formatBytes, downloadFile, formatDate } from '../../utils/helpers';
 import { Download, Lock, Unlock, Pencil, Trash2, Search } from 'lucide-react';
 import './ClientList.css';
 
-const ClientList: React.FC = () => {
+interface ClientListProps {
+  user: User | null;
+}
+
+const ClientList: React.FC<ClientListProps> = ({ user }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,9 +93,11 @@ const ClientList: React.FC = () => {
       <div className="page-header">
         <h1>All Clients</h1>
         <div className="header-actions">
-          <button onClick={() => setShowCreateModal(true)} className="btn-primary">
-            + New Client
-          </button>
+          {user?.can_create_clients && (
+            <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+              + New Client
+            </button>
+          )}
         </div>
       </div>
 
