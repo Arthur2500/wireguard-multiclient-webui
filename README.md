@@ -183,6 +183,8 @@ python -m pytest tests/ -v
 
 - **[Production Deployment Guide](DEPLOYMENT.md)** - Complete guide for production deployment
 - **[Security Best Practices](SECURITY.md)** - Security hardening and best practices
+- **[Security Audit Report](SECURITY-AUDIT.md)** - Comprehensive security assessment
+- **[FAQ](FAQ.md)** - Frequently Asked Questions
 - **[API Documentation](#api-endpoints)** - API endpoint reference below
 
 ## 🔒 Security
@@ -365,9 +367,10 @@ If you discover a security vulnerability, please report it responsibly:
 
 ## 📞 Support
 
+- **Documentation**: [README.md](README.md), [SECURITY.md](SECURITY.md), [DEPLOYMENT.md](DEPLOYMENT.md), [FAQ.md](FAQ.md)
 - **Issues**: [GitHub Issues](https://github.com/Arthur2500/wireguard-multiclient-webui/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Arthur2500/wireguard-multiclient-webui/discussions)
-- **Documentation**: See README.md, SECURITY.md, and DEPLOYMENT.md
+- **FAQ**: See [FAQ.md](FAQ.md) for common questions
 
 ---
 
