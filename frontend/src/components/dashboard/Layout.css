@@ -220,6 +220,7 @@
   flex-direction: column;
   background: var(--bg-secondary);
   min-height: 100vh;
+  max-width: 100vw;
 }
 
 .main-content {
