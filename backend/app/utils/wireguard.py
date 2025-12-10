@@ -94,7 +94,8 @@ def start_wireguard_interface(interface_name, config_path):
     """
     try:
         # Validate interface name to prevent command injection
-        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+        # Interface names must start with alphanumeric, can contain hyphens, max 15 chars
+        if not re.match(r'^[a-z0-9][a-z0-9\-]{0,14}$', interface_name):
             logger.error("Invalid interface name: %s", interface_name)
             return False
         
@@ -144,7 +145,8 @@ def stop_wireguard_interface(interface_name):
     """
     try:
         # Validate interface name to prevent command injection
-        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+        # Interface names must start with alphanumeric, can contain hyphens, max 15 chars
+        if not re.match(r'^[a-z0-9][a-z0-9\-]{0,14}$', interface_name):
             logger.error("Invalid interface name: %s", interface_name)
             return False
         
@@ -194,7 +196,8 @@ def get_wireguard_stats(interface_name):
     """
     try:
         # Validate interface name to prevent command injection
-        if not re.match(r'^[a-z0-9\-]{1,15}$', interface_name):
+        # Interface names must start with alphanumeric, can contain hyphens, max 15 chars
+        if not re.match(r'^[a-z0-9][a-z0-9\-]{0,14}$', interface_name):
             logger.error("Invalid interface name: %s", interface_name)
             return None
         

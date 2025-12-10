@@ -41,9 +41,16 @@ def create_app(config_name=None):
         # Enable XSS protection
         response.headers['X-XSS-Protection'] = '1; mode=block'
         
-        # Content Security Policy - adjust based on your needs
-        # This is a restrictive policy; you may need to adjust for your frontend
-        response.headers['Content-Security-Policy'] = "default-src 'self'"
+        # Content Security Policy
+        # Note: This is configured for the API backend. Frontend may need adjustments.
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
+            "font-src 'self' data:; "
+            "connect-src 'self'"
+        )
         
         # Referrer Policy
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'

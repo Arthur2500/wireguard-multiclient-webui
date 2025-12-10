@@ -234,10 +234,13 @@ def sanitize_interface_name(name, max_length=15):
         max_length: Maximum length for interface name (default: 15 for Linux)
         
     Returns:
-        str: Sanitized interface name
+        str: Sanitized interface name that matches pattern ^[a-z0-9][a-z0-9\-]{0,14}$
     """
-    # Convert to lowercase and replace spaces/special chars with hyphens
-    sanitized = re.sub(r'[^\w\-]', '-', name.lower())
+    # Convert to lowercase
+    sanitized = name.lower()
+    
+    # Replace spaces and non-alphanumeric chars (except hyphens) with hyphens
+    sanitized = re.sub(r'[^a-z0-9\-]', '-', sanitized)
     
     # Remove multiple consecutive hyphens
     sanitized = re.sub(r'-+', '-', sanitized)
@@ -245,12 +248,16 @@ def sanitize_interface_name(name, max_length=15):
     # Remove leading/trailing hyphens
     sanitized = sanitized.strip('-')
     
+    # Ensure it starts with alphanumeric (not hyphen)
+    if sanitized and not sanitized[0].isalnum():
+        sanitized = 'wg-' + sanitized
+    
     # Truncate to max_length
     if len(sanitized) > max_length:
         sanitized = sanitized[:max_length].rstrip('-')
     
-    # Ensure it's not empty
-    if not sanitized:
+    # Ensure it's not empty and starts with alphanumeric
+    if not sanitized or not sanitized[0].isalnum():
         sanitized = 'wg0'
     
     return sanitized

@@ -22,9 +22,8 @@ def health_check():
 def readiness_check():
     """Readiness check that verifies database connectivity."""
     try:
-        # Test database connection
+        # Test database connection with a simple query
         db.session.execute(db.text('SELECT 1'))
-        db.session.commit()
         
         return jsonify({
             'status': 'ready',
