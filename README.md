@@ -3,17 +3,13 @@
 A production-ready web-based management interface for WireGuard VPN, featuring multi-user support, group management, and comprehensive security features.
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
-![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
-![Security](https://img.shields.io/badge/security-hardened-green.svg)
+[![Docker Image CI for Main Branch](https://github.com/Arthur2500/wireguard-multiclient-webui/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Arthur2500/wireguard-multiclient-webui/actions/workflows/docker-publish.yml)
 
 ## Screenshots
-
-> **Note**: Screenshots showing the application interface will be added here. The application features:
-> - Modern, responsive web interface
-> - Dashboard with system overview and statistics
-> - Group management interface for creating and managing VPN networks
-> - Client management with configuration download
-> - Real-time traffic statistics and monitoring
+<img width="1440" height="812" alt="image" src="https://github.com/user-attachments/assets/fc03d12c-e1e3-43cd-9811-ca646ae0b16b" />
+<img width="1440" height="809" alt="image" src="https://github.com/user-attachments/assets/41d1d75a-c0cf-451a-befb-0d6f6162a020" />
+<img width="1440" height="799" alt="image" src="https://github.com/user-attachments/assets/ea2f0ff8-00f2-4b3f-8ac1-02affc47ca9f" />
+<img width="1440" height="809" alt="image" src="https://github.com/user-attachments/assets/fabd8996-8c1d-4c2f-b5e4-5cf2fbef4e5e" />
 
 ## Features
 
