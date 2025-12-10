@@ -1,9 +1,15 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: var(--bg-secondary);
+  flex: 1;
   padding: var(--spacing-lg);
 }
 
@@ -128,7 +134,7 @@
   .login-box {
     padding: var(--spacing-xl) var(--spacing-lg);
   }
-  
+
   .login-container {
     padding: var(--spacing-md);
   }

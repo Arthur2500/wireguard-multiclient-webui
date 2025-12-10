@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import authService from '../../services/auth.service';
 import { Shield, LayoutDashboard, FolderOpen, Users, BarChart3, LogOut, Sun, Moon, Menu, X, Monitor } from 'lucide-react';
+import Footer from './Footer';
 import './Layout.css';
 
 interface LayoutProps {
@@ -112,9 +113,12 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
         </div>
       </nav>
 
-      <main className="main-content">
-        {children}
-      </main>
+      <div className="main-wrapper">
+        <main className="main-content">
+          {children}
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
