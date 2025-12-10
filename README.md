@@ -1,10 +1,21 @@
 # WireGuard Multi-Client WebUI
 
-A simple web-based management interface for WireGuard VPN as a wg-quick wrapper, featuring multi-user support and group management with automatic restart on container/application startup.
+A production-ready web-based management interface for WireGuard VPN, featuring multi-user support, group management, and comprehensive security features.
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
+![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
+![Security](https://img.shields.io/badge/security-hardened-green.svg)
 
-## Features
+## 📸 Screenshots
+
+> **Note**: Screenshots showing the application interface will be added here. The application features:
+> - Modern, responsive web interface
+> - Dashboard with system overview and statistics
+> - Group management interface for creating and managing VPN networks
+> - Client management with configuration download
+> - Real-time traffic statistics and monitoring
+
+## ✨ Features
 
 ### 1. Account Management System
 - **Admin Role**: Full system access, user management, global settings
@@ -48,13 +59,17 @@ A simple web-based management interface for WireGuard VPN as a wg-quick wrapper,
 - Connection logging
 
 ### 6. Security Features
-- JWT token authentication
+- JWT token authentication with configurable expiration
 - Role-based access control (RBAC)
 - Password hashing with bcrypt
-- Optional preshared key support (configured via environment variable)
-- Input validation
+- Optional preshared key support
+- Input validation and sanitization
+- Command injection prevention
+- Security headers (CSP, HSTS, X-Frame-Options, etc.)
+- Rate limiting on authentication endpoints
+- Health check endpoints for monitoring
 
-## Quick Start with Docker
+## 🚀 Quick Start with Docker
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -161,10 +176,51 @@ npm start
 
 ```bash
 cd backend
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
+## 📚 Documentation
+
+- **[Production Deployment Guide](DEPLOYMENT.md)** - Complete guide for production deployment
+- **[Security Best Practices](SECURITY.md)** - Security hardening and best practices
+- **[API Documentation](#api-endpoints)** - API endpoint reference below
+
+## 🔒 Security
+
+This application implements multiple security layers:
+
+- **Authentication**: JWT tokens with bcrypt password hashing
+- **Authorization**: Role-based access control
+- **Input Validation**: All inputs sanitized and validated
+- **Security Headers**: CSP, HSTS, X-Frame-Options, and more
+- **Rate Limiting**: Protection against brute force attacks
+- **Command Injection Prevention**: Validated interface names and commands
+
+**⚠️ Important**: Before deploying to production, read [SECURITY.md](SECURITY.md) and follow all recommendations.
+
+### Quick Security Checklist
+
+- [ ] Change default admin password
+- [ ] Set secure `SECRET_KEY` and `JWT_SECRET_KEY`
+- [ ] Enable HTTPS with valid certificates
+- [ ] Configure firewall rules
+- [ ] Set up regular backups
+- [ ] Review [SECURITY.md](SECURITY.md) completely
+
+## 📊 Health Checks
+
+The application provides health check endpoints for monitoring:
+
+- `GET /api/health` - Basic health check
+- `GET /api/ready` - Readiness check with database connectivity
+
+Use these endpoints with Docker health checks, load balancers, or monitoring systems.
+
 ## API Endpoints
+
+### Health & Monitoring
+- `GET /api/health` - Health check
+- `GET /api/ready` - Readiness check with DB connectivity
 
 ### Authentication
 - `POST /api/auth/login` - User login
@@ -204,28 +260,82 @@ pytest tests/ -v
 ```
 ┌─────────────────┐     ┌─────────────────┐
 │   React SPA     │────▶│   Nginx Proxy   │
-│   (Frontend)    │     │                 │
+│   (Frontend)    │     │   (Optional)    │
 └─────────────────┘     └────────┬────────┘
                                  │
                                  ▼
                         ┌─────────────────┐
                         │   Flask API     │
-                        │   (Backend)     │
+                        │   + Gunicorn    │
                         └────────┬────────┘
                                  │
                     ┌────────────┴────────────┐
                     ▼                         ▼
            ┌─────────────────┐      ┌─────────────────┐
-           │   SQLite DB     │      │   WireGuard     │
-           │                 │      │   Configs       │
+           │   SQLite/       │      │   WireGuard     │
+           │   PostgreSQL    │      │   (wg-quick)    │
            └─────────────────┘      └─────────────────┘
 ```
 
-## License
+## 🔧 Troubleshooting
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+### Container Issues
 
-## Contributing
+```bash
+# Check container status
+docker-compose ps
+
+# View logs
+docker-compose logs -f backend
+
+# Restart services
+docker-compose restart
+```
+
+### WireGuard Issues
+
+```bash
+# Check interfaces
+sudo wg show
+
+# Verify IP forwarding
+sysctl net.ipv4.ip_forward
+
+# Check WireGuard module
+lsmod | grep wireguard
+```
+
+### Database Issues
+
+```bash
+# Check file permissions
+ls -la data/
+
+# Stop and backup before manual intervention
+docker-compose down
+cp data/app.db data/app.db.backup
+```
+
+For more troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## 📈 Performance
+
+### Recommended Resources
+
+- **Small Deployment** (< 50 users): 1 CPU, 1GB RAM
+- **Medium Deployment** (50-500 users): 2 CPU, 2GB RAM  
+- **Large Deployment** (500+ users): 4 CPU, 4GB RAM, PostgreSQL
+
+### Optimization Tips
+
+1. Increase `STATS_COLLECTION_INTERVAL` for systems with many clients
+2. Use PostgreSQL instead of SQLite for > 100 concurrent users
+3. Increase Gunicorn workers for high traffic
+4. Enable nginx caching for static assets
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for scaling details.
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -233,6 +343,32 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## Security
+Please ensure your code follows the existing style and includes appropriate tests.
 
-If you discover a security vulnerability, please report it privately by opening an issue with "[SECURITY]" in the title.
+## 📝 License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+## 🔐 Security
+
+If you discover a security vulnerability, please report it responsibly:
+
+1. **Do not** open a public GitHub issue
+2. Create an issue with **[SECURITY]** in the title
+3. See [SECURITY.md](SECURITY.md) for full security policy
+
+## 🙏 Acknowledgments
+
+- [WireGuard](https://www.wireguard.com/) - Fast, modern, secure VPN tunnel
+- Built with Flask, React, and Docker
+- Inspired by the need for secure, multi-tenant VPN management
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/Arthur2500/wireguard-multiclient-webui/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Arthur2500/wireguard-multiclient-webui/discussions)
+- **Documentation**: See README.md, SECURITY.md, and DEPLOYMENT.md
+
+---
+
+**Made with ❤️ for the WireGuard community**
