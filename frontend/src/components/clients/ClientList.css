@@ -150,6 +150,21 @@
   border-bottom: 1px solid var(--border);
   font-size: 14px;
   color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.clients-table td.actions {
+  padding: 0;
+}
+
+.clients-table td.actions .actions-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .clients-table tbody tr {
@@ -231,12 +246,7 @@
   color: var(--text-secondary);
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+
 
 .btn-action {
   display: inline-flex;

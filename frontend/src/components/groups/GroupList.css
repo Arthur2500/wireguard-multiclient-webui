@@ -37,6 +37,7 @@
   padding: var(--spacing-md);
   text-align: left;
   border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .groups-table th {
@@ -88,10 +89,18 @@
   color: #d97706;
 }
 
-.actions {
+.groups-table td.actions {
+  padding: 0;
+}
+
+.groups-table td.actions .actions-wrapper {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+  padding: var(--spacing-md);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .btn-action {

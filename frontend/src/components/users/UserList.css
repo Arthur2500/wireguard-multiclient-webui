@@ -37,6 +37,7 @@
   padding: var(--spacing-md);
   text-align: left;
   border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .users-table th {
@@ -84,10 +85,18 @@
   color: var(--text-muted);
 }
 
-.actions {
+.users-table td.actions {
+  padding: 0;
+}
+
+.users-table td.actions .actions-wrapper {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+  padding: var(--spacing-md);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .btn-action {

@@ -201,30 +201,32 @@ const ClientList: React.FC<ClientListProps> = ({ user }) => {
                     </td>
                     <td>{formatDate(client.last_handshake)}</td>
                     <td className="actions">
-                      <button
-                        onClick={() => handleDownloadClientConfig(client.id)}
-                        className="btn-action"
-                        title="Download Config"
-                      >
-                        <Download size={14} /> Config
-                      </button>
-                      <button
-                        onClick={() => handleToggleClientActive(client)}
-                        className="btn-action"
-                        title={client.is_active ? 'Disable' : 'Enable'}
-                      >
-                        {client.is_active ? <><Lock size={14} /> Disable</> : <><Unlock size={14} /> Enable</>}
-                      </button>
-                      <Link to={`/clients/${client.id}/edit`} className="btn-action" title="Edit">
-                        <Pencil size={14} /> Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClient(client.id)}
-                        className="btn-action btn-danger"
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="actions-wrapper">
+                        <button
+                          onClick={() => handleDownloadClientConfig(client.id)}
+                          className="btn-action"
+                          title="Download Config"
+                        >
+                          <Download size={14} /> Config
+                        </button>
+                        <button
+                          onClick={() => handleToggleClientActive(client)}
+                          className="btn-action"
+                          title={client.is_active ? 'Disable' : 'Enable'}
+                        >
+                          {client.is_active ? <><Lock size={14} /> Disable</> : <><Unlock size={14} /> Enable</>}
+                        </button>
+                        <Link to={`/clients/${client.id}/edit`} className="btn-action" title="Edit">
+                          <Pencil size={14} /> Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteClient(client.id)}
+                          className="btn-action btn-danger"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

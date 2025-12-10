@@ -94,11 +94,13 @@ const UserList: React.FC = () => {
                   </td>
                   <td>{user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
                   <td className="actions">
-                    <Link to={`/users/${user.id}`} className="btn-action">View</Link>
-                    <Link to={`/users/${user.id}/edit`} className="btn-action">Edit</Link>
-                    <button onClick={() => handleDelete(user.id)} className="btn-action btn-danger">
-                      Delete
-                    </button>
+                    <div className="actions-wrapper">
+                      <Link to={`/users/${user.id}`} className="btn-action">View</Link>
+                      <Link to={`/users/${user.id}/edit`} className="btn-action">Edit</Link>
+                      <button onClick={() => handleDelete(user.id)} className="btn-action btn-danger">
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
